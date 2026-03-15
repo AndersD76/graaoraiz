@@ -1,13 +1,191 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
-  output   = "../app/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  phone         String?
+  password      String?
+  role          Role      @default(PRODUTOR)
+  plano         Plano     @default(GRATUITO)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  propriedade Propriedade?
+  alertas     Alerta[]
+  accounts    Account[]
+  sessions    Session[]
+}
+
+enum Role {
+  PRODUTOR
+  COOPERATIVA
+  ADMIN
+}
+
+enum Plano {
+  GRATUITO
+  BASICO
+  PRO
+  COOPERATIVA
+}
+
+model Propriedade {
+  id        String   @id @default(cuid())
+  nome      String
+  municipio String
+  estado    String   @default("RS")
+  areaTotal Float
+  nirf      String?
+  car       String?
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [id])
+  talhoes   Talhao[]
+  createdAt DateTime @default(now())
+}
+
+model Talhao {
+  id            String       @id @default(cuid())
+  nome          String
+  area          Float
+  cultura       Cultura
+  safra         String
+  status        StatusTalhao @default(ATIVO)
+  geojson       Json?
+  latitude      Float?
+  longitude     Float?
+  propriedadeId String
+  propriedade   Propriedade  @relation(fields: [propriedadeId], references: [id])
+  aplicacoes    Aplicacao[]
+  lotes         Lote[]
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+enum Cultura {
+  SOJA
+  MILHO
+  TRIGO
+  AVEIA
+  CANOLA
+  OUTRO
+}
+
+enum StatusTalhao {
+  ATIVO
+  COLHIDO
+  POUSIO
+}
+
+model Aplicacao {
+  id         String        @id @default(cuid())
+  talhaoId   String
+  talhao     Talhao        @relation(fields: [talhaoId], references: [id])
+  tipo       TipoAplicacao
+  produto    String
+  fabricante String?
+  dose       Float
+  unidade    String        @default("L/ha")
+  data       DateTime
+  operador   String
+  nota       String?
+  createdAt  DateTime      @default(now())
+}
+
+enum TipoAplicacao {
+  HERBICIDA
+  FUNGICIDA
+  INSETICIDA
+  FERTILIZANTE
+  SEMENTE
+  OUTRO
+}
+
+model Lote {
+  id          String   @id @default(cuid())
+  talhaoId    String
+  talhao      Talhao   @relation(fields: [talhaoId], references: [id])
+  numeroLote  String
+  peso        Float
+  sacas       Float
+  destino     String
+  dataEntrega DateTime
+  nfe         String?
+  ticket      String?
+  preco       Float?
+  createdAt   DateTime @default(now())
+}
+
+model Alerta {
+  id          String      @id @default(cuid())
+  userId      String
+  user        User        @relation(fields: [userId], references: [id])
+  tipo        TipoAlerta
+  cultura     Cultura     @default(SOJA)
+  precoMeta   Float?
+  canal       CanalAlerta @default(APP)
+  ativo       Boolean     @default(true)
+  disparadoEm DateTime?
+  createdAt   DateTime    @default(now())
+}
+
+enum TipoAlerta {
+  PRECO_META
+  VARIACAO_PERCENTUAL
+  PRAZO_EUDR
+  PRAZO_CONTRATO
+}
+
+enum CanalAlerta {
+  APP
+  WHATSAPP
+  EMAIL
+}
+
+model PrecoCotacao {
+  id          String   @id @default(cuid())
+  cooperativa String
+  municipio   String
+  cultura     Cultura
+  preco       Float
+  basis       Float?
+  fonte       String
+  coletadoEm  DateTime @default(now())
+
+  @@index([cultura, coletadoEm])
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+  user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
