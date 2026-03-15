@@ -120,11 +120,11 @@ export default function AlertasPage() {
           </p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-          <DialogTrigger
-            render={<Button className="bg-brand-accent text-brand-bg hover:bg-brand-dim" />}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Novo Alerta
+          <DialogTrigger asChild>
+            <Button className="bg-brand-accent text-brand-bg hover:bg-brand-dim">
+              <Plus className="h-4 w-4 mr-2" />
+              Novo Alerta
+            </Button>
           </DialogTrigger>
           <DialogContent className="bg-brand-surface border-brand-border">
             <DialogHeader>

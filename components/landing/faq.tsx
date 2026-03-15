@@ -60,10 +60,11 @@ export default function FAQ() {
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.15 }}
         >
-          <Accordion className="space-y-3">
+          <Accordion type="single" collapsible className="space-y-3">
             {faqs.map((faq, i) => (
               <AccordionItem
                 key={i}
+                value={`item-${i}`}
                 className="rounded-xl border border-brand-border bg-brand-surface px-6 !border-b"
               >
                 <AccordionTrigger className="py-5 text-left text-brand-text hover:no-underline text-base">

@@ -44,7 +44,7 @@ import {
   CheckCircle2,
   XCircle,
 } from "lucide-react";
-import type { MapMarker } from "@/components/app/leaflet-map";
+import type { MapMarker } from "@/lib/types";
 
 const LeafletMap = dynamic(() => import("@/components/app/leaflet-map"), {
   ssr: false,
@@ -445,13 +445,11 @@ export default function TalhaoDetailPage() {
         </div>
         <div className="flex gap-2">
           <Dialog open={aplicacaoOpen} onOpenChange={setAplicacaoOpen}>
-            <DialogTrigger
-              render={
-                <Button className="bg-brand-accent text-brand-bg hover:bg-brand-accent/90 font-medium" />
-              }
-            >
-              <Droplets className="h-4 w-4 mr-2" />
-              Registrar Aplicação
+            <DialogTrigger asChild>
+              <Button className="bg-brand-accent text-brand-bg hover:bg-brand-accent/90 font-medium">
+                <Droplets className="h-4 w-4 mr-2" />
+                Registrar Aplicação
+              </Button>
             </DialogTrigger>
             <DialogContent className="bg-brand-surface border-brand-border sm:max-w-lg">
               <DialogHeader>
@@ -561,16 +559,14 @@ export default function TalhaoDetailPage() {
           </Dialog>
 
           <Dialog open={loteOpen} onOpenChange={setLoteOpen}>
-            <DialogTrigger
-              render={
-                <Button
-                  variant="outline"
-                  className="border-brand-border text-brand-text hover:bg-brand-alt"
-                />
-              }
-            >
-              <Package className="h-4 w-4 mr-2" />
-              Registrar Entrega
+            <DialogTrigger asChild>
+              <Button
+                variant="outline"
+                className="border-brand-border text-brand-text hover:bg-brand-alt"
+              >
+                <Package className="h-4 w-4 mr-2" />
+                Registrar Entrega
+              </Button>
             </DialogTrigger>
             <DialogContent className="bg-brand-surface border-brand-border sm:max-w-lg">
               <DialogHeader>

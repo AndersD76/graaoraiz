@@ -15,7 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Plus, MapPin, Eye } from "lucide-react";
-import type { MapMarker } from "@/components/app/leaflet-map";
+import type { MapMarker } from "@/lib/types";
 
 const LeafletMap = dynamic(() => import("@/components/app/leaflet-map"), {
   ssr: false,
