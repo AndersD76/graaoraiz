@@ -8,6 +8,7 @@ import { X } from "lucide-react";
 import { Sidebar } from "@/components/app/sidebar";
 import { Header } from "@/components/app/header";
 import { Providers } from "@/components/app/providers";
+import { WhitelabelProvider } from "@/lib/whitelabel-context";
 
 function OnboardingBanner() {
   const pathname = usePathname();
@@ -95,7 +96,9 @@ function AppShell({ children }: { children: React.ReactNode }) {
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <Providers>
-      <AppShell>{children}</AppShell>
+      <WhitelabelProvider>
+        <AppShell>{children}</AppShell>
+      </WhitelabelProvider>
     </Providers>
   );
 }
