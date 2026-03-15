@@ -24,8 +24,8 @@ const modules = [
     description:
       "Rastreabilidade geoespacial do plantio à entrega. Cada talhão mapeado, cada operação registrada.",
     color: "brand-accent",
-    image: "https://images.unsplash.com/photo-1530836176759-510f58ebee44?w=800&q=80",
-    imageAlt: "Produtor rural usando tablet no campo de soja",
+    image: "https://images.unsplash.com/photo-1589923188651-268a9765e432?w=800&q=80",
+    imageAlt: "Tecnologia digital no campo agrícola",
     features: [
       { icon: MapPin, text: "Georreferenciamento de talhões com GPS" },
       { icon: FileCheck, text: "Registro digital de operações no campo" },
