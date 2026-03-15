@@ -18,8 +18,8 @@ const steps = [
     icon: Rows3,
     title: "Registre no campo",
     desc: "Cada plantio, aplicação e colheita vira um registro digital com data, local e responsável.",
-    image: "https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=600&q=80",
-    imageAlt: "Plantio mecanizado em lavoura",
+    image: "https://images.unsplash.com/photo-1592982537447-6f2a6a0c7c10?w=600&q=80",
+    imageAlt: "Plantadeira moderna em lavoura de soja",
   },
   {
     num: "03",

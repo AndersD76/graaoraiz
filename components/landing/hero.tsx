@@ -118,8 +118,8 @@ export default function Hero() {
                 </div>
                 <div className="relative rounded-lg overflow-hidden">
                   <Image
-                    src="https://images.unsplash.com/photo-1574943320219-553eb213f72d?w=800&q=80"
-                    alt="Dashboard de rastreabilidade agrícola"
+                    src="https://images.unsplash.com/photo-1593113598332-cd288d649433?w=800&q=80"
+                    alt="Lavoura de soja moderna com maquinário"
                     width={600}
                     height={380}
                     className="object-cover rounded-lg"

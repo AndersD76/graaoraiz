@@ -82,15 +82,11 @@ const plans: Plan[] = [
     features: [
       "Tudo do Pro +",
       "Painel multi-produtor consolidado",
-      "Gestão de associados ilimitados",
-      "Relatórios EUDR consolidados",
+      "Associados e relatórios EUDR ilimitados",
       "Whitelabel (logo e cores da cooperativa)",
-      "Integração com ERP da cooperativa",
-      "API completa de dados",
+      "API completa + integração ERP",
       "Dashboard gerencial por região",
-      "Alertas de preço em massa",
-      "Suporte dedicado com SLA",
-      "Treinamento presencial da equipe",
+      "Suporte dedicado com SLA + treinamento",
     ],
   },
 ];
@@ -114,7 +110,7 @@ export default function Planos() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 items-start">
           {plans.map((plan, i) => (
             <motion.div
               key={plan.name}
@@ -124,7 +120,7 @@ export default function Planos() {
               transition={{ duration: 0.5, delay: i * 0.15 }}
               className={`relative rounded-2xl border p-8 flex flex-col ${
                 plan.popular
-                  ? "border-brand-accent bg-brand-surface shadow-lg shadow-brand-accent/10 scale-[1.02]"
+                  ? "border-brand-accent bg-brand-surface shadow-lg shadow-brand-accent/10 lg:scale-[1.03]"
                   : plan.enterprise
                   ? "border-brand-gold bg-brand-surface shadow-lg shadow-brand-gold/10"
                   : "border-brand-border bg-brand-surface"
@@ -160,7 +156,7 @@ export default function Planos() {
                 </div>
               </div>
 
-              <ul className="space-y-3 mb-8 flex-1">
+              <ul className="space-y-3 mb-8">
                 {plan.features.map((f) => (
                   <li key={f} className="flex items-start gap-2.5">
                     <Check className="w-4 h-4 text-brand-accent mt-0.5 shrink-0" />
