@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { ArrowLeft, MapPin, Save } from "lucide-react";
+import { ArrowLeft, MapPin, Save, Navigation, Loader2 } from "lucide-react";
 import Link from "next/link";
 
 const LeafletMap = dynamic(() => import("@/components/app/leaflet-map"), {
@@ -46,10 +46,40 @@ export default function NovoTalhaoPage() {
   const [safra, setSafra] = useState("2025/26");
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
+  const [gpsLoading, setGpsLoading] = useState(false);
+  const [gpsError, setGpsError] = useState("");
 
   const handleMapClick = (lat: number, lng: number) => {
     setLatitude(lat);
     setLongitude(lng);
+    setGpsError("");
+  };
+
+  const handleUseGPS = () => {
+    if (!navigator.geolocation) {
+      setGpsError("Geolocalização não suportada neste navegador.");
+      return;
+    }
+    setGpsLoading(true);
+    setGpsError("");
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setLatitude(position.coords.latitude);
+        setLongitude(position.coords.longitude);
+        setGpsLoading(false);
+      },
+      (err) => {
+        setGpsLoading(false);
+        if (err.code === 1) {
+          setGpsError("Permissão de localização negada. Ative nas configurações do navegador.");
+        } else if (err.code === 2) {
+          setGpsError("Localização indisponível. Verifique o GPS do dispositivo.");
+        } else {
+          setGpsError("Tempo esgotado ao obter localização. Tente novamente.");
+        }
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -195,16 +225,37 @@ export default function NovoTalhaoPage() {
               Localização
             </CardTitle>
             <p className="text-xs text-brand-muted">
-              Clique no mapa para definir as coordenadas do talhão
+              Clique no mapa ou use o GPS do celular para definir as coordenadas
             </p>
           </CardHeader>
           <CardContent className="space-y-3">
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleUseGPS}
+                disabled={gpsLoading}
+                className="border-brand-accent/40 text-brand-accent hover:bg-brand-accent/10"
+              >
+                {gpsLoading ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : (
+                  <Navigation className="h-4 w-4 mr-2" />
+                )}
+                {gpsLoading ? "Obtendo localização..." : "Usar GPS do celular"}
+              </Button>
+              {gpsError && (
+                <span className="text-red-400 text-xs self-center">{gpsError}</span>
+              )}
+            </div>
             <div className="h-[300px] rounded-lg overflow-hidden">
               <LeafletMap
                 center={[-28.2622, -52.4083]}
                 zoom={13}
                 markers={markers}
                 onClick={handleMapClick}
+                flyTo={latitude && longitude ? [latitude, longitude] : null}
               />
             </div>
             {latitude && longitude && (
