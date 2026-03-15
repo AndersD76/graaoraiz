@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { ShieldAlert, FileX, TrendingDown } from "lucide-react";
 
 const cards = [
@@ -8,16 +9,22 @@ const cards = [
     icon: ShieldAlert,
     title: "Bloqueio na exportação",
     desc: "A partir de dez/2025, a UE exige prova de que sua soja não veio de área desmatada. Sem compliance, sem venda.",
+    image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=600&q=80",
+    imageAlt: "Porto de exportação de grãos",
   },
   {
     icon: FileX,
     title: "Cadernos de papel",
     desc: "Planilhas e cadernetas manuais não geram rastreabilidade verificável. Auditores rejeitam documentação analógica.",
+    image: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?w=600&q=80",
+    imageAlt: "Documentos e papéis desorganizados",
   },
   {
     icon: TrendingDown,
     title: "Prejuízo invisível",
     desc: "Sem dados de mercado em tempo real, produtores vendem na baixa e perdem milhares por safra sem perceber.",
+    image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600&q=80",
+    imageAlt: "Gráfico de mercado financeiro",
   },
 ];
 
@@ -34,6 +41,18 @@ export default function Problema() {
   return (
     <section id="problema" className="py-24 sm:py-32">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+          className="text-center mb-4"
+        >
+          <span className="inline-block text-xs font-mono font-semibold px-3 py-1 rounded-full bg-red-400/10 text-red-400 mb-4 uppercase tracking-wider">
+            O problema
+          </span>
+        </motion.div>
+
         <motion.h2
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -65,37 +84,54 @@ export default function Problema() {
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true }}
-              className="rounded-xl border border-brand-border bg-brand-surface p-8 hover:border-red-400/40 transition-colors"
+              className="rounded-2xl border border-brand-border bg-brand-surface overflow-hidden hover:border-red-400/40 transition-colors group"
             >
-              <div className="w-12 h-12 rounded-lg bg-red-400/10 flex items-center justify-center mb-5">
-                <card.icon className="w-6 h-6 text-red-400" />
+              <div className="relative h-40 overflow-hidden">
+                <Image
+                  src={card.image}
+                  alt={card.imageAlt}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-surface via-brand-surface/50 to-transparent" />
+                <div className="absolute bottom-4 left-4">
+                  <div className="w-10 h-10 rounded-lg bg-red-400/20 backdrop-blur-sm flex items-center justify-center">
+                    <card.icon className="w-5 h-5 text-red-400" />
+                  </div>
+                </div>
               </div>
-              <h3 className="text-lg font-semibold text-brand-text mb-2">
-                {card.title}
-              </h3>
-              <p className="text-sm text-brand-muted leading-relaxed">
-                {card.desc}
-              </p>
+              <div className="p-6">
+                <h3 className="text-lg font-semibold text-brand-text mb-2">
+                  {card.title}
+                </h3>
+                <p className="text-sm text-brand-muted leading-relaxed">
+                  {card.desc}
+                </p>
+              </div>
             </motion.div>
           ))}
         </div>
 
-        {/* EUDR quote */}
         <motion.blockquote
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6, delay: 0.3 }}
-          className="mt-16 border-l-2 border-brand-gold pl-6 max-w-3xl mx-auto"
+          className="mt-16 rounded-xl border border-brand-gold/20 bg-brand-gold/5 p-6 sm:p-8 max-w-3xl mx-auto"
         >
-          <p className="text-brand-muted italic text-sm leading-relaxed">
-            &ldquo;Operadores e comerciantes devem garantir que os produtos
-            colocados no mercado da UE não provêm de terras desmatadas após 31
-            de dezembro de 2020.&rdquo;
-          </p>
-          <footer className="mt-3 text-xs text-brand-gold font-mono">
-            — Regulamento (UE) 2023/1115, Art. 3
-          </footer>
+          <div className="flex gap-4">
+            <span className="text-brand-gold text-3xl leading-none shrink-0">&ldquo;</span>
+            <div>
+              <p className="text-brand-muted italic text-sm leading-relaxed">
+                Operadores e comerciantes devem garantir que os produtos
+                colocados no mercado da UE não provêm de terras desmatadas após 31
+                de dezembro de 2020.
+              </p>
+              <footer className="mt-3 text-xs text-brand-gold font-mono">
+                — Regulamento (UE) 2023/1115, Art. 3
+              </footer>
+            </div>
+          </div>
         </motion.blockquote>
       </div>
     </section>
