@@ -21,11 +21,12 @@ model User {
   apiKey        String?   @unique
   updatedAt     DateTime  @updatedAt
 
-  propriedade Propriedade?
-  alertas     Alerta[]
-  accounts    Account[]
-  sessions    Session[]
-  membros     PropriedadeMembro[]
+  propriedade        Propriedade?
+  alertas            Alerta[]
+  accounts           Account[]
+  sessions           Session[]
+  membros            PropriedadeMembro[]
+  cooperativaConfig  CooperativaConfig?
 }
 
 enum Role {
@@ -177,6 +178,25 @@ model PrecoCotacao {
   coletadoEm  DateTime @default(now())
 
   @@index([cultura, coletadoEm])
+}
+
+model CooperativaConfig {
+  id              String   @id @default(cuid())
+  userId          String   @unique
+  user            User     @relation(fields: [userId], references: [id])
+  nomeCooperativa String
+  logoUrl         String?
+  corPrimaria     String   @default("#6fcf3e")
+  corSecundaria   String   @default("#e6b93a")
+  corFundo        String   @default("#0a1209")
+  corSuperficie   String   @default("#111a10")
+  corTexto        String   @default("#e8f5e0")
+  corMuted        String   @default("#7a8a72")
+  corBorda        String   @default("#1e2e1a")
+  dominio         String?  @unique
+  ativo           Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 }
 
 model Account {
