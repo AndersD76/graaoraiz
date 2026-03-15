@@ -24,12 +24,12 @@ L.Icon.Default.mergeOptions({
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
 });
 
-export interface MapMarker {
-  id: string;
-  lat: number;
-  lng: number;
-  label?: string;
-}
+// Re-export MapMarker from the shared types file so existing imports
+// from this module keep working (e.g. via dynamic import).
+export type { MapMarker } from "@/lib/types";
+
+// Import for local use in this file.
+import type { MapMarker } from "@/lib/types";
 
 interface LeafletMapProps {
   center?: [number, number];
