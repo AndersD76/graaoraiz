@@ -8,6 +8,7 @@ import {
   Popup,
   Polygon,
   useMapEvents,
+  useMap,
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -39,6 +40,7 @@ interface LeafletMapProps {
   polygon?: [number, number][];
   className?: string;
   style?: React.CSSProperties;
+  flyTo?: [number, number] | null;
 }
 
 function ClickHandler({ onClick }: { onClick?: (lat: number, lng: number) => void }) {
@@ -50,6 +52,14 @@ function ClickHandler({ onClick }: { onClick?: (lat: number, lng: number) => voi
   return null;
 }
 
+function FlyToHandler({ flyTo }: { flyTo?: [number, number] | null }) {
+  const map = useMap();
+  if (flyTo) {
+    map.flyTo(flyTo, 15, { duration: 1.5 });
+  }
+  return null;
+}
+
 export default function LeafletMap({
   center = [-28.2622, -52.4083],
   zoom = 13,
@@ -58,6 +68,7 @@ export default function LeafletMap({
   polygon,
   className = "",
   style,
+  flyTo,
 }: LeafletMapProps) {
   return (
     <MapContainer
@@ -72,6 +83,7 @@ export default function LeafletMap({
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       <ClickHandler onClick={onClick} />
+      <FlyToHandler flyTo={flyTo} />
       {markers.map((m) => (
         <Marker key={m.id} position={[m.lat, m.lng]}>
           {m.label && <Popup>{m.label}</Popup>}
