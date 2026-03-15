@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check, Star } from "lucide-react";
+import { Check, Star, Building2 } from "lucide-react";
 import Link from "next/link";
 
 interface Plan {
@@ -10,6 +10,7 @@ interface Plan {
   period: string;
   description: string;
   popular?: boolean;
+  enterprise?: boolean;
   cta: string;
   href: string;
   features: string[];
@@ -70,6 +71,28 @@ const plans: Plan[] = [
       "Onboarding assistido",
     ],
   },
+  {
+    name: "Cooperativa",
+    price: "Sob consulta",
+    period: "",
+    description: "Para cooperativas que gerenciam múltiplos produtores.",
+    enterprise: true,
+    cta: "Falar com comercial",
+    href: "/cadastro?plano=cooperativa",
+    features: [
+      "Tudo do Pro +",
+      "Painel multi-produtor consolidado",
+      "Gestão de associados ilimitados",
+      "Relatórios EUDR consolidados",
+      "Whitelabel (logo e cores da cooperativa)",
+      "Integração com ERP da cooperativa",
+      "API completa de dados",
+      "Dashboard gerencial por região",
+      "Alertas de preço em massa",
+      "Suporte dedicado com SLA",
+      "Treinamento presencial da equipe",
+    ],
+  },
 ];
 
 export default function Planos() {
@@ -91,7 +114,7 @@ export default function Planos() {
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
           {plans.map((plan, i) => (
             <motion.div
               key={plan.name}
@@ -102,6 +125,8 @@ export default function Planos() {
               className={`relative rounded-2xl border p-8 flex flex-col ${
                 plan.popular
                   ? "border-brand-accent bg-brand-surface shadow-lg shadow-brand-accent/10 scale-[1.02]"
+                  : plan.enterprise
+                  ? "border-brand-gold bg-brand-surface shadow-lg shadow-brand-gold/10"
                   : "border-brand-border bg-brand-surface"
               }`}
             >
@@ -109,6 +134,13 @@ export default function Planos() {
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                   <span className="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1 rounded-full bg-brand-accent text-brand-bg">
                     <Star className="w-3 h-3" /> Mais popular
+                  </span>
+                </div>
+              )}
+              {plan.enterprise && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold px-3 py-1 rounded-full bg-brand-gold text-brand-bg">
+                    <Building2 className="w-3 h-3" /> Para cooperativas
                   </span>
                 </div>
               )}
@@ -142,6 +174,8 @@ export default function Planos() {
                 className={`w-full inline-flex items-center justify-center py-3 rounded-lg font-semibold text-sm transition-all ${
                   plan.popular
                     ? "bg-brand-accent text-brand-bg hover:brightness-110 shadow-lg shadow-brand-accent/20"
+                    : plan.enterprise
+                    ? "bg-brand-gold text-brand-bg hover:brightness-110 shadow-lg shadow-brand-gold/20"
                     : "border border-brand-border text-brand-text hover:bg-brand-surface hover:border-brand-accent/40"
                 }`}
               >

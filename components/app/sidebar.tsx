@@ -14,6 +14,8 @@ import {
   ChevronDown,
   LogOut,
   X,
+  Landmark,
+  HelpCircle,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
@@ -37,6 +39,7 @@ const navItems = [
     children: [
       { label: "Talhões", href: "/rastreabilidade", icon: Layers },
       { label: "Aplicações", href: "/rastreabilidade/aplicacoes", icon: SprayCan },
+      { label: "Propriedade", href: "/propriedade", icon: Landmark },
       { label: "Relatórios", href: "/relatorios", icon: FileText },
     ],
   },
@@ -107,6 +110,16 @@ export function Sidebar({ open, onClose, user }: SidebarProps) {
             )
           )}
         </nav>
+
+        <div className="px-3 pb-2">
+          <NavLink
+            href="/ajuda"
+            icon={HelpCircle}
+            label="Ajuda"
+            active={pathname === "/ajuda"}
+            onClick={onClose}
+          />
+        </div>
 
         <div className="border-t border-brand-border p-4">
           <div className="flex items-center gap-3">

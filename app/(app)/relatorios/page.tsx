@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -13,58 +13,219 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
   FileText,
   Download,
   Eye,
-  CheckCircle2,
   MapPin,
   SprayCan,
   Package,
   Shield,
   QrCode,
+  Loader2,
+  AlertCircle,
 } from "lucide-react";
 
-interface TalhaoOption {
-  id: string;
-  nome: string;
-  cultura: string;
-  area: number;
-  compliance: number;
+interface Aplicacao {
+  tipo: string;
+  produto: string;
+  fabricante: string | null;
+  dose: number;
+  unidade: string;
+  data: string;
+  operador: string;
 }
 
-const mockTalhoes: TalhaoOption[] = [
-  { id: "1", nome: "Talhão Norte", cultura: "SOJA", area: 85, compliance: 100 },
-  { id: "2", nome: "Talhão Sul", cultura: "SOJA", area: 120, compliance: 75 },
-  { id: "3", nome: "Talhão Leste", cultura: "MILHO", area: 65, compliance: 50 },
-  { id: "4", nome: "Talhão Oeste", cultura: "TRIGO", area: 72, compliance: 25 },
-];
+interface Lote {
+  numeroLote: string;
+  peso: number;
+  sacas: number;
+  destino: string;
+  dataEntrega: string;
+  nfe: string | null;
+  ticket: string | null;
+}
 
-const relatoriosGerados = [
-  {
-    id: "1",
-    data: "10/03/2026",
-    safra: "2025/26",
-    talhoes: 3,
-    status: "completo",
-  },
-  {
-    id: "2",
-    data: "15/02/2026",
-    safra: "2025/26",
-    talhoes: 2,
-    status: "completo",
-  },
-];
+interface TalhaoRelatorio {
+  nome: string;
+  area: number;
+  cultura: string;
+  coordenadas: {
+    latitude: number | null;
+    longitude: number | null;
+    geojson: unknown;
+  };
+  aplicacoes: Aplicacao[];
+  lotes: Lote[];
+}
+
+interface Relatorio {
+  versao: string;
+  geradoEm: string;
+  regulamento: string;
+  propriedade: {
+    nome: string;
+    municipio: string;
+    estado: string;
+    areaTotal: number;
+    car: string | null;
+    nirf: string | null;
+  };
+  safra: string;
+  talhoes: TalhaoRelatorio[];
+  declaracao: string;
+}
 
 export default function RelatoriosPage() {
   const [safra, setSafra] = useState("2025/26");
-  const [selectedTalhoes, setSelectedTalhoes] = useState<string[]>([]);
-  const [showPreview, setShowPreview] = useState(false);
+  const [relatorio, setRelatorio] = useState<Relatorio | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const printRef = useRef<HTMLDivElement>(null);
 
-  function toggleTalhao(id: string) {
-    setSelectedTalhoes((prev) =>
-      prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]
-    );
+  async function gerarRelatorio() {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(
+        `/api/relatorios?safra=${encodeURIComponent(safra)}&formato=preview`
+      );
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Erro ao gerar relatório");
+      }
+      const data: Relatorio = await res.json();
+      setRelatorio(data);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Erro ao gerar relatório"
+      );
+      setRelatorio(null);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function exportarJSON() {
+    try {
+      const res = await fetch(
+        `/api/relatorios?safra=${encodeURIComponent(safra)}&formato=json`
+      );
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Erro ao exportar JSON");
+      }
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `relatorio-eudr-${safra.replace("/", "-")}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "Erro ao exportar JSON"
+      );
+    }
+  }
+
+  function exportarPDF() {
+    if (!printRef.current) return;
+
+    const printContents = printRef.current.innerHTML;
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Relatório EUDR - Safra ${safra}</title>
+        <style>
+          * { margin: 0; padding: 0; box-sizing: border-box; }
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: #1a1a1a;
+            padding: 40px;
+            line-height: 1.6;
+          }
+          .report-header {
+            text-align: center;
+            border-bottom: 2px solid #16a34a;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+          }
+          .report-header h1 {
+            color: #16a34a;
+            font-size: 22px;
+            margin-bottom: 4px;
+          }
+          .report-header p { color: #666; font-size: 13px; }
+          .section { margin-bottom: 24px; }
+          .section-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #16a34a;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 6px;
+            margin-bottom: 12px;
+          }
+          .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+          }
+          .info-item { font-size: 13px; }
+          .info-label { color: #666; }
+          table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 12px;
+            margin-top: 8px;
+          }
+          th, td {
+            border: 1px solid #e5e7eb;
+            padding: 6px 10px;
+            text-align: left;
+          }
+          th { background: #f3f4f6; font-weight: 600; }
+          .declaration {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            padding: 16px;
+            font-size: 13px;
+            color: #166534;
+          }
+          @media print {
+            body { padding: 20px; }
+            .no-print { display: none !important; }
+          }
+        </style>
+      </head>
+      <body>
+        ${printContents}
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+    }, 300);
+  }
+
+  function formatDate(dateStr: string) {
+    return new Date(dateStr).toLocaleDateString("pt-BR");
   }
 
   return (
@@ -79,265 +240,439 @@ export default function RelatoriosPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Configuração */}
-        <Card className="lg:col-span-2 bg-brand-surface border-brand-border">
-          <CardHeader>
-            <CardTitle className="text-brand-text text-base">
-              Gerar Novo Relatório
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div>
-              <Label className="text-brand-muted text-xs">Safra</Label>
-              <Select value={safra} onValueChange={(v) => v !== null && setSafra(v)}>
-                <SelectTrigger className="bg-brand-alt border-brand-border text-brand-text mt-1 w-48">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-brand-surface border-brand-border">
-                  <SelectItem value="2025/26">2025/26</SelectItem>
-                  <SelectItem value="2024/25">2024/25</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+      {/* Configuração */}
+      <Card className="bg-brand-surface border-brand-border">
+        <CardHeader>
+          <CardTitle className="text-brand-text text-base">
+            Gerar Relatório de Conformidade
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label className="text-brand-muted text-xs">Safra</Label>
+            <Select value={safra} onValueChange={setSafra}>
+              <SelectTrigger className="bg-brand-alt border-brand-border text-brand-text mt-1 w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-brand-surface border-brand-border">
+                <SelectItem value="2025/26">2025/26</SelectItem>
+                <SelectItem value="2024/25">2024/25</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-            <div>
-              <Label className="text-brand-muted text-xs mb-2 block">
-                Selecione os talhões
-              </Label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {mockTalhoes.map((talhao) => (
-                  <button
-                    key={talhao.id}
-                    onClick={() => toggleTalhao(talhao.id)}
-                    className={`flex items-center gap-3 p-3 rounded-lg border text-left transition-colors ${
-                      selectedTalhoes.includes(talhao.id)
-                        ? "border-brand-accent bg-brand-accent/10"
-                        : "border-brand-border bg-brand-alt hover:border-brand-muted"
-                    }`}
-                  >
-                    <div
-                      className={`h-5 w-5 rounded border flex items-center justify-center ${
-                        selectedTalhoes.includes(talhao.id)
-                          ? "bg-brand-accent border-brand-accent"
-                          : "border-brand-border"
-                      }`}
-                    >
-                      {selectedTalhoes.includes(talhao.id) && (
-                        <CheckCircle2 className="h-3.5 w-3.5 text-brand-bg" />
-                      )}
-                    </div>
-                    <div className="flex-1">
-                      <p className="text-sm font-medium text-brand-text">
-                        {talhao.nome}
-                      </p>
-                      <p className="text-xs text-brand-muted">
-                        {talhao.cultura} · {talhao.area} ha · Compliance{" "}
-                        {talhao.compliance}%
-                      </p>
-                    </div>
-                    <Badge
-                      className={`text-[10px] ${
-                        talhao.compliance === 100
-                          ? "bg-brand-accent/20 text-brand-accent border-0"
-                          : talhao.compliance >= 50
-                          ? "bg-brand-gold/20 text-brand-gold border-0"
-                          : "bg-red-500/20 text-red-400 border-0"
-                      }`}
-                    >
-                      {talhao.compliance}%
-                    </Badge>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="flex gap-3 pt-2">
-              <Button
-                className="bg-brand-accent text-brand-bg hover:bg-brand-dim"
-                disabled={selectedTalhoes.length === 0}
-                onClick={() => setShowPreview(true)}
-              >
+          <div className="flex flex-wrap gap-3 pt-2">
+            <Button
+              className="bg-brand-accent text-brand-bg hover:bg-brand-dim"
+              onClick={gerarRelatorio}
+              disabled={loading}
+            >
+              {loading ? (
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+              ) : (
                 <Eye className="h-4 w-4 mr-2" />
-                Visualizar Relatório
-              </Button>
-              <Button
-                variant="outline"
-                className="border-brand-border text-brand-text hover:bg-brand-alt"
-                disabled={selectedTalhoes.length === 0}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Exportar PDF
-              </Button>
-              <Button
-                variant="outline"
-                className="border-brand-border text-brand-text hover:bg-brand-alt"
-                disabled={selectedTalhoes.length === 0}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Exportar JSON
-              </Button>
+              )}
+              Gerar Relatório
+            </Button>
+            <Button
+              variant="outline"
+              className="border-brand-border text-brand-text hover:bg-brand-alt"
+              onClick={exportarPDF}
+              disabled={!relatorio}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Exportar PDF
+            </Button>
+            <Button
+              variant="outline"
+              className="border-brand-border text-brand-text hover:bg-brand-alt"
+              onClick={exportarJSON}
+              disabled={loading}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Exportar JSON
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Error */}
+      {error && (
+        <Card className="bg-red-500/10 border-red-500/30">
+          <CardContent className="flex items-center gap-3 py-4">
+            <AlertCircle className="h-5 w-5 text-red-400 shrink-0" />
+            <div>
+              <p className="text-sm text-red-400">{error}</p>
+              <p className="text-xs text-brand-muted mt-1">
+                Cadastre uma propriedade e talhões para gerar o relatório EUDR.
+              </p>
             </div>
           </CardContent>
         </Card>
+      )}
 
-        {/* Relatórios anteriores */}
+      {/* No data message */}
+      {!relatorio && !error && !loading && (
         <Card className="bg-brand-surface border-brand-border">
-          <CardHeader>
-            <CardTitle className="text-brand-text text-base">
-              Relatórios Gerados
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {relatoriosGerados.map((rel) => (
-              <div
-                key={rel.id}
-                className="flex items-center gap-3 p-3 rounded-lg bg-brand-alt"
-              >
-                <FileText className="h-5 w-5 text-brand-accent shrink-0" />
-                <div className="flex-1">
-                  <p className="text-sm text-brand-text">
-                    Safra {rel.safra} · {rel.talhoes} talhões
-                  </p>
-                  <p className="text-xs text-brand-muted">{rel.data}</p>
-                </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-brand-muted hover:text-brand-text h-8 w-8"
-                >
-                  <Download className="h-4 w-4" />
-                </Button>
-              </div>
-            ))}
+          <CardContent className="flex flex-col items-center justify-center py-12 text-center">
+            <FileText className="h-12 w-12 text-brand-muted mb-4" />
+            <p className="text-sm text-brand-muted">
+              Cadastre uma propriedade e talhões para gerar o relatório EUDR.
+            </p>
+            <p className="text-xs text-brand-muted mt-1">
+              Clique em &quot;Gerar Relatório&quot; para visualizar os dados da
+              safra selecionada.
+            </p>
           </CardContent>
         </Card>
-      </div>
+      )}
 
       {/* Preview do relatório */}
-      {showPreview && selectedTalhoes.length > 0 && (
+      {relatorio && (
         <Card className="bg-brand-surface border-brand-border">
           <CardHeader>
             <div className="flex items-center justify-between">
               <CardTitle className="text-brand-text text-base">
                 Preview — Relatório EUDR
               </CardTitle>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowPreview(false)}
-                className="text-brand-muted"
-              >
-                Fechar
-              </Button>
+              <div className="flex items-center gap-2">
+                <Badge className="bg-brand-accent/20 text-brand-accent border-0 text-[10px]">
+                  v{relatorio.versao}
+                </Badge>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setRelatorio(null)}
+                  className="text-brand-muted"
+                >
+                  Fechar
+                </Button>
+              </div>
             </div>
           </CardHeader>
           <CardContent>
             <div className="bg-brand-bg rounded-lg p-6 space-y-6 border border-brand-border">
-              {/* Header */}
-              <div className="text-center border-b border-brand-border pb-4">
-                <h3 className="text-lg font-display text-brand-accent">
-                  RELATÓRIO DE CONFORMIDADE EUDR
-                </h3>
-                <p className="text-sm text-brand-muted mt-1">
-                  Regulamento (UE) 2023/1115
-                </p>
-                <p className="text-xs text-brand-muted mt-1">
-                  Gerado em{" "}
-                  {new Date().toLocaleDateString("pt-BR")} · Safra {safra}
-                </p>
-              </div>
-
-              {/* Seções */}
-              <div className="space-y-4">
-                <ReportSection
-                  icon={MapPin}
-                  title="1. Identificação da Propriedade"
-                  items={[
-                    "Propriedade: Fazenda São Luís",
-                    "CAR: RS-4314902-XXXXXXXX",
-                    "NIRF: 0.000.000-0",
-                    "Município: Passo Fundo — RS",
-                    "Coordenadas: -28.2622, -52.4083",
-                  ]}
-                />
-                <ReportSection
-                  icon={MapPin}
-                  title="2. Talhões Incluídos"
-                  items={selectedTalhoes.map((id) => {
-                    const t = mockTalhoes.find((x) => x.id === id);
-                    return t
-                      ? `${t.nome} — ${t.cultura} — ${t.area} ha — Georreferenciado`
-                      : "";
-                  })}
-                />
-                <ReportSection
-                  icon={SprayCan}
-                  title="3. Histórico de Aplicações"
-                  items={[
-                    "12/01/2026 — Glifosato 2.5 L/ha — Operador: João Silva",
-                    "28/01/2026 — Azoxistrobina 0.3 L/ha — Operador: João Silva",
-                    "15/02/2026 — Adubo NPK 300 kg/ha — Operador: Carlos",
-                  ]}
-                />
-                <ReportSection
-                  icon={Package}
-                  title="4. Lotes Vinculados"
-                  items={[
-                    "Lote 2026-001 — 45.000 kg (750 sacas) — NF-e 123456 — Cotripal",
-                    "Lote 2026-002 — 38.000 kg (633 sacas) — NF-e 123457 — C.Vale",
-                  ]}
-                />
-                <ReportSection
-                  icon={Shield}
-                  title="5. Declaração de Conformidade"
-                  items={[
-                    "Declaro que os produtos acima foram produzidos em conformidade com o Regulamento EUDR (UE) 2023/1115.",
-                    "Nenhuma área de produção está localizada em área desmatada após 31/12/2020.",
-                    "Todos os dados são verificáveis e auditáveis.",
-                  ]}
-                />
-              </div>
-
-              {/* QR Code placeholder */}
-              <div className="flex items-center justify-center pt-4 border-t border-brand-border">
-                <div className="text-center">
-                  <QrCode className="h-16 w-16 text-brand-muted mx-auto" />
-                  <p className="text-xs text-brand-muted mt-2">
-                    QR Code de verificação
+              {/* Printable content */}
+              <div ref={printRef}>
+                {/* Header */}
+                <div className="report-header text-center border-b border-brand-border pb-4">
+                  <h1 className="text-lg font-display text-brand-accent">
+                    RELATÓRIO DE CONFORMIDADE EUDR
+                  </h1>
+                  <p className="text-sm text-brand-muted mt-1">
+                    {relatorio.regulamento}
                   </p>
+                  <p className="text-xs text-brand-muted mt-1">
+                    Gerado em {formatDate(relatorio.geradoEm)} — Safra{" "}
+                    {relatorio.safra}
+                  </p>
+                </div>
+
+                {/* 1. Identificação da Propriedade */}
+                <div className="section mt-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <MapPin className="h-4 w-4 text-brand-accent" />
+                    <h4 className="section-title text-sm font-medium text-brand-text">
+                      1. Identificação da Propriedade
+                    </h4>
+                  </div>
+                  <div className="info-grid grid grid-cols-1 sm:grid-cols-2 gap-2 ml-6">
+                    <div className="info-item text-xs">
+                      <span className="info-label text-brand-muted">
+                        Propriedade:{" "}
+                      </span>
+                      <span className="text-brand-text">
+                        {relatorio.propriedade.nome}
+                      </span>
+                    </div>
+                    <div className="info-item text-xs">
+                      <span className="info-label text-brand-muted">
+                        Município:{" "}
+                      </span>
+                      <span className="text-brand-text">
+                        {relatorio.propriedade.municipio} —{" "}
+                        {relatorio.propriedade.estado}
+                      </span>
+                    </div>
+                    <div className="info-item text-xs">
+                      <span className="info-label text-brand-muted">
+                        CAR:{" "}
+                      </span>
+                      <span className="text-brand-text">
+                        {relatorio.propriedade.car || "Não informado"}
+                      </span>
+                    </div>
+                    <div className="info-item text-xs">
+                      <span className="info-label text-brand-muted">
+                        NIRF:{" "}
+                      </span>
+                      <span className="text-brand-text">
+                        {relatorio.propriedade.nirf || "Não informado"}
+                      </span>
+                    </div>
+                    <div className="info-item text-xs">
+                      <span className="info-label text-brand-muted">
+                        Área total:{" "}
+                      </span>
+                      <span className="text-brand-text">
+                        {relatorio.propriedade.areaTotal} ha
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 2. Talhões Incluídos */}
+                <div className="section mt-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <MapPin className="h-4 w-4 text-brand-accent" />
+                    <h4 className="section-title text-sm font-medium text-brand-text">
+                      2. Talhões Incluídos
+                    </h4>
+                  </div>
+                  {relatorio.talhoes.length > 0 ? (
+                    <div className="ml-6">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="border-brand-border">
+                            <TableHead className="text-brand-muted text-xs">
+                              Nome
+                            </TableHead>
+                            <TableHead className="text-brand-muted text-xs">
+                              Cultura
+                            </TableHead>
+                            <TableHead className="text-brand-muted text-xs">
+                              Área (ha)
+                            </TableHead>
+                            <TableHead className="text-brand-muted text-xs">
+                              Latitude
+                            </TableHead>
+                            <TableHead className="text-brand-muted text-xs">
+                              Longitude
+                            </TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {relatorio.talhoes.map((t, i) => (
+                            <TableRow
+                              key={i}
+                              className="border-brand-border"
+                            >
+                              <TableCell className="text-brand-text text-xs">
+                                {t.nome}
+                              </TableCell>
+                              <TableCell className="text-brand-text text-xs">
+                                <Badge className="bg-brand-accent/20 text-brand-accent border-0 text-[10px]">
+                                  {t.cultura}
+                                </Badge>
+                              </TableCell>
+                              <TableCell className="text-brand-text text-xs">
+                                {t.area}
+                              </TableCell>
+                              <TableCell className="text-brand-text text-xs">
+                                {t.coordenadas.latitude ?? "—"}
+                              </TableCell>
+                              <TableCell className="text-brand-text text-xs">
+                                {t.coordenadas.longitude ?? "—"}
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  ) : (
+                    <p className="text-xs text-brand-muted ml-6">
+                      Nenhum talhão cadastrado para esta safra.
+                    </p>
+                  )}
+                </div>
+
+                {/* 3. Histórico de Aplicações */}
+                <div className="section mt-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <SprayCan className="h-4 w-4 text-brand-accent" />
+                    <h4 className="section-title text-sm font-medium text-brand-text">
+                      3. Histórico de Aplicações
+                    </h4>
+                  </div>
+                  {relatorio.talhoes.some((t) => t.aplicacoes.length > 0) ? (
+                    <div className="ml-6">
+                      {relatorio.talhoes
+                        .filter((t) => t.aplicacoes.length > 0)
+                        .map((t, ti) => (
+                          <div key={ti} className="mb-4">
+                            <p className="text-xs font-medium text-brand-text mb-2">
+                              {t.nome}
+                            </p>
+                            <Table>
+                              <TableHeader>
+                                <TableRow className="border-brand-border">
+                                  <TableHead className="text-brand-muted text-xs">
+                                    Data
+                                  </TableHead>
+                                  <TableHead className="text-brand-muted text-xs">
+                                    Tipo
+                                  </TableHead>
+                                  <TableHead className="text-brand-muted text-xs">
+                                    Produto
+                                  </TableHead>
+                                  <TableHead className="text-brand-muted text-xs">
+                                    Dose
+                                  </TableHead>
+                                  <TableHead className="text-brand-muted text-xs">
+                                    Operador
+                                  </TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {t.aplicacoes.map((a, ai) => (
+                                  <TableRow
+                                    key={ai}
+                                    className="border-brand-border"
+                                  >
+                                    <TableCell className="text-brand-text text-xs">
+                                      {formatDate(a.data)}
+                                    </TableCell>
+                                    <TableCell className="text-brand-text text-xs">
+                                      {a.tipo}
+                                    </TableCell>
+                                    <TableCell className="text-brand-text text-xs">
+                                      {a.produto}
+                                      {a.fabricante
+                                        ? ` (${a.fabricante})`
+                                        : ""}
+                                    </TableCell>
+                                    <TableCell className="text-brand-text text-xs">
+                                      {a.dose} {a.unidade}
+                                    </TableCell>
+                                    <TableCell className="text-brand-text text-xs">
+                                      {a.operador}
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </div>
+                        ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-brand-muted ml-6">
+                      Nenhuma aplicação registrada.
+                    </p>
+                  )}
+                </div>
+
+                {/* 4. Lotes Vinculados */}
+                <div className="section mt-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Package className="h-4 w-4 text-brand-accent" />
+                    <h4 className="section-title text-sm font-medium text-brand-text">
+                      4. Lotes Vinculados
+                    </h4>
+                  </div>
+                  {relatorio.talhoes.some((t) => t.lotes.length > 0) ? (
+                    <div className="ml-6">
+                      {relatorio.talhoes
+                        .filter((t) => t.lotes.length > 0)
+                        .map((t, ti) => (
+                          <div key={ti} className="mb-4">
+                            <p className="text-xs font-medium text-brand-text mb-2">
+                              {t.nome}
+                            </p>
+                            <Table>
+                              <TableHeader>
+                                <TableRow className="border-brand-border">
+                                  <TableHead className="text-brand-muted text-xs">
+                                    Lote
+                                  </TableHead>
+                                  <TableHead className="text-brand-muted text-xs">
+                                    Peso (kg)
+                                  </TableHead>
+                                  <TableHead className="text-brand-muted text-xs">
+                                    Sacas
+                                  </TableHead>
+                                  <TableHead className="text-brand-muted text-xs">
+                                    Destino
+                                  </TableHead>
+                                  <TableHead className="text-brand-muted text-xs">
+                                    NF-e
+                                  </TableHead>
+                                  <TableHead className="text-brand-muted text-xs">
+                                    Data
+                                  </TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {t.lotes.map((l, li) => (
+                                  <TableRow
+                                    key={li}
+                                    className="border-brand-border"
+                                  >
+                                    <TableCell className="text-brand-text text-xs">
+                                      {l.numeroLote}
+                                    </TableCell>
+                                    <TableCell className="text-brand-text text-xs">
+                                      {l.peso.toLocaleString("pt-BR")}
+                                    </TableCell>
+                                    <TableCell className="text-brand-text text-xs">
+                                      {l.sacas.toLocaleString("pt-BR")}
+                                    </TableCell>
+                                    <TableCell className="text-brand-text text-xs">
+                                      {l.destino}
+                                    </TableCell>
+                                    <TableCell className="text-brand-text text-xs">
+                                      {l.nfe || "—"}
+                                    </TableCell>
+                                    <TableCell className="text-brand-text text-xs">
+                                      {formatDate(l.dataEntrega)}
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          </div>
+                        ))}
+                    </div>
+                  ) : (
+                    <p className="text-xs text-brand-muted ml-6">
+                      Nenhum lote vinculado.
+                    </p>
+                  )}
+                </div>
+
+                {/* 5. Declaração de Conformidade */}
+                <div className="section mt-6">
+                  <div className="flex items-center gap-2 mb-3">
+                    <Shield className="h-4 w-4 text-brand-accent" />
+                    <h4 className="section-title text-sm font-medium text-brand-text">
+                      5. Declaração de Conformidade
+                    </h4>
+                  </div>
+                  <div className="declaration ml-6 rounded-lg bg-brand-accent/10 border border-brand-accent/20 p-4">
+                    <p className="text-xs text-brand-text leading-relaxed">
+                      {relatorio.declaracao}
+                    </p>
+                    <p className="text-xs text-brand-muted mt-2">
+                      Nenhuma área de produção está localizada em área desmatada
+                      após 31/12/2020. Todos os dados são verificáveis e
+                      auditáveis.
+                    </p>
+                  </div>
+                </div>
+
+                {/* QR Code placeholder */}
+                <div className="flex items-center justify-center pt-6 mt-6 border-t border-brand-border">
+                  <div className="text-center">
+                    <QrCode className="h-16 w-16 text-brand-muted mx-auto" />
+                    <p className="text-xs text-brand-muted mt-2">
+                      QR Code de verificação
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
           </CardContent>
         </Card>
       )}
-    </div>
-  );
-}
-
-function ReportSection({
-  icon: Icon,
-  title,
-  items,
-}: {
-  icon: React.ComponentType<{ className?: string }>;
-  title: string;
-  items: string[];
-}) {
-  return (
-    <div>
-      <div className="flex items-center gap-2 mb-2">
-        <Icon className="h-4 w-4 text-brand-accent" />
-        <h4 className="text-sm font-medium text-brand-text">{title}</h4>
-      </div>
-      <ul className="space-y-1 ml-6">
-        {items.map((item, i) => (
-          <li key={i} className="text-xs text-brand-muted">
-            {item}
-          </li>
-        ))}
-      </ul>
     </div>
   );
 }
