@@ -10,7 +10,7 @@ const steps = [
     icon: MapPin,
     title: "Cadastre sua propriedade",
     desc: "Adicione sua fazenda e desenhe os talhões no mapa com GPS do celular ou coordenadas.",
-    image: "https://images.unsplash.com/photo-1560493676-04071c5f467b?w=600&q=80",
+    image: "/images/hero-bg.jpg",
     imageAlt: "Vista aérea de propriedade rural",
   },
   {
@@ -18,7 +18,7 @@ const steps = [
     icon: Rows3,
     title: "Registre no campo",
     desc: "Cada plantio, aplicação e colheita vira um registro digital com data, local e responsável.",
-    image: "https://images.unsplash.com/photo-1592982537447-6f2a6a0c7c10?w=600&q=80",
+    image: "/images/tractor-field.jpg",
     imageAlt: "Plantadeira moderna em lavoura de soja",
   },
   {
@@ -26,7 +26,7 @@ const steps = [
     icon: Link2,
     title: "Vincule a entrega",
     desc: "Conecte a colheita à nota fiscal e ao romaneio da cooperativa. Rastreabilidade ponta a ponta.",
-    image: "https://images.unsplash.com/photo-1605000797499-95a51c5269ae?w=600&q=80",
+    image: "/images/combine-harvest.jpg",
     imageAlt: "Colheita de grãos com colheitadeira",
   },
   {
@@ -34,7 +34,7 @@ const steps = [
     icon: FileDown,
     title: "Exporte compliance",
     desc: "Gere o dossiê EUDR em PDF ou JSON. Pronto para auditoria, pronto para exportar.",
-    image: "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=600&q=80",
+    image: "/images/grain-closeup.jpg",
     imageAlt: "Documentos de compliance e relatórios",
   },
 ];

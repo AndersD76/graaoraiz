@@ -24,7 +24,7 @@ const modules = [
     description:
       "Rastreabilidade geoespacial do plantio à entrega. Cada talhão mapeado, cada operação registrada.",
     color: "brand-accent",
-    image: "https://images.unsplash.com/photo-1589923188651-268a9765e432?w=800&q=80",
+    image: "/images/tractor-field.jpg",
     imageAlt: "Tecnologia digital no campo agrícola",
     features: [
       { icon: MapPin, text: "Georreferenciamento de talhões com GPS" },
@@ -41,7 +41,7 @@ const modules = [
     description:
       "Inteligência de mercado para vender no momento certo. Dados de cooperativas, CBOT e câmbio atualizados.",
     color: "brand-gold",
-    image: "https://images.unsplash.com/photo-1642790106117-e829e14a795f?w=800&q=80",
+    image: "/images/wheat-golden.jpg",
     imageAlt: "Dashboard de análise de preços e mercado",
     features: [
       { icon: BarChart3, text: "Preços de soja, milho e trigo ao vivo" },

@@ -45,14 +45,14 @@ const testimonials = [
     name: "Carlos Menegat",
     role: "Diretor de Operações",
     coop: "Cooperativa Agrícola",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=80",
+    initials: "CM",
   },
   {
     quote: "Com o painel de preços, nossos produtores pararam de vender na baixa. O ganho médio por saca aumentou significativamente.",
     name: "Ana Paula Ferreira",
     role: "Coordenadora Comercial",
     coop: "Cooperativa Tritícola",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=80",
+    initials: "AF",
   },
 ];
 
@@ -65,7 +65,7 @@ export default function Cooperativas() {
       {/* Background */}
       <div className="absolute inset-0">
         <Image
-          src="https://images.unsplash.com/photo-1523348837708-15d4a09cfac2?w=1920&q=80"
+          src="/images/grain-silo.jpg"
           alt="Silos de armazenamento de grãos em cooperativa"
           fill
           className="object-cover"
@@ -130,13 +130,8 @@ export default function Cooperativas() {
                 &ldquo;{t.quote}&rdquo;
               </p>
               <div className="flex items-center gap-3">
-                <div className="relative w-10 h-10 rounded-full overflow-hidden border-2 border-brand-accent/30">
-                  <Image
-                    src={t.avatar}
-                    alt={t.name}
-                    fill
-                    className="object-cover"
-                  />
+                <div className="w-10 h-10 rounded-full bg-brand-accent/15 border-2 border-brand-accent/30 flex items-center justify-center">
+                  <span className="text-sm font-semibold text-brand-accent">{t.initials}</span>
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-brand-text">{t.name}</p>

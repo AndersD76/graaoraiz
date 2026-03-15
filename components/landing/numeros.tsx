@@ -100,7 +100,7 @@ export default function Numeros() {
     <section className="relative py-24 sm:py-32 overflow-hidden">
       <div className="absolute inset-0">
         <Image
-          src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=1920&q=80"
+          src="/images/corn-field.jpg"
           alt="Campo de trigo ao amanhecer"
           fill
           className="object-cover"
