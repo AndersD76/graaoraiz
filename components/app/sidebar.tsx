@@ -16,6 +16,7 @@ import {
   X,
   Landmark,
   HelpCircle,
+  History,
 } from "lucide-react";
 import { signOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
@@ -39,6 +40,7 @@ const navItems = [
     children: [
       { label: "Talhões", href: "/rastreabilidade", icon: Layers },
       { label: "Aplicações", href: "/rastreabilidade/aplicacoes", icon: SprayCan },
+      { label: "Histórico", href: "/rastreabilidade/historico", icon: History },
       { label: "Propriedade", href: "/propriedade", icon: Landmark },
       { label: "Relatórios", href: "/relatorios", icon: FileText },
     ],

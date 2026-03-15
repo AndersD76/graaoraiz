@@ -43,6 +43,8 @@ import {
   ShieldCheck,
   CheckCircle2,
   XCircle,
+  QrCode,
+  Download,
 } from "lucide-react";
 import type { MapMarker } from "@/lib/types";
 
@@ -227,6 +229,13 @@ export default function TalhaoDetailPage() {
   const [appOperador, setAppOperador] = useState("");
   const [appNota, setAppNota] = useState("");
 
+  // QR Code
+  const [qrOpen, setQrOpen] = useState(false);
+  const [qrData, setQrData] = useState<string | null>(null);
+  const [qrUrl, setQrUrl] = useState<string | null>(null);
+  const [qrLoteNumero, setQrLoteNumero] = useState("");
+  const [qrLoading, setQrLoading] = useState(false);
+
   // Lote form
   const [loteNumero, setLoteNumero] = useState("");
   const [lotePeso, setLotePeso] = useState("");
@@ -349,6 +358,35 @@ export default function TalhaoDetailPage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleShowQrCode = async (loteId: string, numero: string) => {
+    setQrLoteNumero(numero);
+    setQrData(null);
+    setQrUrl(null);
+    setQrOpen(true);
+    setQrLoading(true);
+
+    try {
+      const res = await fetch(`/api/lotes/qrcode?loteId=${loteId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setQrData(data.qrcode);
+        setQrUrl(data.url);
+      }
+    } catch {
+      // Silently fail
+    } finally {
+      setQrLoading(false);
+    }
+  };
+
+  const handleDownloadQr = () => {
+    if (!qrData) return;
+    const link = document.createElement("a");
+    link.download = `qrcode-${qrLoteNumero}.png`;
+    link.href = qrData;
+    link.click();
   };
 
   const resetAplicacaoForm = () => {
@@ -857,6 +895,58 @@ export default function TalhaoDetailPage() {
         </CardContent>
       </Card>
 
+      {/* QR Code Dialog */}
+      <Dialog open={qrOpen} onOpenChange={setQrOpen}>
+        <DialogContent className="bg-brand-surface border-brand-border sm:max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="text-brand-text flex items-center gap-2">
+              <QrCode className="h-5 w-5 text-brand-accent" />
+              QR Code - {qrLoteNumero}
+            </DialogTitle>
+            <DialogDescription className="text-brand-muted">
+              Escaneie para verificar a rastreabilidade deste lote.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col items-center gap-4 py-4">
+            {qrLoading ? (
+              <div className="h-[300px] w-[300px] bg-brand-alt rounded-lg flex items-center justify-center">
+                <span className="text-brand-accent text-2xl animate-pulse">&#x2B21;</span>
+              </div>
+            ) : qrData ? (
+              <>
+                <div className="bg-white p-3 rounded-lg">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={qrData}
+                    alt={`QR Code do lote ${qrLoteNumero}`}
+                    width={280}
+                    height={280}
+                  />
+                </div>
+                {qrUrl && (
+                  <p className="text-xs text-brand-muted text-center break-all max-w-[300px]">
+                    {qrUrl}
+                  </p>
+                )}
+              </>
+            ) : (
+              <p className="text-brand-muted text-sm">Erro ao gerar QR Code.</p>
+            )}
+          </div>
+          <DialogFooter>
+            {qrData && (
+              <Button
+                onClick={handleDownloadQr}
+                className="bg-brand-accent text-brand-bg hover:bg-brand-accent/90 font-medium w-full"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Baixar QR Code
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Lotes / Entregas */}
       <Card className="bg-brand-surface border-brand-border">
         <CardHeader>
@@ -883,6 +973,7 @@ export default function TalhaoDetailPage() {
                     <TableHead className="text-brand-muted">NF-e</TableHead>
                     <TableHead className="text-brand-muted">Ticket</TableHead>
                     <TableHead className="text-brand-muted">Preço (R$/sc)</TableHead>
+                    <TableHead className="text-brand-muted">QR Code</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -920,6 +1011,16 @@ export default function TalhaoDetailPage() {
                       </TableCell>
                       <TableCell className="text-brand-text font-mono font-medium">
                         {lote.preco ? `R$ ${lote.preco.toFixed(2)}` : "—"}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-brand-accent hover:text-brand-accent hover:bg-brand-alt"
+                          onClick={() => handleShowQrCode(lote.id, lote.numeroLote)}
+                        >
+                          <QrCode className="h-4 w-4" />
+                        </Button>
                       </TableCell>
                     </TableRow>
                   ))}

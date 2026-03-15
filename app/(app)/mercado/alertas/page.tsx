@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,53 +20,46 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Bell, Plus, Trash2, Smartphone, Mail, Monitor } from "lucide-react";
+import {
+  Bell,
+  Plus,
+  Trash2,
+  Smartphone,
+  Mail,
+  Monitor,
+  Loader2,
+  TrendingUp,
+  TrendingDown,
+} from "lucide-react";
 
-interface AlertaItem {
+interface Alerta {
   id: string;
-  tipo: string;
+  tipo: "PRECO_META" | "VARIACAO_PERCENTUAL";
   cultura: string;
-  precoMeta: number | null;
-  canal: string;
+  precoMeta: number;
+  canal: "APP" | "EMAIL" | "WHATSAPP";
   ativo: boolean;
-  disparadoEm: string | null;
+  createdAt: string;
 }
 
-const mockAlertas: AlertaItem[] = [
-  {
-    id: "1",
-    tipo: "PRECO_META",
-    cultura: "SOJA",
-    precoMeta: 135,
-    canal: "WHATSAPP",
-    ativo: true,
-    disparadoEm: null,
-  },
-  {
-    id: "2",
-    tipo: "PRECO_META",
-    cultura: "SOJA",
-    precoMeta: 130,
-    canal: "APP",
-    ativo: true,
-    disparadoEm: "2026-03-12T14:30:00",
-  },
-  {
-    id: "3",
-    tipo: "PRAZO_EUDR",
-    cultura: "SOJA",
-    precoMeta: null,
-    canal: "EMAIL",
-    ativo: true,
-    disparadoEm: null,
-  },
-];
+const culturaLabels: Record<string, string> = {
+  SOJA: "Soja",
+  MILHO: "Milho",
+  TRIGO: "Trigo",
+  AVEIA: "Aveia",
+  CANOLA: "Canola",
+  OUTRO: "Outro",
+};
 
 const tipoLabels: Record<string, string> = {
-  PRECO_META: "Preço-alvo",
-  VARIACAO_PERCENTUAL: "Variação %",
-  PRAZO_EUDR: "Prazo EUDR",
-  PRAZO_CONTRATO: "Prazo contrato",
+  PRECO_META: "Preço meta de",
+  VARIACAO_PERCENTUAL: "Variação % de",
+};
+
+const canalLabels: Record<string, string> = {
+  APP: "App",
+  EMAIL: "Email",
+  WHATSAPP: "WhatsApp",
 };
 
 const canalIcons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -76,40 +69,101 @@ const canalIcons: Record<string, React.ComponentType<{ className?: string }>> = 
 };
 
 export default function AlertasPage() {
-  const [alertas, setAlertas] = useState<AlertaItem[]>(mockAlertas);
+  const [alertas, setAlertas] = useState<Alerta[]>([]);
+  const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  // Form state
   const [novoTipo, setNovoTipo] = useState("PRECO_META");
   const [novoCultura, setNovoCultura] = useState("SOJA");
   const [novoPreco, setNovoPreco] = useState("");
   const [novoCanal, setNovoCanal] = useState("APP");
 
-  function handleCreate() {
-    const novo: AlertaItem = {
-      id: Date.now().toString(),
-      tipo: novoTipo,
-      cultura: novoCultura,
-      precoMeta: novoPreco ? parseFloat(novoPreco) : null,
-      canal: novoCanal,
-      ativo: true,
-      disparadoEm: null,
-    };
-    setAlertas([novo, ...alertas]);
-    setDialogOpen(false);
+  const fetchAlertas = useCallback(async () => {
+    try {
+      const res = await fetch("/api/alertas");
+      if (res.ok) {
+        const data = await res.json();
+        setAlertas(data);
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchAlertas();
+  }, [fetchAlertas]);
+
+  async function handleCreate() {
+    if (!novoPreco) return;
+    setSubmitting(true);
+    try {
+      const res = await fetch("/api/alertas", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tipo: novoTipo,
+          cultura: novoCultura,
+          precoMeta: novoPreco,
+          canal: novoCanal,
+        }),
+      });
+      if (res.ok) {
+        const created = await res.json();
+        setAlertas((prev) => [created, ...prev]);
+        setDialogOpen(false);
+        resetForm();
+      }
+    } catch {
+      // silently fail
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  function resetForm() {
+    setNovoTipo("PRECO_META");
+    setNovoCultura("SOJA");
     setNovoPreco("");
+    setNovoCanal("APP");
   }
 
-  function handleDelete(id: string) {
-    setAlertas(alertas.filter((a) => a.id !== id));
+  async function handleDelete(id: string) {
+    try {
+      const res = await fetch(`/api/alertas?id=${id}`, { method: "DELETE" });
+      if (res.ok) {
+        setAlertas((prev) => prev.filter((a) => a.id !== id));
+      }
+    } catch {
+      // silently fail
+    }
   }
 
-  function handleToggle(id: string) {
-    setAlertas(
-      alertas.map((a) => (a.id === id ? { ...a, ativo: !a.ativo } : a))
-    );
+  async function handleToggle(id: string, currentAtivo: boolean) {
+    try {
+      const res = await fetch("/api/alertas", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, ativo: !currentAtivo }),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setAlertas((prev) =>
+          prev.map((a) => (a.id === id ? updated : a))
+        );
+      }
+    } catch {
+      // silently fail
+    }
   }
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-xl font-display text-brand-text">
@@ -133,27 +187,10 @@ export default function AlertasPage() {
               </DialogTitle>
             </DialogHeader>
             <div className="space-y-4 pt-4">
-              <div>
-                <Label className="text-brand-muted text-xs">Tipo</Label>
-                <Select value={novoTipo} onValueChange={(v) => v !== null && setNovoTipo(v)}>
-                  <SelectTrigger className="bg-brand-alt border-brand-border text-brand-text mt-1">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-brand-surface border-brand-border">
-                    <SelectItem value="PRECO_META">Preço-alvo</SelectItem>
-                    <SelectItem value="VARIACAO_PERCENTUAL">
-                      Variação %
-                    </SelectItem>
-                    <SelectItem value="PRAZO_EUDR">Prazo EUDR</SelectItem>
-                    <SelectItem value="PRAZO_CONTRATO">
-                      Prazo contrato
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+              {/* Cultura */}
               <div>
                 <Label className="text-brand-muted text-xs">Cultura</Label>
-                <Select value={novoCultura} onValueChange={(v) => v !== null && setNovoCultura(v)}>
+                <Select value={novoCultura} onValueChange={setNovoCultura}>
                   <SelectTrigger className="bg-brand-alt border-brand-border text-brand-text mt-1">
                     <SelectValue />
                   </SelectTrigger>
@@ -161,48 +198,68 @@ export default function AlertasPage() {
                     <SelectItem value="SOJA">Soja</SelectItem>
                     <SelectItem value="MILHO">Milho</SelectItem>
                     <SelectItem value="TRIGO">Trigo</SelectItem>
+                    <SelectItem value="AVEIA">Aveia</SelectItem>
+                    <SelectItem value="CANOLA">Canola</SelectItem>
+                    <SelectItem value="OUTRO">Outro</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-              {(novoTipo === "PRECO_META" ||
-                novoTipo === "VARIACAO_PERCENTUAL") && (
-                <div>
-                  <Label className="text-brand-muted text-xs">
-                    {novoTipo === "PRECO_META"
-                      ? "Preço-alvo (R$/saca)"
-                      : "Variação (%)"}
-                  </Label>
-                  <Input
-                    type="number"
-                    step="0.01"
-                    value={novoPreco}
-                    onChange={(e) => setNovoPreco(e.target.value)}
-                    className="bg-brand-alt border-brand-border text-brand-text font-mono mt-1"
-                    placeholder={
-                      novoTipo === "PRECO_META" ? "135.00" : "5"
-                    }
-                  />
-                </div>
-              )}
+
+              {/* Tipo */}
+              <div>
+                <Label className="text-brand-muted text-xs">Condição</Label>
+                <Select value={novoTipo} onValueChange={setNovoTipo}>
+                  <SelectTrigger className="bg-brand-alt border-brand-border text-brand-text mt-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-brand-surface border-brand-border">
+                    <SelectItem value="PRECO_META">Preço meta</SelectItem>
+                    <SelectItem value="VARIACAO_PERCENTUAL">Variação percentual</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Preço */}
+              <div>
+                <Label className="text-brand-muted text-xs">
+                  Preço-alvo (R$/saca)
+                </Label>
+                <Input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={novoPreco}
+                  onChange={(e) => setNovoPreco(e.target.value)}
+                  className="bg-brand-alt border-brand-border text-brand-text font-mono mt-1"
+                  placeholder="135.00"
+                />
+              </div>
+
+              {/* Canal */}
               <div>
                 <Label className="text-brand-muted text-xs">
                   Canal de notificação
                 </Label>
-                <Select value={novoCanal} onValueChange={(v) => v !== null && setNovoCanal(v)}>
+                <Select value={novoCanal} onValueChange={setNovoCanal}>
                   <SelectTrigger className="bg-brand-alt border-brand-border text-brand-text mt-1">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="bg-brand-surface border-brand-border">
                     <SelectItem value="APP">App</SelectItem>
-                    <SelectItem value="WHATSAPP">WhatsApp</SelectItem>
                     <SelectItem value="EMAIL">Email</SelectItem>
+                    <SelectItem value="WHATSAPP">WhatsApp</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
+
               <Button
                 onClick={handleCreate}
+                disabled={submitting || !novoPreco}
                 className="w-full bg-brand-accent text-brand-bg hover:bg-brand-dim"
               >
+                {submitting ? (
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                ) : null}
                 Criar Alerta
               </Button>
             </div>
@@ -210,82 +267,106 @@ export default function AlertasPage() {
         </Dialog>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {alertas.map((alerta) => {
-          const CanalIcon = canalIcons[alerta.canal] || Monitor;
-          return (
-            <Card
-              key={alerta.id}
-              className={`bg-brand-surface border-brand-border ${
-                !alerta.ativo ? "opacity-50" : ""
-              }`}
-            >
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2">
-                    <Bell
-                      className={`h-4 w-4 ${
-                        alerta.ativo
-                          ? "text-brand-accent"
-                          : "text-brand-muted"
-                      }`}
-                    />
-                    <Badge
-                      variant="outline"
-                      className="border-brand-border text-brand-muted"
-                    >
-                      {tipoLabels[alerta.tipo]}
-                    </Badge>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-brand-muted hover:text-red-400 h-8 w-8"
-                    onClick={() => handleDelete(alerta.id)}
-                  >
-                    <Trash2 className="h-3.5 w-3.5" />
-                  </Button>
-                </div>
+      {/* Loading state */}
+      {loading && (
+        <div className="flex items-center justify-center py-12">
+          <Loader2 className="h-6 w-6 animate-spin text-brand-muted" />
+        </div>
+      )}
 
-                <div className="mt-3">
-                  <p className="text-sm text-brand-muted">{alerta.cultura}</p>
-                  {alerta.precoMeta && (
+      {/* Empty state */}
+      {!loading && alertas.length === 0 && (
+        <Card className="bg-brand-surface border-brand-border">
+          <CardContent className="p-8 text-center">
+            <Bell className="h-10 w-10 text-brand-muted mx-auto mb-3" />
+            <p className="text-brand-muted text-sm">
+              Nenhum alerta configurado. Crie seu primeiro alerta para ser
+              notificado sobre variações de preço.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Alerts grid */}
+      {!loading && alertas.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {alertas.map((alerta) => {
+            const CanalIcon = canalIcons[alerta.canal] || Monitor;
+            const TipoIcon =
+              alerta.tipo === "PRECO_META" ? TrendingUp : TrendingDown;
+
+            return (
+              <Card
+                key={alerta.id}
+                className={`bg-brand-surface border-brand-border transition-opacity ${
+                  !alerta.ativo ? "opacity-50" : ""
+                }`}
+              >
+                <CardContent className="p-4">
+                  {/* Top row: tipo badge + delete */}
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-2">
+                      <TipoIcon
+                        className={`h-4 w-4 ${
+                          alerta.tipo === "PRECO_META"
+                            ? "text-brand-accent"
+                            : "text-brand-gold"
+                        }`}
+                      />
+                      <Badge
+                        variant="outline"
+                        className="border-brand-border text-brand-muted text-xs"
+                      >
+                        {tipoLabels[alerta.tipo]}
+                      </Badge>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-brand-muted hover:text-red-400 h-8 w-8"
+                      onClick={() => handleDelete(alerta.id)}
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </Button>
+                  </div>
+
+                  {/* Cultura + price */}
+                  <div className="mt-3">
+                    <p className="text-sm text-brand-muted">
+                      {culturaLabels[alerta.cultura] || alerta.cultura}
+                    </p>
                     <p className="text-xl font-bold text-brand-text font-mono mt-1">
                       R$ {alerta.precoMeta.toFixed(2)}/sc
                     </p>
-                  )}
-                </div>
-
-                <div className="flex items-center justify-between mt-4">
-                  <div className="flex items-center gap-1.5 text-brand-muted">
-                    <CanalIcon className="h-3.5 w-3.5" />
-                    <span className="text-xs">{alerta.canal}</span>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleToggle(alerta.id)}
-                    className={`text-xs h-7 ${
-                      alerta.ativo
-                        ? "border-brand-accent text-brand-accent hover:bg-brand-accent/10"
-                        : "border-brand-border text-brand-muted hover:bg-brand-alt"
-                    }`}
-                  >
-                    {alerta.ativo ? "Ativo" : "Pausado"}
-                  </Button>
-                </div>
 
-                {alerta.disparadoEm && (
-                  <p className="text-xs text-brand-gold mt-2">
-                    Disparado em{" "}
-                    {new Date(alerta.disparadoEm).toLocaleDateString("pt-BR")}
-                  </p>
-                )}
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
+                  {/* Bottom row: canal + toggle */}
+                  <div className="flex items-center justify-between mt-4">
+                    <div className="flex items-center gap-1.5 text-brand-muted">
+                      <CanalIcon className="h-3.5 w-3.5" />
+                      <span className="text-xs">
+                        {canalLabels[alerta.canal] || alerta.canal}
+                      </span>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleToggle(alerta.id, alerta.ativo)}
+                      className={`text-xs h-7 ${
+                        alerta.ativo
+                          ? "border-brand-accent text-brand-accent hover:bg-brand-accent/10"
+                          : "border-brand-border text-brand-muted hover:bg-brand-alt"
+                      }`}
+                    >
+                      {alerta.ativo ? "Ativo" : "Pausado"}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
