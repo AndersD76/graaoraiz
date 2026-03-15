@@ -1,16 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
-    const userId = req.nextUrl.searchParams.get("userId");
+    const session = await getServerSession(authOptions);
+    const userId = (session?.user as Record<string, unknown>)?.id as string;
     if (!userId) {
-      return NextResponse.json(
-        { error: "userId obrigatório" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
     }
 
     const alertas = await prisma.alerta.findMany({
@@ -29,12 +29,19 @@ export async function GET(req: NextRequest) {
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
-    const { userId, tipo, cultura, precoMeta, canal } = body;
+    const session = await getServerSession(authOptions);
+    const userId = (session?.user as Record<string, unknown>)?.id as string;
+    if (!userId) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
 
-    if (!userId || !tipo) {
+    const body = await req.json();
+    const { tipo, cultura, preco, precoMeta, canal } = body;
+    const precoValue = preco ?? precoMeta;
+
+    if (!tipo || !cultura || precoValue == null) {
       return NextResponse.json(
-        { error: "userId e tipo são obrigatórios" },
+        { error: "tipo, cultura e preco são obrigatórios" },
         { status: 400 }
       );
     }
@@ -43,8 +50,8 @@ export async function POST(req: NextRequest) {
       data: {
         userId,
         tipo,
-        cultura: cultura || "SOJA",
-        precoMeta: precoMeta ? parseFloat(precoMeta) : null,
+        cultura,
+        precoMeta: parseFloat(precoValue),
         canal: canal || "APP",
       },
     });
@@ -53,6 +60,83 @@ export async function POST(req: NextRequest) {
   } catch {
     return NextResponse.json(
       { error: "Erro ao criar alerta" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    const userId = (session?.user as Record<string, unknown>)?.id as string;
+    if (!userId) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
+    const id = req.nextUrl.searchParams.get("id");
+    if (!id) {
+      return NextResponse.json(
+        { error: "id é obrigatório" },
+        { status: 400 }
+      );
+    }
+
+    // Ensure the alert belongs to the user
+    const existing = await prisma.alerta.findUnique({ where: { id } });
+    if (!existing || existing.userId !== userId) {
+      return NextResponse.json(
+        { error: "Alerta não encontrado" },
+        { status: 404 }
+      );
+    }
+
+    await prisma.alerta.delete({ where: { id } });
+
+    return NextResponse.json({ success: true });
+  } catch {
+    return NextResponse.json(
+      { error: "Erro ao deletar alerta" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    const userId = (session?.user as Record<string, unknown>)?.id as string;
+    if (!userId) {
+      return NextResponse.json({ error: "Não autenticado" }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const { id, ativo } = body;
+
+    if (!id || typeof ativo !== "boolean") {
+      return NextResponse.json(
+        { error: "id e ativo são obrigatórios" },
+        { status: 400 }
+      );
+    }
+
+    // Ensure the alert belongs to the user
+    const existing = await prisma.alerta.findUnique({ where: { id } });
+    if (!existing || existing.userId !== userId) {
+      return NextResponse.json(
+        { error: "Alerta não encontrado" },
+        { status: 404 }
+      );
+    }
+
+    const alerta = await prisma.alerta.update({
+      where: { id },
+      data: { ativo },
+    });
+
+    return NextResponse.json(alerta);
+  } catch {
+    return NextResponse.json(
+      { error: "Erro ao atualizar alerta" },
       { status: 500 }
     );
   }

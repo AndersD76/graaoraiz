@@ -18,12 +18,14 @@ model User {
   role          Role      @default(PRODUTOR)
   plano         Plano     @default(GRATUITO)
   createdAt     DateTime  @default(now())
+  apiKey        String?   @unique
   updatedAt     DateTime  @updatedAt
 
   propriedade Propriedade?
   alertas     Alerta[]
   accounts    Account[]
   sessions    Session[]
+  membros     PropriedadeMembro[]
 }
 
 enum Role {
@@ -50,7 +52,20 @@ model Propriedade {
   userId    String   @unique
   user      User     @relation(fields: [userId], references: [id])
   talhoes   Talhao[]
+  membros   PropriedadeMembro[]
   createdAt DateTime @default(now())
+}
+
+model PropriedadeMembro {
+  id              String      @id @default(cuid())
+  propriedadeId   String
+  propriedade     Propriedade @relation(fields: [propriedadeId], references: [id])
+  userId          String
+  user            User        @relation(fields: [userId], references: [id])
+  papel           String      @default("visualizador")
+  createdAt       DateTime    @default(now())
+
+  @@unique([propriedadeId, userId])
 }
 
 model Talhao {
