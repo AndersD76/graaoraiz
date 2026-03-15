@@ -7,9 +7,10 @@ import { Menu, X } from "lucide-react";
 
 const navLinks = [
   { label: "Produto", href: "#solucao" },
+  { label: "Como funciona", href: "#como-funciona" },
   { label: "Preços", href: "#planos" },
   { label: "Cooperativas", href: "#cooperativas" },
-  { label: "Contato", href: "#contato" },
+  { label: "FAQ", href: "#faq" },
 ];
 
 export default function Navbar() {
@@ -29,7 +30,7 @@ export default function Navbar() {
       transition={{ duration: 0.5 }}
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         scrolled
-          ? "bg-brand-bg/80 backdrop-blur-xl border-b border-brand-border"
+          ? "bg-brand-bg/80 backdrop-blur-xl border-b border-brand-border shadow-lg shadow-black/10"
           : "bg-transparent"
       }`}
     >
@@ -56,11 +57,17 @@ export default function Navbar() {
             ))}
           </div>
 
-          {/* CTA */}
-          <div className="hidden md:block">
+          {/* CTAs */}
+          <div className="hidden md:flex items-center gap-3">
+            <Link
+              href="/login"
+              className="inline-flex items-center px-4 py-2 text-sm font-medium text-brand-muted hover:text-brand-text transition-colors"
+            >
+              Entrar
+            </Link>
             <Link
               href="/cadastro"
-              className="inline-flex items-center px-5 py-2 rounded-lg bg-brand-accent text-brand-bg text-sm font-semibold hover:brightness-110 transition-all"
+              className="inline-flex items-center px-5 py-2 rounded-lg bg-brand-accent text-brand-bg text-sm font-semibold hover:brightness-110 transition-all shadow-md shadow-brand-accent/20"
             >
               Começar grátis
             </Link>
@@ -69,7 +76,7 @@ export default function Navbar() {
           {/* Mobile Toggle */}
           <button
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="md:hidden text-brand-text"
+            className="md:hidden text-brand-text p-1"
           >
             {mobileOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
@@ -81,7 +88,7 @@ export default function Navbar() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="md:hidden bg-brand-surface border-b border-brand-border"
+          className="md:hidden bg-brand-surface/95 backdrop-blur-xl border-b border-brand-border"
         >
           <div className="px-4 py-4 flex flex-col gap-4">
             {navLinks.map((link) => (
@@ -94,12 +101,22 @@ export default function Navbar() {
                 {link.label}
               </a>
             ))}
-            <Link
-              href="/cadastro"
-              className="inline-flex items-center justify-center px-5 py-2 rounded-lg bg-brand-accent text-brand-bg text-sm font-semibold"
-            >
-              Começar grátis
-            </Link>
+            <div className="border-t border-brand-border pt-4 flex flex-col gap-3">
+              <Link
+                href="/login"
+                onClick={() => setMobileOpen(false)}
+                className="inline-flex items-center justify-center px-5 py-2 rounded-lg border border-brand-border text-brand-text text-sm font-medium"
+              >
+                Entrar
+              </Link>
+              <Link
+                href="/cadastro"
+                onClick={() => setMobileOpen(false)}
+                className="inline-flex items-center justify-center px-5 py-2 rounded-lg bg-brand-accent text-brand-bg text-sm font-semibold"
+              >
+                Começar grátis
+              </Link>
+            </div>
           </div>
         </motion.div>
       )}
