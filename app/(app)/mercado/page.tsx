@@ -89,7 +89,7 @@ export default function MercadoPage() {
   const [totalCooperativas, setTotalCooperativas] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const melhorPreco = cotacoes.length > 0 ? cotacoes[0].preco : 0;
+  const melhorPreco = cotacoes.length > 0 ? (cotacoes[0].preco ?? 0) : 0;
 
   const fetchPrecos = useCallback(async () => {
     setLoading(true);
@@ -97,11 +97,11 @@ export default function MercadoPage() {
       const res = await fetch(`/api/precos?uf=${uf}&cultura=${cultura}`);
       if (res.ok) {
         const data = await res.json();
-        if (data.cbot) {
+        if (data.cbot?.preco != null) {
           setCbotPrice(data.cbot.preco);
-          setCbotVar(data.cbot.variacao);
+          setCbotVar(data.cbot.variacao ?? 0);
         }
-        if (data.dolar) setDolar(data.dolar.venda);
+        if (data.dolar?.venda != null) setDolar(data.dolar.venda);
         if (data.cotacoes?.length) setCotacoes(data.cotacoes);
         if (data.totalCooperativas) setTotalCooperativas(data.totalCooperativas);
       }
@@ -271,10 +271,10 @@ export default function MercadoPage() {
                         {cot.municipio}/{cot.uf}
                       </TableCell>
                       <TableCell className={`text-right font-mono font-bold ${i === 0 ? "text-brand-accent" : "text-brand-text"}`}>
-                        {cot.preco.toFixed(2)}
+                        {(cot.preco ?? 0).toFixed(2)}
                       </TableCell>
                       <TableCell className="text-right font-mono text-brand-muted">
-                        {cot.basis > 0 ? "+" : ""}{cot.basis.toFixed(1)}%
+                        {(cot.basis ?? 0) > 0 ? "+" : ""}{(cot.basis ?? 0).toFixed(1)}%
                       </TableCell>
                       <TableCell className="text-right text-brand-muted text-sm">
                         {cot.atualizado}

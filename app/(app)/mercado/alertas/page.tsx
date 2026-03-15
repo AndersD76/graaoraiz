@@ -336,7 +336,7 @@ export default function AlertasPage() {
                       {culturaLabels[alerta.cultura] || alerta.cultura}
                     </p>
                     <p className="text-xl font-bold text-brand-text font-mono mt-1">
-                      R$ {alerta.precoMeta.toFixed(2)}/sc
+                      R$ {(alerta.precoMeta ?? 0).toFixed(2)}/sc
                     </p>
                   </div>
 
