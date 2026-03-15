@@ -11,8 +11,8 @@ export default function Hero() {
       {/* Background image */}
       <div className="absolute inset-0">
         <Image
-          src="https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1920&q=80"
-          alt="Campo de soja ao pôr do sol"
+          src="/images/hero-bg.jpg"
+          alt="Campo verde de grãos"
           fill
           className="object-cover"
           priority
@@ -118,8 +118,8 @@ export default function Hero() {
                 </div>
                 <div className="relative rounded-lg overflow-hidden">
                   <Image
-                    src="https://images.unsplash.com/photo-1473448912268-2022ce9509d8?w=800&q=80"
-                    alt="Lavoura de soja verde vista de cima"
+                    src="/images/soybean-rows.jpg"
+                    alt="Colheitadeira e trator em campo de grãos"
                     width={600}
                     height={380}
                     className="object-cover rounded-lg"
