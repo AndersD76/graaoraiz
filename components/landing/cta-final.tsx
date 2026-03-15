@@ -19,7 +19,7 @@ export default function CtaFinal() {
           {/* Background image */}
           <div className="absolute inset-0">
             <Image
-              src="https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=1920&q=80"
+              src="https://images.unsplash.com/photo-1471532027614-8be04c0e5a04?w=1920&q=80"
               alt="Lavoura de grãos ao pôr do sol"
               fill
               className="object-cover"
