@@ -36,3 +36,10 @@ yarn-error.log*
 next-env.d.ts
 
 /app/generated/prisma
+.env
+.env.*
+!.env.example
+.claude/
+_ul
+_ul-*
+node_modules/
