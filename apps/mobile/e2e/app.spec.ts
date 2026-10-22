@@ -113,6 +113,58 @@ test('Pro simulado libera talhões extras, 48 h e relatório', async ({ page }) 
   await capturar(page, '09-relatorio');
 });
 
+test('banco local: dados continuam depois de recarregar', async ({ page }) => {
+  await cadastrarPrimeiroTalhao(page);
+  await irParaAba(page, 'Chuva');
+  await page.getByTestId('campo-mm').fill('7,5');
+  await page.getByTestId('salvar-chuva').click();
+  await expect(page.getByText(/Anotado: 7,5 mm\./)).toBeVisible();
+
+  // Recarregar zera a memória da página: o que aparecer vem do banco.
+  await page.reload();
+  await expect(page.getByText('Talhão da Sede').first()).toBeVisible();
+  await expect(page.getByText('O tempo certo para agir no seu talhão.')).toBeHidden();
+  await irParaAba(page, 'Chuva');
+  await expect(page.getByText(/Anotado: 7,5 mm\./)).toBeVisible();
+});
+
+test('talhão: editar, excluir e ocorrência', async ({ page }) => {
+  await cadastrarPrimeiroTalhao(page);
+
+  await irParaAba(page, 'Talhões');
+  await page.getByTestId('editar-Talhão da Sede').click();
+  await page.getByTestId('campo-nome').fill('Talhão Norte');
+  await page.getByRole('button', { name: 'Já plantei' }).click();
+  await page.getByTestId('salvar-talhao').click();
+  await expect(page.getByTestId('talhao-Talhão Norte')).toBeVisible();
+  await expect(page.getByText(/Soja · plantio em/)).toBeVisible();
+
+  await irParaAba(page, 'Chuva');
+  await page.getByRole('button', { name: 'Granizo' }).click();
+  await page.getByRole('textbox', { name: 'Observação (opcional)' }).fill('pedras pequenas');
+  await page.getByRole('button', { name: /Registrar ocorrência de/ }).click();
+  await expect(page.getByText(/Granizo — pedras pequenas/)).toBeVisible();
+
+  await irParaAba(page, 'Talhões');
+  await page.getByTestId('editar-Talhão Norte').click();
+  await page.getByTestId('excluir-talhao').click(); // confirmação aceita pelo handler de diálogo
+  // Sem talhões, o app volta para a apresentação.
+  await expect(page.getByText('O tempo certo para agir no seu talhão.')).toBeVisible();
+});
+
+test('sem internet: continua mostrando a previsão salva', async ({ page, context }) => {
+  await cadastrarPrimeiroTalhao(page);
+  await expect(page.getByTestId('pulverizacao-Amanhã')).toBeVisible();
+
+  // Corta a rede para o Open-Meteo e recarrega: a previsão salva no banco continua aparecendo.
+  await page.unroute(/open-meteo\.com/);
+  await context.route(/open-meteo\.com/, (rota) => rota.abort());
+  await page.reload();
+  await expect(page.getByTestId('pulverizacao-Amanhã')).toBeVisible();
+  await page.getByTestId('ver-hora-a-hora').click();
+  await expect(page.getByText(/Critérios: vento na barra/)).toBeVisible();
+});
+
 test('ajustes: avisos, limites e apagar dados', async ({ page }) => {
   await cadastrarPrimeiroTalhao(page);
   await irParaAba(page, 'Ajustes');

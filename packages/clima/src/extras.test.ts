@@ -18,6 +18,12 @@ describe('open-meteo', () => {
     expect(url.searchParams.get('hourly')).toContain('wind_gusts_10m');
   });
 
+  it('usa o fuso do aparelho quando informado e recusa valores estranhos', () => {
+    expect(new URL(urlPrevisao(-15.6, -56.1, { fuso: 'America/Cuiaba' })).searchParams.get('timezone')).toBe('America/Cuiaba');
+    expect(new URL(urlPrevisao(-15.6, -56.1)).searchParams.get('timezone')).toBe('auto');
+    expect(new URL(urlPrevisao(-15.6, -56.1, { fuso: 'x&y=1' })).searchParams.get('timezone')).toBe('auto');
+  });
+
   it('usa o servidor comercial quando há chave', () => {
     const url = new URL(urlPrevisao(-25, -49, { apiKey: 'abc', diasPrevisao: 40 }));
     expect(url.origin).toBe('https://customer-api.open-meteo.com');

@@ -1,8 +1,9 @@
-import { acumulado, dataDe, formatarData, formatarMm, isoLocal, safraDe, somarDias } from '@graoraiz/clima';
+import { acumulado, dataDe, formatarData, formatarMm, safraDe, somarDias } from '@graoraiz/clima';
 import { useRef, useState } from 'react';
 import { type HostInstance, StyleSheet, View } from 'react-native';
 
 import { Botao, Chip, Linha, T, Tela } from '@/components/ui';
+import { useAgora } from '@/hooks/use-agora';
 import { useChuvaSafra } from '@/hooks/use-chuva-safra';
 import { SITE_URL } from '@/lib/config';
 import { informar } from '@/lib/dialogo';
@@ -21,12 +22,12 @@ const PERIODOS: { valor: Periodo; rotulo: string }[] = [
 export default function CartaoChuvaScreen() {
   const estado = useEstado();
   const talhao = talhaoAtual(estado);
-  const { registros } = useChuvaSafra(talhao);
+  const hoje = dataDe(useAgora());
+  const { registros } = useChuvaSafra(talhao, hoje);
   const [periodo, setPeriodo] = useState<Periodo>('hoje');
   const [compartilhando, setCompartilhando] = useState(false);
   const cartao = useRef<HostInstance>(null);
 
-  const hoje = dataDe(isoLocal(new Date()));
   const safra = safraDe(hoje);
   const inicio = { hoje, semana: somarDias(hoje, -6), mes: `${hoje.slice(0, 7)}-01`, safra: safra.inicio }[periodo];
   const mm = acumulado(registros, inicio, hoje);
@@ -50,7 +51,7 @@ export default function CartaoChuvaScreen() {
   };
 
   return (
-    <Tela comAbas={false}>
+    <Tela comAbas={false} cabecalhoNativo>
       <Linha>
         {PERIODOS.map((p) => (
           <Chip key={p.valor} rotulo={p.rotulo} ativo={periodo === p.valor} aoTocar={() => setPeriodo(p.valor)} />
@@ -61,7 +62,8 @@ export default function CartaoChuvaScreen() {
         <T variante="forte" cor="#D8F0DD">
           Grão Raiz · pluviômetro
         </T>
-        <T style={estilos.mm} cor="#ffffff">
+        {/* Tamanho fixo: com fonte grande do sistema o número estouraria o cartão quadrado. */}
+        <T style={estilos.mm} cor="#ffffff" maxFontSizeMultiplier={1} adjustsFontSizeToFit numberOfLines={1}>
           {formatarMm(mm)}
         </T>
         <T variante="subtitulo" cor="#ffffff">

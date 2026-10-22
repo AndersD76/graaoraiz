@@ -1,4 +1,8 @@
-/** Versão web (usada nos testes no navegador): localStorage com a mesma interface. */
+/**
+ * Versão web (testes no navegador): banco local do navegador (localStorage), com a mesma interface
+ * do SQLite usado no celular. Os dados persistem entre recargas, por navegador.
+ * O expo-sqlite na web ainda é experimental e, nos testes, não manteve os dados após recarregar.
+ */
 function armazenamento(): Storage | null {
   try {
     return typeof window !== 'undefined' ? window.localStorage : null;

@@ -10,16 +10,12 @@
     "ios": {
       "icon": "./assets/images/icon.png",
       "bundleIdentifier": "com.graoraiz.app",
-      "buildNumber": "1",
       "supportsTablet": false,
       "config": {
         "usesNonExemptEncryption": false
       },
       "infoPlist": {
         "CFBundleDevelopmentRegion": "pt-BR",
-        "NSLocationAlwaysAndWhenInUseUsageDescription": "O Grão Raiz usa sua localização só quando você pede, para marcar o talhão. O app não acompanha sua localização em segundo plano.",
-        "NSLocationAlwaysUsageDescription": "O Grão Raiz usa sua localização só quando você pede, para marcar o talhão. O app não acompanha sua localização em segundo plano.",
-        "NSMotionUsageDescription": "O Grão Raiz não usa os sensores de movimento.",
         "NSLocationTemporaryUsageDescriptionDictionary": {
           "ExpoLocationFullAccuracy": "A localização precisa ajuda a marcar o talhão no lugar certo."
         }
@@ -27,7 +23,6 @@
     },
     "android": {
       "package": "com.graoraiz.app",
-      "versionCode": 1,
       "adaptiveIcon": {
         "backgroundColor": "#1F6B2E",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
@@ -68,13 +63,17 @@
         "expo-location",
         {
           "isAndroidBackgroundLocationEnabled": false,
-          "locationWhenInUsePermission": "O Grão Raiz usa sua localização só quando você pede, para marcar o talhão e buscar a previsão do lugar certo."
+          "locationWhenInUsePermission": "O Grão Raiz usa sua localização só quando você pede, para marcar o talhão e buscar a previsão do lugar certo.",
+          "locationAlwaysPermission": false,
+          "locationAlwaysAndWhenInUsePermission": false,
+          "motionUsagePermission": false
         }
       ],
       [
         "expo-notifications",
         {
-          "color": "#1F6B2E"
+          "color": "#1F6B2E",
+          "icon": "./assets/images/notification-icon.png"
         }
       ]
     ],

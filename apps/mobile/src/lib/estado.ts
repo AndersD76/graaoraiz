@@ -121,8 +121,15 @@ export function usePro(): boolean {
   return temPro(useEstado());
 }
 
+/** Talhões em uso: todos no Pro; no grátis, só os mais antigos até o limite (o resto fica bloqueado). */
+export function talhoesLiberados(e: Estado): Talhao[] {
+  if (temPro(e)) return e.talhoes;
+  return [...e.talhoes].sort((a, b) => a.criadoEm.localeCompare(b.criadoEm)).slice(0, LIMITE_TALHOES_GRATIS);
+}
+
 export function talhaoAtual(e: Estado): Talhao | null {
-  return e.talhoes.find((t) => t.id === e.talhaoSelecionado) ?? e.talhoes[0] ?? null;
+  const liberados = talhoesLiberados(e);
+  return liberados.find((t) => t.id === e.talhaoSelecionado) ?? liberados[0] ?? null;
 }
 
 export function novoId(): string {

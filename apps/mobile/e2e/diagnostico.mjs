@@ -14,6 +14,7 @@ pagina.on('response', async (r) => {
 });
 await pagina.goto(process.argv[2] ?? 'http://localhost:8085/', { waitUntil: 'networkidle' });
 await pagina.waitForTimeout(3000);
+console.log('crossOriginIsolated:', await pagina.evaluate(() => self.crossOriginIsolated));
 console.log('--- texto da página ---');
 console.log((await pagina.locator('body').innerText()).slice(0, 500));
 await navegador.close();

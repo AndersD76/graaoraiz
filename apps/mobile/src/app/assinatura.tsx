@@ -29,6 +29,7 @@ export default function AssinaturaScreen() {
   const [planos, setPlanos] = useState<PlanoAssinatura[] | null>(disponivel ? null : []);
   const [escolhido, setEscolhido] = useState<string | null>(null);
   const [ocupado, setOcupado] = useState(false);
+  const [tentativa, setTentativa] = useState(0);
 
   useEffect(() => {
     if (!disponivel) return;
@@ -43,7 +44,7 @@ export default function AssinaturaScreen() {
     return () => {
       ativo = false;
     };
-  }, [disponivel]);
+  }, [disponivel, tentativa]);
 
   const assinar = async () => {
     if (!escolhido) return;
@@ -58,7 +59,7 @@ export default function AssinaturaScreen() {
   };
 
   return (
-    <Tela comAbas={false}>
+    <Tela comAbas={false} cabecalhoNativo>
       <T variante="titulo" cor={tema.marca}>
         Grão Raiz Pro
       </T>
@@ -90,32 +91,39 @@ export default function AssinaturaScreen() {
             );
           })}
           <Botao titulo="Assinar" aoTocar={assinar} carregando={ocupado} desabilitado={!escolhido} testID="assinar" />
-          <Botao
-            titulo="Restaurar compras"
-            tipo="texto"
-            aoTocar={async () => {
-              const ok = await restaurarCompras().catch(() => false);
-              informar('Restaurar compras', ok ? 'Assinatura Pro restaurada.' : 'Nenhuma assinatura ativa encontrada.');
-            }}
-          />
         </>
       ) : null}
 
-      {!pro && planos && planos.length === 0 ? (
+      {!pro && disponivel && planos && planos.length === 0 ? (
+        <Cartao>
+          <T>Não foi possível carregar os planos da loja agora. Verifique a internet e tente de novo.</T>
+          <Botao titulo="Tentar de novo" tipo="secundario" aoTocar={() => setTentativa((n) => n + 1)} />
+        </Cartao>
+      ) : null}
+
+      {!pro && !disponivel ? (
         <Cartao>
           <T variante="forte">Preço de lançamento</T>
           <T>
             {PRECOS_REFERENCIA.mensal} por mês ou {PRECOS_REFERENCIA.anual} por ano, com 14 dias grátis.
           </T>
-          <T variante="pequeno">
-            {disponivel
-              ? 'Não foi possível carregar os planos da loja agora. Verifique a internet e tente de novo.'
-              : 'A assinatura será liberada quando o app estiver publicado na loja.'}
-          </T>
+          <T variante="pequeno">A assinatura será liberada quando o app estiver publicado na loja.</T>
           {PERMITE_SIMULAR_PRO ? (
             <Botao titulo="Simular Pro (desenvolvimento)" tipo="secundario" aoTocar={() => definirProSimulado(true)} testID="simular-pro-paywall" />
           ) : null}
         </Cartao>
+      ) : null}
+
+      {/* Restaurar fica sempre à mão (exigência da App Store), mesmo se os planos não carregarem. */}
+      {!pro && disponivel ? (
+        <Botao
+          titulo="Restaurar compras"
+          tipo="texto"
+          aoTocar={async () => {
+            const ok = await restaurarCompras().catch(() => false);
+            informar('Restaurar compras', ok ? 'Assinatura Pro restaurada.' : 'Nenhuma assinatura ativa encontrada nesta conta da loja.');
+          }}
+        />
       ) : null}
 
       <View style={{ gap: 4 }}>

@@ -45,6 +45,7 @@ describe('planejarAvisos', () => {
     const horas = serie((h) => (h.hora === '2026-10-22T16:00' ? { codigoTempo: 95, rajada10m: 70 } : {}));
     const temporal = planejarAvisos({ talhao, horas, dias: [], agora: '2026-10-22T09:00' }).find((a) => a.tipo === 'temporal');
     expect(temporal?.quando).toBe('2026-10-22T13:00');
+    expect(temporal?.id).toBe('temporal-t1-2026-10-22-2'); // bloco das 12h–18h
     expect(temporal?.corpo).toContain('trovoada, rajadas de 70 km/h por volta das 16h de hoje');
   });
 
@@ -59,7 +60,8 @@ describe('planejarAvisos', () => {
     const base = { talhao, horas: [], dias: [], agora: '2026-10-22T10:00', diasSemChuva: 12 };
     expect(planejarAvisos({ ...base, plantado: false })).toEqual([]);
     const [veranico] = planejarAvisos({ ...base, plantado: true });
-    expect(veranico?.id).toBe('veranico-t1-10');
+    // 12 dias secos até ontem (21/10): a seca começou em 10/10.
+    expect(veranico?.id).toBe('veranico-t1-2026-10-10-10');
     expect(veranico?.quando).toBe('2026-10-22T10:01');
   });
 

@@ -1,9 +1,10 @@
-import { avaliarSerie, dataDe, diaDaSemana, formatarData, isoLocal, somarDias } from '@graoraiz/clima';
+import { avaliarSerie, dataDe, diaDaSemana, formatarData, somarDias } from '@graoraiz/clima';
 import { useRouter } from 'expo-router';
 import { useMemo } from 'react';
 
 import { AlertasTempo, CartaoPulverizacao, CartaoTempoFirme, PrevisaoSemana, RodapeFonte, SeletorTalhao } from '@/components/clima';
 import { Aviso, Botao, Carregando, Tela } from '@/components/ui';
+import { useAgora } from '@/hooks/use-agora';
 import { usePrevisao } from '@/hooks/use-previsao';
 import { reagendarAvisos } from '@/lib/avisos';
 import { talhaoAtual, useEstado } from '@/lib/estado';
@@ -11,10 +12,10 @@ import { talhaoAtual, useEstado } from '@/lib/estado';
 export default function HojeScreen() {
   const router = useRouter();
   const estado = useEstado();
+  const agora = useAgora();
   const talhao = talhaoAtual(estado);
   const { resultado, carregando, erro, atualizar } = usePrevisao(talhao?.lat, talhao?.lon);
 
-  const agora = isoLocal(new Date());
   const hoje = dataDe(agora);
   const amanha = somarDias(hoje, 1);
   const horaAtual = `${agora.slice(0, 13)}:00`;
@@ -35,13 +36,13 @@ export default function HojeScreen() {
       subtitulo={`${diaDaSemana(hoje, true)}, ${formatarData(hoje)}${talhao ? ` · ${talhao.nome}` : ''}`}
       aoAtualizar={recarregar}
       atualizando={carregando && resultado !== null}>
-      <SeletorTalhao talhoes={estado.talhoes} selecionado={talhao} />
+      <SeletorTalhao selecionado={talhao} />
 
       {!resultado && carregando ? <Carregando texto="Buscando a previsão do seu talhão…" /> : null}
 
       {!resultado && !carregando && erro ? (
         <Aviso tipo="atencao" titulo="Não deu para buscar a previsão">
-          Verifique a internet e tente de novo. Quando houver sinal, a última previsão fica salva para usar sem internet.
+          {`${erro} Quando houver sinal, a última previsão fica salva para usar sem internet.`}
         </Aviso>
       ) : null}
       {!resultado && !carregando && erro ? <Botao titulo="Tentar de novo" aoTocar={recarregar} /> : null}

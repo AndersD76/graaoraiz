@@ -1,8 +1,9 @@
-import { acumulado, dataDe, formatarMm, isoLocal, montarRelatorioHtml, safraDe, somarDias } from '@graoraiz/clima';
+import { acumulado, dataDe, formatarMm, montarRelatorioHtml, safraDe, somarDias } from '@graoraiz/clima';
 import { Redirect } from 'expo-router';
 import { useState } from 'react';
 
 import { Aviso, Botao, Cartao, T, Tela } from '@/components/ui';
+import { useAgora } from '@/hooks/use-agora';
 import { useChuvaSafra } from '@/hooks/use-chuva-safra';
 import { informar } from '@/lib/dialogo';
 import { CULTURAS, talhaoAtual, useEstado, usePro } from '@/lib/estado';
@@ -12,14 +13,14 @@ export default function RelatorioScreen() {
   const estado = useEstado();
   const pro = usePro();
   const talhao = talhaoAtual(estado);
-  const { registros, normal, carregando, semEstimativa } = useChuvaSafra(talhao);
+  const agora = useAgora();
+  const hoje = dataDe(agora);
+  const { registros, normal, carregando, semEstimativa } = useChuvaSafra(talhao, hoje);
   const [gerando, setGerando] = useState(false);
 
   if (!pro) return <Redirect href="/assinatura" />;
   if (!talhao) return null;
 
-  const agora = isoLocal(new Date());
-  const hoje = dataDe(agora);
   const safra = safraDe(hoje);
   const ate = somarDias(hoje, -1);
   const eventos = estado.eventos.filter((e) => e.talhaoId === talhao.id && e.data >= safra.inicio);
@@ -52,7 +53,7 @@ export default function RelatorioScreen() {
   };
 
   return (
-    <Tela comAbas={false}>
+    <Tela comAbas={false} cabecalhoNativo>
       <Cartao>
         <T variante="subtitulo">
           {talhao.nome} · safra {safra.rotulo}

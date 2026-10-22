@@ -1,9 +1,10 @@
-import { dataDe, isoLocal } from '@graoraiz/clima';
+import { dataDe } from '@graoraiz/clima';
 import { useState } from 'react';
 
 import { MapaTalhao } from '@/components/mapa-talhao';
 import { SeletorData } from '@/components/seletor-data';
 import { Aviso, Botao, Campo, Chip, Linha, T } from '@/components/ui';
+import { useAgora } from '@/hooks/use-agora';
 import { type Cultura, CULTURAS, type Talhao } from '@/lib/estado';
 import { type Coordenada, localizacaoAtual } from '@/lib/localizacao';
 
@@ -27,7 +28,7 @@ export function dadosIniciais(talhao?: Talhao | null): DadosTalhao {
 export function FormTalhao({ dados, aoMudar, comPlantio = true }: { dados: DadosTalhao; aoMudar: (d: DadosTalhao) => void; comPlantio?: boolean }) {
   const [buscando, setBuscando] = useState(false);
   const [semPermissao, setSemPermissao] = useState(false);
-  const hoje = dataDe(isoLocal(new Date()));
+  const hoje = dataDe(useAgora());
 
   const usarLocalizacao = async () => {
     setBuscando(true);

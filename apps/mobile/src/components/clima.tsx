@@ -1,7 +1,10 @@
 import {
   ATRIBUICAO_OPEN_METEO,
   type AvaliacaoHora,
+  dataDe,
   type Dia,
+  formatarData,
+  isoLocal,
   descreverTempo,
   formatarHora,
   formatarJanela,
@@ -18,17 +21,28 @@ import {
 } from '@graoraiz/clima';
 import { StyleSheet, View } from 'react-native';
 
+import { useRouter } from 'expo-router';
+
 import { Aviso, Botao, Cartao, Chip, Linha, Selo, T, useCorStatus } from '@/components/ui';
 import { Spacing } from '@/constants/theme';
+import { useAgora } from '@/hooks/use-agora';
 import { useTheme } from '@/hooks/use-theme';
-import { selecionarTalhao, type Talhao } from '@/lib/estado';
+import { selecionarTalhao, type Talhao, talhoesLiberados, useEstado } from '@/lib/estado';
 
-export function SeletorTalhao({ talhoes, selecionado }: { talhoes: Talhao[]; selecionado: Talhao | null }) {
-  if (talhoes.length <= 1) return null;
+/** Escolha do talhão. No grátis, os talhões além do limite aparecem com cadeado e levam ao Pro. */
+export function SeletorTalhao({ selecionado }: { selecionado: Talhao | null }) {
+  const router = useRouter();
+  const estado = useEstado();
+  const liberados = talhoesLiberados(estado);
+  const bloqueados = estado.talhoes.filter((t) => !liberados.includes(t));
+  if (estado.talhoes.length <= 1) return null;
   return (
     <Linha accessibilityLabel="Escolher talhão">
-      {talhoes.map((t) => (
+      {liberados.map((t) => (
         <Chip key={t.id} rotulo={t.nome} ativo={t.id === selecionado?.id} aoTocar={() => selecionarTalhao(t.id)} />
+      ))}
+      {bloqueados.map((t) => (
+        <Chip key={t.id} rotulo={`🔒 ${t.nome}`} ativo={false} aoTocar={() => router.push('/assinatura')} />
       ))}
     </Linha>
   );
@@ -170,14 +184,17 @@ export function FaixaHora({ avaliacao, bloqueada = false }: { avaliacao: Avaliac
 
 export function RodapeFonte({ em, desatualizado }: { em?: number; desatualizado?: boolean }) {
   const tema = useTheme();
-  const quando = em ? new Date(em) : null;
+  const agora = useAgora();
+  const quando = em ? isoLocal(new Date(em)) : null;
+  // Data só quando não é de hoje: "Atualizado às 07:12" de ontem enganaria.
+  const dia = quando && dataDe(quando) !== dataDe(agora) ? ` de ${formatarData(dataDe(quando))}` : '';
   return (
     <View style={estilos.rodape}>
       {quando ? (
         <T variante="pequeno" cor={desatualizado ? tema.atencao : tema.textSecondary}>
-          {desatualizado ? 'Sem internet — mostrando a previsão de ' : 'Atualizado às '}
-          {`${String(quando.getHours()).padStart(2, '0')}:${String(quando.getMinutes()).padStart(2, '0')}`}
-          {desatualizado ? ` de ${String(quando.getDate()).padStart(2, '0')}/${String(quando.getMonth() + 1).padStart(2, '0')}` : ''}.
+          {desatualizado ? 'Sem internet — mostrando a previsão salva às ' : 'Atualizado às '}
+          {quando.slice(11, 16)}
+          {dia}.
         </T>
       ) : null}
       <T variante="pequeno">Estimativa a partir de modelos meteorológicos. Confira as condições no local.</T>

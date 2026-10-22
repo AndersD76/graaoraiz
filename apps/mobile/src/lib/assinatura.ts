@@ -35,13 +35,41 @@ export async function iniciarAssinatura(): Promise<void> {
   }
 }
 
+/** Relê o status na loja (ex.: depois de apagar os dados do aparelho, para o assinante continuar Pro). */
+export async function atualizarStatusAssinatura(): Promise<void> {
+  if (!configurado) return;
+  try {
+    aplicar(await Purchases.getCustomerInfo());
+  } catch {
+    // Sem conexão: o listener corrige quando a loja responder.
+  }
+}
+
+const UNIDADES: Record<string, [string, string]> = {
+  DAY: ['dia', 'dias'],
+  WEEK: ['semana', 'semanas'],
+  MONTH: ['mês', 'meses'],
+  YEAR: ['ano', 'anos'],
+};
+
+/** "14 dias grátis, depois R$ 149,90 por ano" — a loja exige o teste e o preço visíveis antes da compra. */
 function descrever(p: PurchasesPackage): PlanoAssinatura {
   const anual = p.packageType === 'ANNUAL';
+  const intro = p.product.introPrice;
+  const cobranca = anual ? 'por ano' : 'por mês';
+  let descricao = `cobrado ${anual ? 'uma vez por ano' : 'todo mês'}`;
+  if (intro) {
+    const [um, varios] = UNIDADES[intro.periodUnit] ?? ['período', 'períodos'];
+    const duracao = `${intro.periodNumberOfUnits} ${intro.periodNumberOfUnits === 1 ? um : varios}`;
+    descricao = intro.price === 0
+      ? `${duracao} grátis, depois ${p.product.priceString} ${cobranca}`
+      : `${intro.priceString} por ${duracao}, depois ${p.product.priceString} ${cobranca}`;
+  }
   return {
     id: p.identifier,
     titulo: anual ? 'Anual' : p.packageType === 'MONTHLY' ? 'Mensal' : p.product.title,
     preco: p.product.priceString,
-    descricao: anual ? 'cobrado uma vez por ano' : 'cobrado todo mês',
+    descricao,
   };
 }
 
