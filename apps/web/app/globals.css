@@ -1,0 +1,96 @@
+@import "tailwindcss";
+
+/* Paleta do Grão Raiz (tema claro). Todas as combinações de texto usadas passam no WCAG AA. */
+@theme {
+  --color-marca: #1f6b2e;
+  --color-marca-escura: #164f21;
+  --color-marca-clara: #e3efe5;
+  --color-texto: #0b0f0c;
+  --color-texto-2: #4a524b;
+  --color-fundo: #ffffff;
+  --color-superficie: #f0f2ef;
+  --color-linha: #d7dcd5;
+  --color-campo: #6b746c;
+  --color-bom: #1b7f3b;
+  --color-atencao: #9a5b00;
+  --color-ruim: #c62828;
+
+  --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans",
+    "Liberation Sans", sans-serif;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+body {
+  background: var(--color-fundo);
+  color: var(--color-texto);
+  font-family: var(--font-sans);
+  overflow-wrap: break-word;
+}
+
+/* Âncoras não ficam escondidas atrás do cabeçalho fixo. */
+[id] {
+  scroll-margin-top: 5rem;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-marca);
+  outline-offset: 2px;
+}
+
+/* Texto corrido das páginas legais. */
+.texto-legal h2 {
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.25rem;
+  line-height: 1.75rem;
+  font-weight: 700;
+}
+
+.texto-legal h3 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+  font-size: 1.0625rem;
+  font-weight: 700;
+}
+
+.texto-legal p,
+.texto-legal ul,
+.texto-legal ol {
+  margin-bottom: 1rem;
+  line-height: 1.7;
+}
+
+.texto-legal ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+}
+
+.texto-legal ol {
+  list-style: decimal;
+  padding-left: 1.25rem;
+}
+
+.texto-legal li + li {
+  margin-top: 0.375rem;
+}
+
+.texto-legal a {
+  color: var(--color-marca);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}

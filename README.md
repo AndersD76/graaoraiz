@@ -1,36 +1,33 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Grão Raiz
 
-## Getting Started
+App de clima para o campo: diz se dá para pulverizar, colher ou entrar com máquina hoje, em cada talhão, guarda a chuva da safra e avisa geada e temporal.
 
-First, run the development server:
+- Plano do produto: [docs/PLANO.md](docs/PLANO.md)
+- Publicação nas lojas: [docs/PUBLICACAO.md](docs/PUBLICACAO.md)
+- Textos da ficha das lojas: [docs/LOJA.md](docs/LOJA.md)
+
+## Estrutura
+
+| Pasta | O que é |
+|---|---|
+| `apps/mobile` | App Android/iOS em Expo (SDK 58), local-first: dados no aparelho, avisos locais, PDF no aparelho |
+| `apps/web` | Site (landing com lista de espera, privacidade, termos, exclusão de dados) e API que repassa o Open-Meteo com cache |
+| `packages/clima` | Regras de decisão climática em TypeScript puro, com testes |
+| `docs` | Plano, publicação e ficha das lojas; `docs/legado` guarda planos antigos |
+| `legado/web-v0` | Versão web anterior (rastreabilidade/EUDR), só para referência; também na tag `legado-web-v0` |
+
+## Comandos (na raiz)
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install                          # instala todo o monorepo
+npm test                             # testes das regras de clima
+npm run typecheck                    # tipos de todos os pacotes
+npm run lint                         # lint de todos os pacotes
+npm run app                          # app no Expo (leia o QR com o Expo Go)
+npm run e2e -w @graoraiz/mobile      # testes ponta a ponta do app no navegador (capturas em apps/mobile/e2e/capturas)
+npm run dev -w @graoraiz/web         # site em http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+No app, novas bibliotecas entram com `npx expo install <pacote>` dentro de `apps/mobile`, para manter versões compatíveis com o SDK.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Variáveis de ambiente: `apps/mobile/.env.example` e `apps/web/.env.example`.
