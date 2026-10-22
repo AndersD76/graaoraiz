@@ -47,7 +47,17 @@ function Salvar([int]$tamanho, [string]$nome, $fundo, [double]$ocupacao, $corGot
   $dy = ($tamanho - 1024 * $escala) / 2.0 + 15 * $escala
   Desenhar-Gota $g $escala $dx $dy $corGota $corBroto
   $g.Dispose()
-  $bmp.Save((Join-Path $destino $nome), [System.Drawing.Imaging.ImageFormat]::Png)
+  if ($fundo) {
+    # Fundo opaco sai em RGB, sem canal alfa: a App Store recusa ícone com transparência.
+    $rgb = New-Object System.Drawing.Bitmap $tamanho, $tamanho, ([System.Drawing.Imaging.PixelFormat]::Format24bppRgb)
+    $g2 = [System.Drawing.Graphics]::FromImage($rgb)
+    $g2.DrawImage($bmp, 0, 0, $tamanho, $tamanho)
+    $g2.Dispose()
+    $rgb.Save((Join-Path $destino $nome), [System.Drawing.Imaging.ImageFormat]::Png)
+    $rgb.Dispose()
+  } else {
+    $bmp.Save((Join-Path $destino $nome), [System.Drawing.Imaging.ImageFormat]::Png)
+  }
   $bmp.Dispose()
   "gerado: $nome ($tamanho px)"
 }

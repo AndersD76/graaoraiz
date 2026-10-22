@@ -5,13 +5,13 @@ Atualizado em 22/10/2026. Substitui os planos anteriores (arquivados em `docs/le
 ## Situação em 22/10/2026
 
 **Pronto e testado:**
-- **App (`apps/mobile`):** apresentação inicial, talhões (mapa de satélite, GPS, cultura, plantio), tela Hoje (semáforo de pulverização, tempo firme, geada/temporal, 7 dias), hora a hora, pluviômetro com estimativa, média histórica e calendário, cartão de chuva, ocorrências, relatório da safra em PDF, avisos locais com tarefa em segundo plano, assinatura (RevenueCat), ajustes e exclusão de dados. Funciona sem internet com a última previsão.
+- **App (`apps/mobile`):** apresentação inicial, talhões (mapa open-source, GPS, cultura, plantio), tela Hoje (semáforo de pulverização, tempo firme, geada/temporal, 7 dias), hora a hora, pluviômetro com estimativa, média histórica e calendário, cartão de chuva, ocorrências, relatório da safra em PDF, avisos locais com tarefa em segundo plano, assinatura (RevenueCat), ajustes e exclusão de dados. Funciona sem internet com a última previsão.
 - **Site (`apps/web`):** landing com lista de espera, privacidade, termos, exclusão de dados, /baixar e API de previsão/histórico.
 - **Regras (`packages/clima`):** 43 testes.
 - **Testes do app:** 4 fluxos ponta a ponta na versão web; bundles Android e iOS gerados; diagnóstico do Expo 20/20.
 - Ícone e tela de abertura; textos das lojas e guia de publicação.
 
-**Depende de contas suas:** Expo/EAS, Google Play, Apple, domínio e hospedagem do site, chave do Google Maps, RevenueCat com os produtos, chave comercial do Open-Meteo (ver [PUBLICACAO.md](PUBLICACAO.md)).
+**Depende de contas suas:** Expo/EAS, Google Play, Apple, domínio e hospedagem do site, RevenueCat com os produtos, chave comercial do Open-Meteo (ver [PUBLICACAO.md](PUBLICACAO.md)).
 
 ## 1. O produto
 
@@ -36,7 +36,7 @@ Atualizado em 22/10/2026. Substitui os planos anteriores (arquivados em `docs/le
 | **Hoje** | Semáforo de pulverização com melhor horário e motivo; janela de tempo seco (colher/máquina); alertas de geada e temporal; previsão de 7 dias | ✅ | ✅ |
 | **Pulverização 48 h** | Faixa hora a hora com cor e valores (vento na barra, rajada, ΔT, umidade, temperatura, chuva nas horas seguintes) | Só hoje | 48 h completas |
 | **Chuva** | Anotar em 2 toques; estimativa nos dias sem anotação; calendário; acumulado da safra vs média; cartão para WhatsApp | ✅ | ✅ + histórico completo e exportação |
-| **Talhões** | Pino no mapa de satélite ou pela localização do celular; cultura e data de plantio opcionais | 1 talhão | Ilimitados |
+| **Talhões** | Pino no mapa ou pela localização do celular; cultura e data de plantio opcionais | 1 talhão | Ilimitados |
 | **Avisos no celular** | Geada e temporal | ✅ | ✅ |
 | | "Amanhã: janela de pulverização das 6h às 10h", janela seca para colheita, veranico | — | ✅ |
 | **Relatório da safra** | PDF com chuva anotada + dados meteorológicos + eventos, para Proagro/seguro/banco | — | ✅ |
@@ -89,7 +89,7 @@ Supabase só entra se a lista de espera for usada (tabela `lista_espera`); sincr
 |---|---|---|
 | Previsão | Open-Meteo (licença comercial a partir do lançamento) | Chamado só pela nossa API, com cache por célula de ~0,1°; a chave nunca vai no app |
 | Chuva estimada e média histórica | Open-Meteo histórico (reanálise) | Média 1991–2020 por célula, calculada uma vez |
-| Mapa | react-native-maps com satélite (Google Maps SDK para Android) | Pino; desenho de polígono fica para depois |
+| Mapa | Open-source: MapLibre GL JS num WebView com o estilo do OpenFreeMap (dados OpenStreetMap) | Sem chave, uso comercial permitido, roda no Expo Go; sem imagem de satélite (avaliar MapTiler/Esri com chave depois); desenho de polígono fica para depois |
 | Localização | expo-location, só com o app aberto | Evita a revisão mais rígida de localização em segundo plano |
 | Avisos | Notificações locais (expo-notifications) agendadas no aparelho + tarefa em segundo plano (expo-background-task) a cada ~3 h | Sem servidor de push; id estável por evento evita repetição; silêncio 21 h–6 h, exceto temporal e geada forte |
 | Assinatura | RevenueCat + Google Play Billing | Exige build de desenvolvimento (EAS), não roda no Expo Go |
@@ -143,7 +143,7 @@ Momento: a safra 2026/27 começa com Super El Niño (chuva no Sul, veranicos no 
 | Semana | Datas | Entregas | Portão |
 |---|---|---|---|
 | S0 | 22–25/10 | Estrutura do projeto (feito); contas: Google Play, Expo/EAS, Supabase, Firebase, RevenueCat; domínio; site com lista de espera e política de privacidade; começar a recrutar 20 testadores | — |
-| S1 | 26/10–01/11 | Talhões (mapa satélite, pino, GPS); API de previsão com cache; tela Hoje (semáforo, janela seca, 7 dias); build de desenvolvimento | — |
+| S1 | 26/10–01/11 | Talhões (mapa, pino, GPS); API de previsão com cache; tela Hoje (semáforo, janela seca, 7 dias); build de desenvolvimento | — |
 | S2 | 02–08/11 | Pluviômetro (anotar, estimativa, acumulado vs média, calendário); cartão de chuva; detalhe 48 h; **iniciar teste fechado até 06/11** | **G0** |
 | S3 | 09–15/11 | Avisos no celular (geada, temporal, janela de amanhã, janela seca); ajustes de aviso; conta e exclusão de dados | — |
 | S4 | 16–22/11 | Assinatura e paywall; relatório PDF; limiares ajustáveis; Sentry e PostHog; ficha da loja | — |

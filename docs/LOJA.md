@@ -16,7 +16,7 @@
 > Verde, amarelo ou vermelho para cada hora, com o melhor horário do dia e o motivo quando não dá. O app considera o vento na altura da barra (convertido do vento dos modelos), as rajadas, o delta T, a umidade, a temperatura e a chuva nas horas seguintes à aplicação.
 >
 > **Por talhão, não por cidade**
-> Marque suas lavouras no mapa de satélite ou pela localização do celular. A previsão é feita para o ponto de cada talhão.
+> Marque suas lavouras no mapa ou pela localização do celular. A previsão é feita para o ponto de cada talhão.
 >
 > **Colheita e máquinas**
 > Veja a próxima janela de tempo firme (dias seguidos sem chuva) para colher ou entrar com máquina.
@@ -95,7 +95,7 @@ Sequência sugerida, com uma frase curta no topo de cada:
 4. **Cartão de chuva** — "Compartilhe a chuva no grupo."
 5. **Aviso de geada** (notificação) — "Aviso de geada na tarde anterior."
 6. **Relatório em PDF** — "Relatório da safra para Proagro e seguro."
-7. **Talhões no mapa** — "Marque a lavoura no mapa de satélite."
+7. **Talhões no mapa** — "Marque a lavoura no mapa ou pelo GPS."
 
 As capturas geradas pelos testes automáticos (`apps/mobile/e2e/capturas`) servem para conferência, não para a loja: são da versão web.
 
