@@ -27,7 +27,10 @@
         "track": "internal",
         "releaseStatus": "draft"
       },
-      "ios": {}
+      "ios": {
+        "appleId": "daniel.anders@brturbo.com.br",
+        "appleTeamId": "53JA8M2JRZ"
+      }
     }
   }
 }

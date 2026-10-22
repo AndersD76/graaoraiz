@@ -21,9 +21,10 @@ Guia prático para levar o app `apps/mobile` às duas lojas usando o EAS (builds
 | 2 | **Google Play Console** | Publicar no Android | US$ 25 uma vez |
 | 3 | **Apple Developer Program** | Publicar no iPhone | US$ 99 por ano |
 | 4 | **Domínio + site publicado** (`apps/web`) | Política de privacidade, termos e exclusão de dados (exigidos pelas lojas) | ~R$ 40/ano + hospedagem |
-| 5 | **Google Cloud: chave do Maps SDK for Android** | Mapa de satélite no Android | grátis no uso de mapa nativo |
-| 6 | **RevenueCat** + produtos de assinatura nas duas lojas | Cobrança do Pro | grátis até US$ 2,5 mil/mês |
-| 7 | **Open-Meteo comercial** (no servidor `apps/web`) | Uso comercial da previsão | US$ 29/mês |
+| 5 | **RevenueCat** + produtos de assinatura nas duas lojas | Cobrança do Pro | grátis até US$ 2,5 mil/mês |
+| 6 | **Open-Meteo comercial** (no servidor `apps/web`) | Uso comercial da previsão | US$ 29/mês |
+
+O mapa é open-source (MapLibre + OpenFreeMap/OpenStreetMap): não precisa de chave do Google Maps.
 
 Conta pessoal ou de empresa:
 - **Google Play pessoal:** exige teste fechado com **12 testadores por 14 dias seguidos** antes de liberar a produção.
@@ -61,7 +62,6 @@ Cadastre em expo.dev → projeto → **Environment variables** (para development
 | Variável | Valor |
 |---|---|
 | `EAS_PROJECT_ID` | o id mostrado pelo `eas init` |
-| `GOOGLE_MAPS_ANDROID_KEY` | chave do Maps SDK for Android (restrinja ao pacote `com.graoraiz.app` e à impressão SHA‑1 mostrada em `eas credentials`) |
 | `EXPO_PUBLIC_SITE_URL` | endereço do site publicado |
 | `EXPO_PUBLIC_API_URL` | endereço do `apps/web` publicado (para a previsão passar pelo servidor com a chave comercial) |
 | `EXPO_PUBLIC_REVENUECAT_ANDROID_KEY` / `_IOS_KEY` | chaves públicas do RevenueCat |
@@ -126,7 +126,7 @@ Cadastre em expo.dev → projeto → **Environment variables** (para development
 
 - [ ] Site publicado com `/privacidade`, `/termos`, `/excluir-dados` e responsável preenchido.
 - [ ] Variáveis do EAS cadastradas (seção 4).
-- [ ] Chave do Maps restrita e testada (o mapa aparece na build de produção).
+- [ ] Mapa carregando no aparelho (precisa de internet; atribuição OpenStreetMap visível).
 - [ ] Produtos de assinatura ativos nas duas lojas e no RevenueCat (entitlement `pro`).
 - [ ] Testes automáticos passando (`npm test` e `npm run e2e -w @graoraiz/mobile`).
 - [ ] Teste em aparelho real: talhão, previsão, anotação de chuva, cartão, aviso de geada (dá para forçar mudando os limites), compra de teste e restauração.

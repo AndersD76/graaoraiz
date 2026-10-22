@@ -19,7 +19,7 @@ export function MapaTalhao({ coordenada, aoMudar }: { coordenada: Coordenada | n
 
   return (
     <View style={estilos.caixa}>
-      <T variante="pequeno">O mapa de satélite aparece no app do celular. Aqui, informe a coordenada.</T>
+      <T variante="pequeno">O mapa aparece no app do celular. Aqui, informe a coordenada.</T>
       <Campo
         rotulo="Latitude"
         value={coordenada && !lat ? String(coordenada.lat) : lat}
