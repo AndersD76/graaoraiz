@@ -1,4 +1,4 @@
-import { dataDe, isoLocal, mesclarChuva, type RegistroChuva, safraDe, somarDias } from '@graoraiz/clima';
+import { mesclarChuva, type RegistroChuva, safraDe, somarDias } from '@graoraiz/clima';
 import { useEffect, useMemo, useState } from 'react';
 
 import { buscarChuvaEstimada, buscarNormal } from '@/lib/dados-clima';
@@ -17,35 +17,38 @@ export interface ChuvaSafra {
 interface Estimativa {
   chave: string;
   estimada: { data: string; mm: number }[];
-  normal: number | null;
   semEstimativa: boolean;
 }
 
-/** Junta as anotações do produtor com a estimativa automática para a safra atual. */
-export function useChuvaSafra(talhao: Talhao | null): ChuvaSafra {
+interface Normal {
+  chave: string;
+  valor: number | null;
+}
+
+/**
+ * Junta as anotações do produtor com a estimativa automática para a safra atual.
+ * `hoje` vem do relógio compartilhado (useAgora), para virar o dia sem reabrir o app.
+ */
+export function useChuvaSafra(talhao: Talhao | null, hoje: string): ChuvaSafra {
   const estado = useEstado();
-  const hoje = dataDe(isoLocal(new Date()));
   const safra = safraDe(hoje);
   const lat = talhao?.lat;
   const lon = talhao?.lon;
   const chave = lat !== undefined && lon !== undefined ? `${lat}:${lon}:${safra.inicio}:${hoje}` : null;
   const [estimativa, setEstimativa] = useState<Estimativa | null>(null);
+  const [normal, setNormal] = useState<Normal | null>(null);
 
+  // Estimativa e média histórica chegam separadas: a série de 30 anos não atrasa o resto.
   useEffect(() => {
     if (lat === undefined || lon === undefined || chave === null) return;
     let ativo = true;
-    Promise.all([
-      buscarChuvaEstimada({ lat, lon }, safra.inicio).catch(() => null),
-      buscarNormal({ lat, lon }, safra.inicio, somarDias(hoje, -1)),
-    ]).then(([resultado, normal]) => {
-      if (!ativo) return;
-      setEstimativa({
-        chave,
-        estimada: resultado?.dados ?? [],
-        normal,
-        semEstimativa: !resultado || resultado.desatualizado,
-      });
-    });
+    buscarChuvaEstimada({ lat, lon }, safra.inicio)
+      .then(
+        (r) => ({ estimada: r.dados, semEstimativa: r.desatualizado }),
+        () => ({ estimada: [], semEstimativa: true }),
+      )
+      .then((r) => ativo && setEstimativa({ chave, ...r }));
+    void buscarNormal({ lat, lon }, safra.inicio, somarDias(hoje, -1)).then((valor) => ativo && setNormal({ chave, valor }));
     return () => {
       ativo = false;
     };
@@ -61,7 +64,7 @@ export function useChuvaSafra(talhao: Talhao | null): ChuvaSafra {
 
   return {
     registros,
-    normal: atual?.normal ?? null,
+    normal: normal?.chave === chave ? normal.valor : null,
     carregando: chave !== null && atual === null,
     semEstimativa: atual?.semEstimativa ?? false,
   };

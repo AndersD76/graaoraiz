@@ -12,6 +12,8 @@ export function assinaturaDisponivel(): boolean {
 
 export async function iniciarAssinatura(): Promise<void> {}
 
+export async function atualizarStatusAssinatura(): Promise<void> {}
+
 export async function carregarPlanos(): Promise<PlanoAssinatura[]> {
   return [];
 }

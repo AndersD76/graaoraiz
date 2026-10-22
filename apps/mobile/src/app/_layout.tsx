@@ -1,18 +1,24 @@
-import { DefaultTheme, Stack, ThemeProvider } from 'expo-router';
+import { DefaultTheme, Stack, ThemeProvider, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
 import { AppState } from 'react-native';
 
 import { Colors } from '@/constants/theme';
 import { iniciarAssinatura } from '@/lib/assinatura';
-import { configurarNotificacoes, reagendarAvisos } from '@/lib/avisos';
-// Importado aqui para a tarefa em segundo plano ser definida assim que o app carrega.
+import { configurarNotificacoes, ouvirToqueNosAvisos, reagendarAvisos } from '@/lib/avisos';
+import { obterEstado, selecionarTalhao } from '@/lib/estado';
+// A tarefa em si é definida no index.ts (ponto de entrada); aqui só pedimos o registro.
 import { registrarTarefaFundo } from '@/lib/tarefa-fundo';
 
 SplashScreen.preventAutoHideAsync();
 configurarNotificacoes();
 
+// Ao abrir por link direto numa tela empilhada, as abas ficam por baixo para o "voltar" funcionar.
+export const unstable_settings = { anchor: '(tabs)' };
+
 export default function RootLayout() {
+  const router = useRouter();
+
   useEffect(() => {
     // O estado é lido de forma síncrona do aparelho: a primeira tela já está pronta.
     void SplashScreen.hideAsync();
@@ -24,6 +30,16 @@ export default function RootLayout() {
     });
     return () => assinatura.remove();
   }, []);
+
+  // Tocar num aviso abre a tela Hoje no talhão do aviso.
+  useEffect(
+    () =>
+      ouvirToqueNosAvisos((talhaoId) => {
+        if (obterEstado().talhoes.some((t) => t.id === talhaoId)) selecionarTalhao(talhaoId);
+        router.navigate('/');
+      }),
+    [router],
+  );
 
   return (
     <ThemeProvider value={DefaultTheme}>

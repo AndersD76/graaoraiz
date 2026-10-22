@@ -5,7 +5,6 @@ import {
   formatarData,
   formatarMm,
   formatarNumero,
-  isoLocal,
   maiorSequenciaSeca,
   rotuloDia,
   safraDe,
@@ -17,6 +16,7 @@ import { useState } from 'react';
 import { CalendarioChuva } from '@/components/calendario-chuva';
 import { SeletorTalhao } from '@/components/clima';
 import { Aviso, Botao, Campo, Cartao, Chip, Linha, T, Tela } from '@/components/ui';
+import { useAgora } from '@/hooks/use-agora';
 import { useChuvaSafra } from '@/hooks/use-chuva-safra';
 import { useTheme } from '@/hooks/use-theme';
 import { anotarChuva, registrarEvento, removerEvento, talhaoAtual, useEstado, usePro } from '@/lib/estado';
@@ -42,13 +42,17 @@ export default function ChuvaScreen() {
   const estado = useEstado();
   const pro = usePro();
   const talhao = talhaoAtual(estado);
-  const hoje = dataDe(isoLocal(new Date()));
+  const agora = useAgora();
+  const hoje = dataDe(agora);
   const safra = safraDe(hoje);
-  const { registros, normal, carregando, semEstimativa } = useChuvaSafra(talhao);
+  const { registros, normal, carregando, semEstimativa } = useChuvaSafra(talhao, hoje);
 
-  const [data, setData] = useState(hoje);
+  // null = acompanha o dia de hoje (vira sozinho à meia-noite) até o usuário escolher outro.
+  const [dataEscolhida, setData] = useState<string | null>(null);
   const [texto, setTexto] = useState('');
-  const [mes, setMes] = useState(hoje.slice(0, 7));
+  const [mesEscolhido, setMes] = useState<string | null>(null);
+  const data = dataEscolhida ?? hoje;
+  const mes = mesEscolhido ?? hoje.slice(0, 7);
   const [tipoEvento, setTipoEvento] = useState<EventoSafra['tipo'] | null>(null);
   const [nota, setNota] = useState('');
 
@@ -81,7 +85,7 @@ export default function ChuvaScreen() {
 
   return (
     <Tela titulo="Chuva" subtitulo={`Safra ${safra.rotulo} · ${talhao.nome}`}>
-      <SeletorTalhao talhoes={estado.talhoes} selecionado={talhao} />
+      <SeletorTalhao selecionado={talhao} />
 
       <Cartao>
         <T variante="subtitulo">Quanto choveu?</T>

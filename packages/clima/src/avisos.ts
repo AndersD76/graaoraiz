@@ -113,8 +113,11 @@ export function planejarAvisos(entrada: EntradaAvisos): AvisoPlanejado[] {
     const proximas = entrada.horas.filter((h) => h.hora >= agora.slice(0, 13) + ':00' && h.hora <= somarHoras(agora, 24));
     const primeiro = riscoTemporal(proximas)[0];
     if (primeiro) {
+      // Um aviso por bloco de 6 h: a mesma tempestade que muda de hora na previsão não avisa duas vezes,
+      // mas uma segunda tempestade no fim do dia avisa de novo.
+      const bloco = Math.floor(Number(primeiro.hora.slice(11, 13)) / 6);
       avisos.push({
-        id: `temporal-${talhao.id}-${dataDe(primeiro.hora)}`,
+        id: `temporal-${talhao.id}-${dataDe(primeiro.hora)}-${bloco}`,
         tipo: 'temporal',
         talhaoId: talhao.id,
         quando: maisTarde(somarHoras(primeiro.hora, -3), logo),
@@ -166,10 +169,12 @@ export function planejarAvisos(entrada: EntradaAvisos): AvisoPlanejado[] {
   const semChuva = entrada.diasSemChuva ?? null;
   if (p.veranico && entrada.plantado && semChuva !== null && semChuva >= 10) {
     const faixa = Math.floor(semChuva / 5) * 5;
+    // A data de início da seca entra no id: um veranico meses depois é outro aviso.
+    const inicioSeca = somarDias(hoje, -semChuva);
     let quando = `${hoje}T08:00`;
     if (quando <= agora) quando = logo;
     avisos.push({
-      id: `veranico-${talhao.id}-${faixa}`,
+      id: `veranico-${talhao.id}-${inicioSeca}-${faixa}`,
       tipo: 'veranico',
       talhaoId: talhao.id,
       quando: respeitarSilencio(quando, p),

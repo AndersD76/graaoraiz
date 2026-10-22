@@ -15,6 +15,7 @@ const parametros = z
     lon: numeroObrigatorio('lon', -180, 180),
     inicio: dataObrigatoria('inicio'),
     fim: dataObrigatoria('fim'),
+    fuso: z.string().max(64).optional(),
   })
   .superRefine((v, ctx) => {
     if (v.inicio > v.fim) {
@@ -29,8 +30,9 @@ export async function GET(request: NextRequest) {
   const validacao = parametros.safeParse(lerQuery(request.nextUrl));
   if (!validacao.success) return respostaErro(400, primeiraMensagem(validacao.error));
 
-  const { lat, lon, inicio, fim } = validacao.data;
+  const { lat, lon, inicio, fim, fuso } = validacao.data;
   const url = urlHistoricoChuva(lat, lon, inicio, fim, {
+    fuso,
     apiKey: process.env.OPEN_METEO_API_KEY || undefined,
   });
 

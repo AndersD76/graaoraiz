@@ -29,6 +29,11 @@ export const VARIAVEIS_DIARIAS = [
 export interface OpcoesUrl {
   /** Chave comercial; quando presente usa o servidor customer-. */
   apiKey?: string;
+  /**
+   * Fuso das horas da resposta (ex.: "America/Cuiaba"). O app passa o fuso do aparelho para que
+   * "6h" na tela e o horário dos avisos sejam o mesmo relógio do celular. Padrão: fuso do ponto.
+   */
+  fuso?: string;
 }
 
 export interface OpcoesPrevisao extends OpcoesUrl {
@@ -47,6 +52,11 @@ export function coordenadaValida(lat: number, lon: number): boolean {
   return Number.isFinite(lat) && Number.isFinite(lon) && Math.abs(lat) <= 90 && Math.abs(lon) <= 180;
 }
 
+/** Aceita só nomes de fuso da IANA ("America/Sao_Paulo", "UTC"); qualquer outra coisa vira "auto". */
+export function fusoValido(fuso: string | undefined): string {
+  return fuso && /^[A-Za-z]+(?:\/[A-Za-z0-9_+-]+){0,2}$/.test(fuso) ? fuso : 'auto';
+}
+
 function limitar(n: number, min: number, max: number): number {
   return Math.min(Math.max(Math.round(n), min), max);
 }
@@ -61,7 +71,7 @@ export function urlPrevisao(lat: number, lon: number, opcoes: OpcoesPrevisao = {
     longitude: String(arredondarCoordenada(lon)),
     hourly: VARIAVEIS_HORARIAS.join(','),
     daily: VARIAVEIS_DIARIAS.join(','),
-    timezone: 'auto',
+    timezone: fusoValido(opcoes.fuso),
     forecast_days: String(limitar(opcoes.diasPrevisao ?? 7, 1, 16)),
     past_days: String(limitar(opcoes.diasPassados ?? 0, 0, 92)),
   });
@@ -75,7 +85,7 @@ export function urlChuvaRecente(lat: number, lon: number, diasPassados: number, 
     latitude: String(arredondarCoordenada(lat)),
     longitude: String(arredondarCoordenada(lon)),
     daily: 'precipitation_sum',
-    timezone: 'auto',
+    timezone: fusoValido(opcoes.fuso),
     forecast_days: '1',
     past_days: String(limitar(diasPassados, 0, 92)),
   });
@@ -91,7 +101,7 @@ export function urlHistoricoChuva(lat: number, lon: number, inicio: string, fim:
     start_date: inicio,
     end_date: fim,
     daily: 'precipitation_sum',
-    timezone: 'auto',
+    timezone: fusoValido(opcoes.fuso),
   });
   if (opcoes.apiKey) p.set('apikey', opcoes.apiKey);
   return `${servidor('archive-api', opcoes.apiKey)}/v1/archive?${p.toString()}`;

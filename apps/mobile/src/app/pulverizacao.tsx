@@ -1,10 +1,11 @@
-import { avaliarSerie, dataDe, formatarNumero, isoLocal, rotuloDia, somarHoras } from '@graoraiz/clima';
+import { avaliarSerie, dataDe, formatarNumero, rotuloDia, somarHoras } from '@graoraiz/clima';
 import { useRouter } from 'expo-router';
 import { useMemo } from 'react';
 import { View } from 'react-native';
 
 import { FaixaHora, RodapeFonte } from '@/components/clima';
 import { Aviso, Botao, Carregando, Cartao, T, Tela } from '@/components/ui';
+import { useAgora } from '@/hooks/use-agora';
 import { usePrevisao } from '@/hooks/use-previsao';
 import { talhaoAtual, useEstado, usePro } from '@/lib/estado';
 
@@ -14,7 +15,7 @@ export default function PulverizacaoScreen() {
   const pro = usePro();
   const talhao = talhaoAtual(estado);
   const { resultado, carregando } = usePrevisao(talhao?.lat, talhao?.lon);
-  const agora = isoLocal(new Date());
+  const agora = useAgora();
   const hoje = dataDe(agora);
   const L = estado.limiares;
 
@@ -31,7 +32,7 @@ export default function PulverizacaoScreen() {
   const dias = [...new Set(liberadas.map((a) => dataDe(a.hora)))];
 
   return (
-    <Tela comAbas={false}>
+    <Tela comAbas={false} cabecalhoNativo>
       <Cartao>
         <T variante="forte">{talhao?.nome}</T>
         <T variante="pequeno">

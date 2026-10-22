@@ -1,4 +1,4 @@
-import { useRouter } from 'expo-router';
+import { Redirect, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { View } from 'react-native';
 
@@ -6,7 +6,7 @@ import { dadosIniciais, FormTalhao } from '@/components/form-talhao';
 import { Aviso, Botao, Cartao, T, Tela } from '@/components/ui';
 import { useTheme } from '@/hooks/use-theme';
 import { pedirPermissaoNotificacoes, reagendarAvisos } from '@/lib/avisos';
-import { salvarTalhao } from '@/lib/estado';
+import { obterEstado, salvarTalhao } from '@/lib/estado';
 
 const RECURSOS = [
   ['Pulverização', 'Semáforo com o melhor horário do dia, pelo vento na barra, delta T, umidade e chuva.'],
@@ -21,6 +21,10 @@ export default function OnboardingScreen() {
   const [passo, setPasso] = useState<'inicio' | 'talhao' | 'avisos'>('inicio');
   const [dados, setDados] = useState(() => dadosIniciais());
   const [ativando, setAtivando] = useState(false);
+  // Quem já tem talhão e cai aqui (link direto) volta para o app: a apresentação não cria talhão extra.
+  const [jaTinhaTalhao] = useState(() => obterEstado().talhoes.length > 0);
+
+  if (jaTinhaTalhao) return <Redirect href="/" />;
 
   const concluir = () => {
     void reagendarAvisos({ buscar: true });

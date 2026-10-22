@@ -39,6 +39,7 @@ export function Tela({
   aoAtualizar,
   atualizando = false,
   comAbas = true,
+  cabecalhoNativo = false,
 }: {
   titulo?: string;
   subtitulo?: string;
@@ -47,9 +48,12 @@ export function Tela({
   atualizando?: boolean;
   /** Telas dentro das abas precisam de espaço para a barra inferior. */
   comAbas?: boolean;
+  /** Telas empilhadas com cabeçalho do sistema: o cabeçalho já respeita a área segura do topo. */
+  cabecalhoNativo?: boolean;
 }) {
   const insets = useSafeAreaInsets();
   const tema = useTheme();
+  const topoSeguro = cabecalhoNativo ? 0 : insets.top;
   return (
     <ScrollView
       style={{ backgroundColor: tema.background }}
@@ -57,10 +61,12 @@ export function Tela({
         estilos.tela,
         {
           // Na web a barra de abas fica no topo, sobre o conteúdo.
-          paddingTop: insets.top + Spacing.three + (comAbas && Platform.OS === 'web' ? 88 : 0),
+          paddingTop: topoSeguro + Spacing.three + (comAbas && Platform.OS === 'web' ? 88 : 0),
           paddingBottom: insets.bottom + (comAbas ? BottomTabInset : 0) + Spacing.five,
         },
       ]}
+      // iPhone: rola o conteúdo para o campo em foco não ficar atrás do teclado.
+      automaticallyAdjustKeyboardInsets
       keyboardShouldPersistTaps="handled"
       refreshControl={aoAtualizar ? <RefreshControl refreshing={atualizando} onRefresh={aoAtualizar} tintColor={tema.marca} /> : undefined}>
       {titulo ? (

@@ -3,11 +3,11 @@ import Constants from 'expo-constants';
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useCallback, useState } from 'react';
-import { View } from 'react-native';
+import { Linking, View } from 'react-native';
 
 import { Aviso, Botao, Cartao, Chip, Interruptor, Linha, T, Tela } from '@/components/ui';
-import { assinaturaDisponivel, restaurarCompras } from '@/lib/assinatura';
-import { pedirPermissaoNotificacoes, permissaoNotificacoes, reagendarAvisos } from '@/lib/avisos';
+import { assinaturaDisponivel, atualizarStatusAssinatura, restaurarCompras } from '@/lib/assinatura';
+import { pedirPermissaoNotificacoes, type PermissaoAvisos, permissaoAvisos, reagendarAvisos } from '@/lib/avisos';
 import { PERMITE_SIMULAR_PRO, SITE_URL } from '@/lib/config';
 import { confirmar, informar } from '@/lib/dialogo';
 import { apagarTudo, definirProSimulado, salvarLimiares, salvarPreferencias, useEstado, usePro } from '@/lib/estado';
@@ -35,18 +35,30 @@ export default function AjustesScreen() {
   const pro = usePro();
   const p = estado.preferencias;
   const L = estado.limiares;
-  const [permissao, setPermissao] = useState<'concedida' | 'negada' | 'pendente'>('pendente');
+  const [permissao, setPermissao] = useState<PermissaoAvisos>({ estado: 'pendente', podePedir: true });
   const [restaurando, setRestaurando] = useState(false);
 
+  // Relê ao voltar para a tela (o usuário pode ter mudado nas configurações do celular).
   useFocusEffect(
     useCallback(() => {
       let ativo = true;
-      void permissaoNotificacoes().then((s) => ativo && setPermissao(s));
+      void permissaoAvisos().then((s) => ativo && setPermissao(s));
       return () => {
         ativo = false;
       };
     }, []),
   );
+
+  const permitirAvisos = async () => {
+    // Depois de negado, o sistema não mostra mais o pedido: só nas configurações do celular.
+    if (!permissao.podePedir) {
+      await Linking.openSettings();
+      return;
+    }
+    const ok = await pedirPermissaoNotificacoes();
+    setPermissao(await permissaoAvisos());
+    if (ok) void reagendarAvisos({ buscar: true });
+  };
 
   const mudarPreferencias = (novas: Partial<PreferenciasAvisos>) => {
     salvarPreferencias({ ...p, ...novas });
@@ -58,17 +70,14 @@ export default function AjustesScreen() {
     <Tela titulo="Ajustes">
       <Cartao>
         <T variante="subtitulo">Avisos no celular</T>
-        {permissao !== 'concedida' ? (
+        {permissao.estado !== 'concedida' ? (
           <>
-            <Aviso tipo="atencao">Os avisos estão desligados no celular.</Aviso>
-            <Botao
-              titulo="Permitir avisos"
-              aoTocar={async () => {
-                const ok = await pedirPermissaoNotificacoes();
-                setPermissao(ok ? 'concedida' : 'negada');
-                if (ok) void reagendarAvisos({ buscar: true });
-              }}
-            />
+            <Aviso tipo="atencao">
+              {permissao.podePedir
+                ? 'Os avisos estão desligados no celular.'
+                : 'Os avisos foram bloqueados no celular. Ligue em Configurações → Notificações → Grão Raiz.'}
+            </Aviso>
+            <Botao titulo={permissao.podePedir ? 'Permitir avisos' : 'Abrir configurações do celular'} aoTocar={permitirAvisos} />
           </>
         ) : null}
         <Interruptor rotulo="Geada" descricao="Na tarde anterior à madrugada fria." valor={p.geada} aoMudar={(geada) => mudarPreferencias({ geada })} />
@@ -147,7 +156,8 @@ export default function AjustesScreen() {
             const ok = await confirmar('Apagar tudo', 'Isso apaga talhões, anotações de chuva, ocorrências e ajustes deste celular. Não dá para desfazer.', 'Apagar');
             if (!ok) return;
             apagarTudo();
-            void reagendarAvisos();
+            void reagendarAvisos(); // sem talhões: cancela os avisos agendados
+            void atualizarStatusAssinatura(); // a assinatura é da conta da loja, não do aparelho
             router.replace('/onboarding');
           }}
         />

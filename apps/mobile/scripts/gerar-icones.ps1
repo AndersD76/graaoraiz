@@ -68,3 +68,4 @@ Salvar 1024 'android-icon-background.png' $verde 0 $verde $null         # fundo 
 Salvar 1024 'android-icon-monochrome.png' $null 0.42 $branco $null      # ícone temático do Android 13+
 Salvar 512 'splash-icon.png' $null 0.9 $branco $verde                    # tela de abertura (fundo verde no app.json)
 Salvar 48 'favicon.png' $verde 0.7 $branco $verde
+Salvar 96 'notification-icon.png' $null 0.9 $branco $null                # ícone pequeno da notificação (Android): branco em transparente

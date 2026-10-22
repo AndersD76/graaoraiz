@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { AppState } from 'react-native';
 
 import { buscarPrevisao, type Previsao, previsaoEmCache, type Resultado } from '@/lib/dados-clima';
 
@@ -20,7 +21,10 @@ function mensagem(e: unknown): string {
   return e instanceof Error ? e.message : 'Não foi possível buscar a previsão.';
 }
 
-/** Previsão do talhão: mostra o cache na hora e atualiza pela rede em seguida. */
+/**
+ * Previsão do talhão: mostra o cache na hora e atualiza pela rede em seguida.
+ * Ao voltar para o app, busca de novo (o cache de 1 h evita downloads repetidos).
+ */
 export function usePrevisao(lat: number | undefined, lon: number | undefined): EstadoPrevisao {
   const chave = lat !== undefined && lon !== undefined ? `${lat}:${lon}` : null;
   const [interno, setInterno] = useState<EstadoInterno>({ chave: null, resultado: null, carregando: false, erro: null });
@@ -39,23 +43,35 @@ export function usePrevisao(lat: number | undefined, lon: number | undefined): E
   useEffect(() => {
     if (lat === undefined || lon === undefined || chave === null) return;
     let ativo = true;
-    buscarPrevisao({ lat, lon }).then(
-      (resultado) => ativo && setInterno({ chave, resultado, carregando: false, erro: null }),
-      (e) => ativo && setInterno({ chave, resultado: previsaoEmCache({ lat, lon }), carregando: false, erro: mensagem(e) }),
-    );
+    const buscar = () =>
+      buscarPrevisao({ lat, lon }).then(
+        (resultado) => ativo && setInterno({ chave, resultado, carregando: false, erro: null }),
+        (e) => ativo && setInterno({ chave, resultado: previsaoEmCache({ lat, lon }), carregando: false, erro: mensagem(e) }),
+      );
+    void buscar();
+    const voltaAoApp = AppState.addEventListener('change', (estado) => {
+      if (estado === 'active') void buscar();
+    });
     return () => {
       ativo = false;
+      voltaAoApp.remove();
     };
   }, [chave, lat, lon]);
 
   const atualizar = useCallback(async () => {
     if (lat === undefined || lon === undefined || chave === null) return;
-    setInterno((s) => ({ ...s, chave, carregando: true, erro: null }));
+    // Nunca reaproveita o resultado de outro talhão enquanto atualiza.
+    setInterno((s) => ({
+      chave,
+      resultado: s.chave === chave ? s.resultado : previsaoEmCache({ lat, lon }),
+      carregando: true,
+      erro: null,
+    }));
     try {
       const resultado = await buscarPrevisao({ lat, lon }, true);
       setInterno({ chave, resultado, carregando: false, erro: null });
     } catch (e) {
-      setInterno((s) => ({ ...s, carregando: false, erro: mensagem(e) }));
+      setInterno((s) => ({ ...s, chave, carregando: false, erro: mensagem(e) }));
     }
   }, [chave, lat, lon]);
 

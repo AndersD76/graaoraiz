@@ -12,17 +12,20 @@ const parametros = z.object({
   lon: numeroObrigatorio('lon', -180, 180),
   dias: inteiroOpcional('dias', 1, 16, 7),
   passados: inteiroOpcional('passados', 0, 92, 0),
+  // Fuso do aparelho (ex.: America/Cuiaba); valor estranho vira "auto" dentro de urlPrevisao.
+  fuso: z.string().max(64).optional(),
 });
 
-/** GET /api/previsao?lat=&lon=&dias=&passados= — previsão horária e diária do Open-Meteo. */
+/** GET /api/previsao?lat=&lon=&dias=&passados=&fuso= — previsão horária e diária do Open-Meteo. */
 export async function GET(request: NextRequest) {
   const validacao = parametros.safeParse(lerQuery(request.nextUrl));
   if (!validacao.success) return respostaErro(400, primeiraMensagem(validacao.error));
 
-  const { lat, lon, dias, passados } = validacao.data;
+  const { lat, lon, dias, passados, fuso } = validacao.data;
   const url = urlPrevisao(lat, lon, {
     diasPrevisao: dias,
     diasPassados: passados,
+    fuso,
     apiKey: process.env.OPEN_METEO_API_KEY || undefined,
   });
 

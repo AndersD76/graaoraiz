@@ -73,9 +73,11 @@ export function CalendarioChuva({
               accessibilityRole="button"
               accessibilityLabel={`Dia ${Number(data.slice(8))}: ${r ? `${formatarNumero(r.mm)} milímetros ${r.origem === 'manual' ? 'anotados' : 'estimados'}` : 'sem dado'}`}
               style={[estilos.celula, estilos.dia, ativo && { borderColor: tema.marca, borderWidth: 2 }, futuro && { opacity: 0.3 }]}>
-              <T variante="pequeno">{Number(data.slice(8))}</T>
+              <T variante="pequeno" maxFontSizeMultiplier={1.3}>
+                {Number(data.slice(8))}
+              </T>
               {r ? (
-                <T variante="forte" cor={r.origem === 'manual' ? tema.marca : tema.textSecondary} style={estilos.mm}>
+                <T variante="forte" cor={r.origem === 'manual' ? tema.marca : tema.textSecondary} style={estilos.mm} maxFontSizeMultiplier={1.3}>
                   {formatarNumero(r.mm, r.mm < 10 ? 1 : 0)}
                 </T>
               ) : null}
