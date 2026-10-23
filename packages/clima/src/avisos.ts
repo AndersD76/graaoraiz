@@ -3,9 +3,14 @@ import { dataDe, diasEntre, somarDias, somarHoras, somarMinutos } from './datas'
 import { diaDaSemana, formatarData, formatarHora, formatarJanela, rotuloDia } from './formatos';
 import { avaliarSerie, LIMIARES_PULVERIZACAO_PADRAO, type LimiaresPulverizacao, resumoPulverizacaoDia } from './pulverizacao';
 import { janelasSecas } from './secas';
+import { type Aplicacao, PRODUTOS, verificarLavagem } from './aplicacoes';
+import { chuvaChegando } from './colheita';
+import { CULTURAS } from './culturas';
+import { resumoDoencas } from './doencas';
 import type { Dia, Hora } from './tipos';
+import { type TalhaoVigia, vigiar } from './vigia';
 
-export type TipoAviso = 'geada' | 'temporal' | 'pulverizacao' | 'janelaSeca' | 'veranico';
+export type TipoAviso = 'geada' | 'temporal' | 'pulverizacao' | 'janelaSeca' | 'veranico' | 'chuva' | 'lavagem' | 'doenca' | 'boletim';
 
 export interface PreferenciasAvisos {
   geada: boolean;
@@ -14,6 +19,16 @@ export interface PreferenciasAvisos {
   pulverizacao: boolean;
   janelaSeca: boolean;
   veranico: boolean;
+  /** Chuva chegando em poucas horas (cobrir o café, recolher a máquina). */
+  chuva: boolean;
+  /** Chuva prevista dentro do prazo de uma aplicação recente. */
+  lavagem: boolean;
+  /** Clima favorável a doença da cultura nos próximos dias. */
+  doenca: boolean;
+  /** Boletim da manhã com o resumo do talhão. */
+  boletim: boolean;
+  /** Hora do boletim (0–23). */
+  horaBoletim: number;
   /** Hora do aviso de pulverização da véspera (0–23). */
   horaPulverizacao: number;
   /** Silêncio para avisos não urgentes, de `silencioInicio` até `silencioFim` (horas). */
@@ -27,6 +42,11 @@ export const PREFERENCIAS_AVISOS_PADRAO: PreferenciasAvisos = {
   pulverizacao: true,
   janelaSeca: true,
   veranico: true,
+  chuva: true,
+  lavagem: true,
+  doenca: true,
+  boletim: true,
+  horaBoletim: 6,
   horaPulverizacao: 18,
   silencioInicio: 21,
   silencioFim: 6,
@@ -55,6 +75,9 @@ export interface EntradaAvisos {
   diasSemChuva?: number | null;
   /** Só avisa veranico com lavoura plantada. */
   plantado?: boolean;
+  /** Cultura, solo e ZARC do talhão (doença, plantio e boletim). */
+  detalhes?: Omit<TalhaoVigia, 'id' | 'nome' | 'plantado'>;
+  aplicacoes?: Aplicacao[];
 }
 
 function doisDigitos(n: number): string {
@@ -181,6 +204,79 @@ export function planejarAvisos(entrada: EntradaAvisos): AvisoPlanejado[] {
       titulo: 'Veranico',
       corpo: `${talhao.nome}: ${semChuva} dias sem chuva significativa.`,
     });
+  }
+
+  if (p.chuva) {
+    const chegando = chuvaChegando(entrada.horas, agora, 6);
+    if (chegando) {
+      const info = entrada.detalhes?.cultura ? CULTURAS[entrada.detalhes.cultura] : null;
+      avisos.push({
+        id: `chuva-${talhao.id}-${chegando.hora}`,
+        tipo: 'chuva',
+        talhaoId: talhao.id,
+        quando: maisTarde(somarHoras(chegando.hora, -2), logo),
+        titulo: `Chuva por volta das ${formatarHora(chegando.hora)}`,
+        corpo: `${talhao.nome}: ${info?.secagem ? 'amontoe e cubra o café no terreiro.' : 'termine o serviço e recolha o que molha.'}`,
+      });
+    }
+  }
+
+  if (p.lavagem) {
+    for (const a of (entrada.aplicacoes ?? []).filter((x) => x.quando >= somarHoras(agora, -24) && x.quando <= agora)) {
+      const lavagem = verificarLavagem(a, entrada.horas, agora);
+      if (lavagem.situacao !== 'risco' && lavagem.situacao !== 'lavou') continue;
+      const nome = (a.produto || PRODUTOS[a.tipo].rotulo).toLowerCase();
+      avisos.push({
+        id: `lavagem-${a.id}`,
+        tipo: 'lavagem',
+        talhaoId: talhao.id,
+        quando: logo,
+        titulo: lavagem.situacao === 'lavou' ? `Chuva pode ter lavado o ${nome}` : `Chuva pode lavar o ${nome}`,
+        corpo: `${talhao.nome}: chuva dentro do prazo de ${a.horasSemChuva} h depois da aplicação. Confira no caderno.`,
+      });
+    }
+  }
+
+  if (p.doenca && entrada.detalhes?.cultura) {
+    const doencas = CULTURAS[entrada.detalhes.cultura].doencas;
+    const alta = resumoDoencas(entrada.horas, doencas, hoje, 3).find((d) => d.nivel === 'alto' && d.quando);
+    if (alta?.quando) {
+      let quando = `${hoje}T07:00`;
+      if (quando <= agora) quando = respeitarSilencio(logo, p);
+      avisos.push({
+        id: `doenca-${talhao.id}-${alta.doenca}-${alta.quando}`,
+        tipo: 'doenca',
+        talhaoId: talhao.id,
+        quando,
+        titulo: `${alta.nome}: risco alto ${rotuloDia(alta.quando, hoje)}`,
+        corpo: `${talhao.nome}: clima favorável à infecção. Veja a melhor janela para proteger no app.`,
+      });
+    }
+  }
+
+  if (p.boletim && entrada.detalhes) {
+    // Próximo boletim: hoje no horário, ou amanhã se já passou. O texto usa a previsão de agora.
+    let dia = hoje;
+    if (`${hoje}T${doisDigitos(p.horaBoletim)}:00` <= agora) dia = somarDias(hoje, 1);
+    const quando = `${dia}T${doisDigitos(p.horaBoletim)}:00`;
+    const itens = vigiar({
+      talhao: { id: talhao.id, nome: talhao.nome, plantado: entrada.plantado ?? false, ...entrada.detalhes },
+      horas: entrada.horas,
+      dias: entrada.dias,
+      agora: quando,
+      limiares: entrada.limiares,
+      aplicacoes: entrada.aplicacoes,
+    });
+    if (itens.length) {
+      avisos.push({
+        id: `boletim-${talhao.id}-${dia}`,
+        tipo: 'boletim',
+        talhaoId: talhao.id,
+        quando,
+        titulo: `Boletim do ${talhao.nome}`,
+        corpo: itens.slice(0, 2).map((i) => i.titulo).join(' · '),
+      });
+    }
   }
 
   return avisos.sort((a, b) => a.quando.localeCompare(b.quando));

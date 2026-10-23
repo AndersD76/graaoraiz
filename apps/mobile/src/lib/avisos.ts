@@ -71,10 +71,10 @@ export async function pedirPermissaoNotificacoes(): Promise<boolean> {
   return status === 'granted';
 }
 
-/** O plano grátis recebe geada e temporal; os avisos de decisão são do Pro. */
+/** O plano grátis recebe geada, temporal e chuva chegando; os avisos de decisão são do Pro. */
 function preferenciasEfetivas(e: Estado) {
   if (temPro(e)) return e.preferencias;
-  return { ...e.preferencias, pulverizacao: false, janelaSeca: false, veranico: false };
+  return { ...e.preferencias, pulverizacao: false, janelaSeca: false, veranico: false, lavagem: false, doenca: false, boletim: false };
 }
 
 let emAndamento: Promise<number> | null = null;
@@ -138,6 +138,8 @@ async function executar(opcoes: { buscar?: boolean }): Promise<number> {
       limiares: e.limiares,
       diasSemChuva: semChuva,
       plantado: Boolean(talhao.dataPlantio && talhao.dataPlantio <= hoje),
+      detalhes: { cultura: talhao.cultura, solo: talhao.solo, zarc: talhao.zarc, baixada: talhao.baixada },
+      aplicacoes: e.aplicacoes.filter((a) => a.talhaoId === talhao.id),
     });
   });
   const novos = planejados.filter((a) => !entregues.has(a.id) && a.quando > agora);

@@ -50,8 +50,10 @@ export default function Privacidade() {
 
       <h3>2.1 Dados que ficam só no seu celular</h3>
       <p>
-        O app não pede cadastro. As informações que você inclui — nome e localização (coordenadas) dos talhões,
-        registros de chuva, configurações e preferências de avisos — são gravadas apenas na memória do seu aparelho.
+        O app não pede cadastro. As informações que você inclui — nome, localização e contorno dos talhões, registros
+        de chuva, caderno de aplicações, ocorrências com fotos, dados do seu seguro, configurações e preferências de
+        avisos — são gravadas apenas na memória do seu aparelho. As fotos que você tira ou escolhe para uma ocorrência
+        são copiadas para a pasta do app no celular e só saem dele no PDF que você mesmo compartilhar.
         Não temos acesso a elas. Se você permitir o acesso à localização do aparelho, ela é usada apenas no celular e
         só quando você pede: para marcar o talhão onde você está e mostrar sua posição no mapa. O app não acompanha sua
         localização em segundo plano.
@@ -78,13 +80,25 @@ export default function Privacidade() {
         <strong>Base legal:</strong> execução do serviço que você solicitou ao usar o app (art. 7º, V, da LGPD).
       </p>
 
-      <h3>2.3 Notificações</h3>
+      <h3>2.3 Imagens de satélite</h3>
       <p>
-        Os avisos de geada, temporal e janelas de pulverização ou de tempo seco são calculados e agendados no próprio
-        celular, a partir da previsão baixada. Você pode desligá-los nas configurações do app ou do sistema.
+        Quando você abre a tela de satélite, o app envia o contorno do talhão (ou um quadrado em volta do ponto marcado)
+        ao Microsoft Planetary Computer, que guarda as imagens públicas do satélite Sentinel-2 (programa Copernicus), para
+        localizar as passagens e calcular o vigor da área. A consulta não leva nome, contato, identificador do aparelho
+        nem o nome do talhão. As imagens e os resultados ficam guardados no celular.
+      </p>
+      <p>
+        <strong>Base legal:</strong> execução do serviço que você solicitou ao usar o app (art. 7º, V, da LGPD).
       </p>
 
-      <h3>2.4 Assinatura Pro</h3>
+      <h3>2.4 Notificações</h3>
+      <p>
+        Os avisos de chuva chegando, geada, temporal, doença pelo clima, chuva sobre uma aplicação, janelas de
+        pulverização ou de tempo seco e o boletim da manhã são calculados e agendados no próprio celular, a partir da
+        previsão baixada. Você pode desligá-los nas configurações do app ou do sistema.
+      </p>
+
+      <h3>2.5 Assinatura Pro</h3>
       <p>
         A assinatura é cobrada e processada pela Google Play (Android) ou pela App Store (iPhone), de acordo com as
         políticas de cada loja. Para saber se a assinatura está ativa, usamos o serviço RevenueCat, que recebe um

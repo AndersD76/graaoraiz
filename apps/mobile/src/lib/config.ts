@@ -15,7 +15,7 @@ export const REVENUECAT_IOS = process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY || null
 /** Entitlement configurado no RevenueCat que libera o Pro. */
 export const ENTITLEMENT_PRO = 'pro';
 
-export const PRECOS_REFERENCIA = { mensal: 'R$ 19,90', anual: 'R$ 149,90' };
+export const PRECOS_REFERENCIA = { mensal: 'R$ 29,90', anual: 'R$ 249,90', anualPorMes: 'R$ 20,83' };
 
 /**
  * Permite simular o Pro sem loja: em desenvolvimento e na build dos testes automáticos

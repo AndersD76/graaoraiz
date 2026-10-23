@@ -19,6 +19,16 @@ export interface Hora {
   probChuva: number | null;
   /** Código de tempo da OMM (95–99 = trovoada), quando disponível. */
   codigoTempo?: number;
+  /** Ponto de orvalho a 2 m, em °C. */
+  pontoOrvalho?: number;
+  /** Cobertura de nuvens, em %. */
+  nuvens?: number;
+  /** Temperatura da superfície do solo, em °C (esfria mais que o ar em noite limpa). */
+  tSolo?: number;
+  /** Umidade do solo de 3 a 9 cm, em m³/m³. */
+  umidadeSolo?: number;
+  /** Probabilidade de folha molhada, em %. */
+  molhamento?: number;
 }
 
 /** Resumo diário de previsão num ponto. */
@@ -37,6 +47,11 @@ export interface Dia {
   rajadaMax10m: number;
   /** Código de tempo da OMM, quando disponível. */
   codigoTempo?: number;
+  /** Nascer e pôr do sol, hora local: "2026-10-22T05:48". */
+  nascerSol?: string;
+  porSol?: string;
+  /** Evapotranspiração de referência (FAO-56), em mm. */
+  et0?: number;
 }
 
 /** Semáforo usado em todas as decisões do app. */

@@ -25,3 +25,22 @@ test('mapa open-source carrega e devolve a coordenada do toque', async ({ page }
   await page.waitForTimeout(1500); // termina de desenhar as ruas para a captura
   await page.screenshot({ path: 'e2e/capturas/11-mapa-open-source.png' });
 });
+
+test('mapa open-source desenha o contorno do talhão tocando nos cantos', async ({ page }) => {
+  const simulaWebView =
+    '<script>window.mensagens=[];window.ReactNativeWebView={postMessage:function(m){window.mensagens.push(JSON.parse(m));}};</script>';
+  const html = paginaDoMapa({ lat: -25.4321, lon: -49.2715 }, { modo: 'contorno' }).replace('<head>', `<head>${simulaWebView}`);
+  await page.setContent(html, { waitUntil: 'load' });
+
+  const mensagens = () => page.evaluate(() => (window as unknown as { mensagens: Record<string, unknown>[] }).mensagens);
+  await expect.poll(async () => (await mensagens()).some((m) => m.carregado), { timeout: 30_000 }).toBe(true);
+
+  for (const [x, y] of [[100, 150], [300, 150], [300, 350], [100, 350]] as const) await page.mouse.click(x, y);
+  await expect
+    .poll(async () => ((await mensagens()).filter((m) => Array.isArray(m.contorno)).at(-1)?.contorno as unknown[] | undefined)?.length, { timeout: 10_000 })
+    .toBe(4);
+  // Contorno não move o pino: nenhuma mensagem de ponto.
+  expect((await mensagens()).some((m) => typeof m.lat === 'number')).toBe(false);
+  await page.waitForTimeout(1500);
+  await page.screenshot({ path: 'e2e/capturas/17-contorno.png' });
+});

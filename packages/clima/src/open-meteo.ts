@@ -15,6 +15,11 @@ export const VARIAVEIS_HORARIAS = [
   'wind_speed_10m',
   'wind_gusts_10m',
   'weather_code',
+  'dew_point_2m',
+  'cloud_cover',
+  'soil_temperature_0cm',
+  'soil_moisture_3_to_9cm',
+  'leaf_wetness_probability',
 ] as const;
 
 export const VARIAVEIS_DIARIAS = [
@@ -24,6 +29,9 @@ export const VARIAVEIS_DIARIAS = [
   'temperature_2m_min',
   'wind_gusts_10m_max',
   'weather_code',
+  'sunrise',
+  'sunset',
+  'et0_fao_evapotranspiration',
 ] as const;
 
 export interface OpcoesUrl {
@@ -93,14 +101,34 @@ export function urlChuvaRecente(lat: number, lon: number, diasPassados: number, 
   return `${servidor('api', opcoes.apiKey)}/v1/forecast?${p.toString()}`;
 }
 
-/** Chuva diária observada/reanálise (ERA5) entre duas datas, para estimativa antiga e média histórica. */
-export function urlHistoricoChuva(lat: number, lon: number, inicio: string, fim: string, opcoes: OpcoesUrl = {}): string {
+/** Variáveis do diário do talhão (dossiê): chuva, mínima, máxima e rajada. */
+export const VARIAVEIS_DIARIO = ['precipitation_sum', 'temperature_2m_min', 'temperature_2m_max', 'wind_gusts_10m_max'] as const;
+
+/** Diário dos últimos dias (até 92) pela previsão: resposta leve, sem a parte horária. */
+export function urlDiarioRecente(lat: number, lon: number, diasPassados: number, opcoes: OpcoesUrl = {}): string {
+  const p = new URLSearchParams({
+    latitude: String(arredondarCoordenada(lat)),
+    longitude: String(arredondarCoordenada(lon)),
+    daily: VARIAVEIS_DIARIO.join(','),
+    timezone: fusoValido(opcoes.fuso),
+    forecast_days: '1',
+    past_days: String(limitar(diasPassados, 0, 92)),
+  });
+  if (opcoes.apiKey) p.set('apikey', opcoes.apiKey);
+  return `${servidor('api', opcoes.apiKey)}/v1/forecast?${p.toString()}`;
+}
+
+/**
+ * Dados diários observados/reanálise (ERA5) entre duas datas. Só chuva para a média histórica
+ * (série longa e leve); completo para o diário do talhão.
+ */
+export function urlHistoricoChuva(lat: number, lon: number, inicio: string, fim: string, opcoes: OpcoesUrl & { completo?: boolean } = {}): string {
   const p = new URLSearchParams({
     latitude: String(arredondarCoordenada(lat)),
     longitude: String(arredondarCoordenada(lon)),
     start_date: inicio,
     end_date: fim,
-    daily: 'precipitation_sum',
+    daily: opcoes.completo ? VARIAVEIS_DIARIO.join(',') : 'precipitation_sum',
     timezone: fusoValido(opcoes.fuso),
   });
   if (opcoes.apiKey) p.set('apikey', opcoes.apiKey);
@@ -120,6 +148,11 @@ export interface RespostaOpenMeteo {
     wind_speed_10m?: Serie;
     wind_gusts_10m?: Serie;
     weather_code?: Serie;
+    dew_point_2m?: Serie;
+    cloud_cover?: Serie;
+    soil_temperature_0cm?: Serie;
+    soil_moisture_3_to_9cm?: Serie;
+    leaf_wetness_probability?: Serie;
   };
   daily?: {
     time?: string[];
@@ -129,6 +162,9 @@ export interface RespostaOpenMeteo {
     temperature_2m_min?: Serie;
     wind_gusts_10m_max?: Serie;
     weather_code?: Serie;
+    sunrise?: (string | null)[];
+    sunset?: (string | null)[];
+    et0_fao_evapotranspiration?: Serie;
   };
   error?: boolean;
   reason?: string;
@@ -137,6 +173,16 @@ export interface RespostaOpenMeteo {
 function valor(serie: Serie, i: number): number | null {
   const v = serie?.[i];
   return typeof v === 'number' && Number.isFinite(v) ? v : null;
+}
+
+/** Tira os campos nulos: opcional ausente fica ausente, nunca zero inventado. */
+function semNulos<T extends Record<string, number | null>>(o: T): { [K in keyof T]?: number } {
+  const saida: { [K in keyof T]?: number } = {};
+  for (const k of Object.keys(o) as (keyof T)[]) {
+    const v = o[k];
+    if (v !== null) saida[k] = v as number;
+  }
+  return saida;
 }
 
 /** Converte a parte horária. Horas sem os dados essenciais são descartadas, nunca inventadas. */
@@ -151,7 +197,7 @@ export function lerHoras(resposta: RespostaOpenMeteo): Hora[] {
     const rajada10m = valor(h.wind_gusts_10m, i);
     const chuva = valor(h.precipitation, i);
     if (temperatura === null || umidade === null || vento10m === null || rajada10m === null || chuva === null) return;
-    const codigo = valor(h.weather_code, i);
+    const opcional = { codigoTempo: valor(h.weather_code, i), pontoOrvalho: valor(h.dew_point_2m, i), nuvens: valor(h.cloud_cover, i), tSolo: valor(h.soil_temperature_0cm, i), umidadeSolo: valor(h.soil_moisture_3_to_9cm, i), molhamento: valor(h.leaf_wetness_probability, i) };
     horas.push({
       hora,
       temperatura,
@@ -160,7 +206,7 @@ export function lerHoras(resposta: RespostaOpenMeteo): Hora[] {
       rajada10m,
       chuva,
       probChuva: valor(h.precipitation_probability, i),
-      ...(codigo !== null ? { codigoTempo: codigo } : {}),
+      ...semNulos(opcional),
     });
   });
   return horas;
@@ -176,7 +222,8 @@ export function lerDias(resposta: RespostaOpenMeteo): Dia[] {
     const tMin = valor(d.temperature_2m_min, i);
     const rajadaMax10m = valor(d.wind_gusts_10m_max, i);
     if (chuva === null || tMax === null || tMin === null || rajadaMax10m === null) return;
-    const codigo = valor(d.weather_code, i);
+    const nascer = d.sunrise?.[i];
+    const por = d.sunset?.[i];
     dias.push({
       data,
       chuva,
@@ -184,7 +231,9 @@ export function lerDias(resposta: RespostaOpenMeteo): Dia[] {
       tMax,
       tMin,
       rajadaMax10m,
-      ...(codigo !== null ? { codigoTempo: codigo } : {}),
+      ...semNulos({ codigoTempo: valor(d.weather_code, i), et0: valor(d.et0_fao_evapotranspiration, i) }),
+      ...(typeof nascer === 'string' ? { nascerSol: nascer } : {}),
+      ...(typeof por === 'string' ? { porSol: por } : {}),
     });
   });
   return dias;
@@ -198,6 +247,30 @@ export function lerChuvaDiaria(resposta: RespostaOpenMeteo): { data: string; mm:
   d.time.forEach((data, i) => {
     const mm = valor(d.precipitation_sum, i);
     if (mm !== null) saida.push({ data, mm });
+  });
+  return saida;
+}
+
+export interface DiaDiarioBruto {
+  data: string;
+  mm: number;
+  tMin?: number;
+  tMax?: number;
+  rajada?: number;
+}
+
+/** Diário (chuva + temperaturas + rajada) de uma resposta diária. Dias sem chuva informada ficam de fora. */
+export function lerDiario(resposta: RespostaOpenMeteo): DiaDiarioBruto[] {
+  const d = resposta.daily;
+  if (!d?.time) return [];
+  const saida: DiaDiarioBruto[] = [];
+  d.time.forEach((data, i) => {
+    const mm = valor(d.precipitation_sum, i);
+    if (mm === null) return;
+    const tMin = valor(d.temperature_2m_min, i);
+    const tMax = valor(d.temperature_2m_max, i);
+    const rajada = valor(d.wind_gusts_10m_max, i);
+    saida.push({ data, mm, ...(tMin !== null ? { tMin } : {}), ...(tMax !== null ? { tMax } : {}), ...(rajada !== null ? { rajada } : {}) });
   });
   return saida;
 }

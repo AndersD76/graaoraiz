@@ -1,14 +1,16 @@
-/**
- * Learn more about light and dark modes:
- * https://docs.expo.dev/guides/color-schemes/
- */
-
-import { Colors } from '@/constants/theme';
+import { Colors, type Tema } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useEstado } from '@/lib/estado';
 
-export function useTheme() {
-  const scheme = useColorScheme();
-  const theme = scheme === 'dark' ? 'dark' : 'light';
+/** Esquema em uso: a escolha do usuário em Ajustes ou, no automático, o do celular. */
+export function useEsquema(): 'light' | 'dark' {
+  const sistema = useColorScheme();
+  const { tema } = useEstado();
+  if (tema === 'claro') return 'light';
+  if (tema === 'escuro') return 'dark';
+  return sistema === 'dark' ? 'dark' : 'light';
+}
 
-  return Colors[theme];
+export function useTheme(): Tema {
+  return Colors[useEsquema()];
 }

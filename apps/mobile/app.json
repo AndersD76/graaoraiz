@@ -6,7 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "graoraiz",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "automatic",
     "ios": {
       "icon": "./assets/images/icon.png",
       "bundleIdentifier": "com.graoraiz.app",
@@ -74,6 +74,14 @@
         {
           "color": "#1F6B2E",
           "icon": "./assets/images/notification-icon.png"
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "O Grão Raiz usa suas fotos só quando você escolhe uma imagem para registrar uma ocorrência na lavoura.",
+          "cameraPermission": "O Grão Raiz usa a câmera só quando você tira foto de uma ocorrência na lavoura (granizo, geada, praga) para guardar como prova.",
+          "microphonePermission": false
         }
       ]
     ],

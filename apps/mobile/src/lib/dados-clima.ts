@@ -5,12 +5,14 @@ import {
   type Hora,
   isoLocal,
   lerChuvaDiaria,
+  lerDiario,
+  type DiaDiarioBruto,
   lerDias,
   lerHoras,
   normalAcumulada,
   type RespostaOpenMeteo,
   somarDias,
-  urlChuvaRecente,
+  urlDiarioRecente,
   urlHistoricoChuva,
   urlPrevisao,
 } from '@graoraiz/clima';
@@ -107,19 +109,21 @@ export interface Resultado<T> {
 }
 
 export function previsaoEmCache(p: Ponto): Resultado<Previsao> | null {
-  const cache = ler<EmCache<Previsao>>(`graoraiz:previsao:${celula(p)}`);
+  const cache = ler<EmCache<Previsao>>(`graoraiz:previsao2:${celula(p)}`);
   return cache ? { ...cache, desatualizado: Date.now() - cache.em > 6 * HORA } : null;
 }
 
 export function buscarPrevisao(p: Ponto, forcar = false): Promise<Resultado<Previsao>> {
   return comCache(
-    `graoraiz:previsao:${celula(p)}`,
+    `graoraiz:previsao2:${celula(p)}`,
     HORA,
     async () => {
-      const url = API_URL ? `${API_URL}/api/previsao?${consulta(p, { dias: 7 })}` : urlPrevisao(p.lat, p.lon, { diasPrevisao: 7, fuso: FUSO });
+      // 16 dias à frente e 3 para trás (para saber se choveu sobre uma aplicação recente).
+      const url = API_URL
+        ? `${API_URL}/api/previsao?${consulta(p, { dias: 16, passados: 3 })}`
+        : urlPrevisao(p.lat, p.lon, { diasPrevisao: 16, diasPassados: 3, fuso: FUSO });
       const json = await buscarJson(url);
-      // Guarda só de ontem em diante: menos espaço e nada que a tela não use.
-      const desde = somarDias(dataDe(isoLocal(new Date())), -1);
+      const desde = somarDias(dataDe(isoLocal(new Date())), -3);
       return {
         horas: lerHoras(json).filter((h) => h.hora >= desde),
         dias: lerDias(json).filter((d) => d.data >= desde),
@@ -129,36 +133,42 @@ export function buscarPrevisao(p: Ponto, forcar = false): Promise<Resultado<Prev
   );
 }
 
-/** Chuva estimada diária desde `inicio` até ontem: recente pela previsão, antiga pela reanálise. */
-export function buscarChuvaEstimada(p: Ponto, inicio: string, forcar = false): Promise<Resultado<{ data: string; mm: number }[]>> {
+/**
+ * Diário estimado desde `inicio` até ontem (chuva, mínima, máxima, rajada): recente pela previsão,
+ * antigo pela reanálise. Alimenta o pluviômetro, a detecção de eventos e o dossiê.
+ */
+export function buscarDiario(p: Ponto, inicio: string, forcar = false): Promise<Resultado<DiaDiarioBruto[]>> {
   const hoje = dataDe(isoLocal(new Date()));
   return comCache(
-    `graoraiz:chuva-estimada:${celula(p)}:${inicio}`,
+    `graoraiz:diario:${celula(p)}:${inicio}`,
     6 * HORA,
     async () => {
       const limiteRecente = somarDias(hoje, -92);
       const recenteUrl = API_URL
-        ? `${API_URL}/api/previsao?${consulta(p, { dias: 1, passados: 92 })}`
-        : urlChuvaRecente(p.lat, p.lon, 92, { fuso: FUSO });
-      const pedidos: Promise<{ data: string; mm: number }[]>[] = [buscarJson(recenteUrl).then(lerChuvaDiaria)];
+        ? `${API_URL}/api/diario?${consulta(p, { passados: 92 })}`
+        : urlDiarioRecente(p.lat, p.lon, 92, { fuso: FUSO });
+      const pedidos: Promise<DiaDiarioBruto[]>[] = [buscarJson(recenteUrl).then(lerDiario)];
       if (inicio < limiteRecente) {
         const fimAntigo = somarDias(limiteRecente, -1);
         const antigoUrl = API_URL
-          ? `${API_URL}/api/historico?${consulta(p, { inicio, fim: fimAntigo })}`
-          : urlHistoricoChuva(p.lat, p.lon, inicio, fimAntigo, { fuso: FUSO });
-        pedidos.push(buscarJson(antigoUrl).then(lerChuvaDiaria));
+          ? `${API_URL}/api/historico?${consulta(p, { inicio, fim: fimAntigo, completo: 1 })}`
+          : urlHistoricoChuva(p.lat, p.lon, inicio, fimAntigo, { fuso: FUSO, completo: true });
+        pedidos.push(buscarJson(antigoUrl).then(lerDiario));
       }
       const [recente = [], antigo = []] = await Promise.all(pedidos);
-      const porData = new Map<string, number>();
-      for (const r of antigo) porData.set(r.data, r.mm);
-      for (const r of recente) porData.set(r.data, r.mm);
-      return [...porData.entries()]
-        .filter(([data]) => data >= inicio && data < hoje)
-        .map(([data, mm]) => ({ data, mm }))
-        .sort((a, b) => a.data.localeCompare(b.data));
+      const porData = new Map<string, DiaDiarioBruto>();
+      for (const r of antigo) porData.set(r.data, r);
+      for (const r of recente) porData.set(r.data, r);
+      return [...porData.values()].filter((r) => r.data >= inicio && r.data < hoje).sort((a, b) => a.data.localeCompare(b.data));
     },
     forcar,
   );
+}
+
+/** Só a chuva do diário (pluviômetro). */
+export async function buscarChuvaEstimada(p: Ponto, inicio: string, forcar = false): Promise<Resultado<{ data: string; mm: number }[]>> {
+  const r = await buscarDiario(p, inicio, forcar);
+  return { ...r, dados: r.dados.map(({ data, mm }) => ({ data, mm })) };
 }
 
 /** Série diária 1991–2020 do ponto, guardada para sempre (o passado não muda). */

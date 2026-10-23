@@ -49,6 +49,12 @@ export function formatarMm(mm: number): string {
   return `${formatarNumero(mm, mm < 10 ? 1 : 0)} mm`;
 }
 
+/** "no sábado", "na quinta": dia da semana com a preposição certa. */
+export function noDia(data: string): string {
+  const dia = diaDaSemana(data, true);
+  return `${dia === 'sábado' || dia === 'domingo' ? 'no' : 'na'} ${dia}`;
+}
+
 /** "hoje", "amanhã" ou "qui, 23/10". */
 export function rotuloDia(data: string, hoje: string): string {
   if (data === hoje) return 'hoje';

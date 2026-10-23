@@ -2,39 +2,45 @@
 
 ## Google Play
 
-**Nome do app** (até 30): `Grão Raiz: clima p/ pulverizar`
+**Nome do app** (até 30): `Grão Raiz: vigia da lavoura`
 
-**Descrição curta** (até 80): `Saiba se dá para pulverizar hoje, anote a chuva e receba aviso de geada.`
+**Descrição curta** (até 80): `Avisa chuva, geada e doença no talhão e guarda a prova para o Proagro e o seguro.`
 
 **Categoria:** Clima · **Tags:** agricultura, previsão do tempo, chuva
 
 **Descrição completa:**
 
-> O Grão Raiz responde o que importa no campo: dá para pulverizar hoje? Quando vem tempo firme para colher? Vai gear esta noite?
+> O Grão Raiz é o vigia da sua lavoura no bolso: avisa a hora certa de plantar, pulverizar e colher — e, quando o tempo virar, já guardou a prova.
 >
-> **Semáforo de pulverização**
-> Verde, amarelo ou vermelho para cada hora, com o melhor horário do dia e o motivo quando não dá. O app considera o vento na altura da barra (convertido do vento dos modelos), as rajadas, o delta T, a umidade, a temperatura e a chuva nas horas seguintes à aplicação.
+> **Vigia 24 horas, por talhão**
+> Chuva chegando (para cobrir o café e recolher a máquina), geada na madrugada, temporal, chuva sobre o produto que você acabou de aplicar e clima favorável a doenças da sua cultura (ferrugem-asiática, ferrugem do cafeeiro, míldio, requeima, brusone, giberela, sarna e outras). Tudo em ordem de urgência, com aviso no celular mesmo com o app fechado.
 >
-> **Por talhão, não por cidade**
-> Marque suas lavouras no mapa ou pela localização do celular. A previsão é feita para o ponto de cada talhão.
+> **Boletim falado toda manhã**
+> O resumo do talhão para ouvir no caminho da roça ou mandar no grupo do WhatsApp.
 >
-> **Colheita e máquinas**
-> Veja a próxima janela de tempo firme (dias seguidos sem chuva) para colher ou entrar com máquina.
+> **Prazo e prova para o Proagro e o seguro**
+> O app lê o clima da safra todo dia e aponta veranico, excesso de chuva, geada, vendaval e calor extremo, com o prazo para comunicar o banco ou a seguradora. Registre ocorrências com foto, data e local. Gere o dossiê do talhão em PDF: janela do ZARC, eventos, fotos, caderno de aplicações e o diário do clima dia a dia.
 >
-> **Pluviômetro no celular**
-> Anote a chuva em dois toques. Nos dias sem anotação, o app estima a chuva com dados meteorológicos. Acompanhe o acumulado da safra comparado com a média histórica e compartilhe o cartão de chuva no grupo do WhatsApp.
+> **Caderno de campo automático**
+> Toque em “Apliquei agora”: o app guarda o produto, a dose e as condições do tempo naquela hora (vento, delta T, umidade, temperatura), avisa se a chuva lavou e conta quantos dias faltam para vencer a proteção do fungicida.
 >
-> **Avisos no celular**
-> Risco de geada na tarde anterior e de temporal com algumas horas de antecedência, mesmo com o app fechado.
+> **Olho do satélite**
+> Imagem real e mapa de vigor (NDVI) da sua lavoura a cada passagem do satélite Sentinel-2, a curva do talhão ao longo da safra e o tamanho das manchas fracas — para ir direto ao ponto, sem rodar a área toda.
 >
-> **Grão Raiz Pro**
-> Talhões ilimitados, pulverização hora a hora para 48 horas, aviso na véspera quando houver janela de pulverização, aviso de tempo firme e de veranico, limites ajustáveis e relatório da safra em PDF para Proagro, seguro e banco. Assinatura mensal ou anual com 14 dias grátis; cancele quando quiser na Google Play.
+> **Planto ou espero?**
+> Umidade do solo, chuva prevista, risco de veranico, temperatura do solo e os dias que faltam na janela do ZARC.
 >
-> **Sem cadastro.** Seus talhões e anotações ficam no seu celular.
+> **Pulverização e chuva**
+> Semáforo hora a hora (vento na barra, rajada, delta T, umidade, temperatura e chuva depois da aplicação), previsão de 16 dias e pluviômetro com estimativa automática e média de 30 anos.
 >
-> O app mostra estimativas a partir de modelos meteorológicos e não recomenda produtos nem doses: confira as condições no local e siga a orientação do seu agrônomo.
+> **Grátis:** 1 talhão, previsão de 7 dias, semáforo de pulverização de hoje, pluviômetro, caderno, imagem real do satélite e avisos de chuva, temporal e geada.
+> **Grão Raiz Pro:** vigia completo com avisos de doença e de chuva sobre a aplicação, boletim falado, dossiê em PDF, mapa de vigor, 16 dias de previsão, 48 h de pulverização, talhões ilimitados e limites ajustáveis. Assinatura mensal ou anual com 14 dias grátis; cancele quando quiser na Google Play.
 >
-> Dados meteorológicos: Open-Meteo.com (CC BY 4.0).
+> **Sem cadastro e sem anúncios.** Talhões, caderno e fotos ficam no seu celular. Funciona com a última previsão salva quando falta sinal.
+>
+> O app mostra estimativas de modelos meteorológicos e de imagens de satélite, não recomenda produtos nem doses e não substitui laudo ou vistoria: confira no campo e siga a orientação do seu agrônomo.
+>
+> Dados meteorológicos: Open-Meteo.com (CC BY 4.0). Imagens: Copernicus Sentinel-2 (ESA), via Microsoft Planetary Computer.
 
 **Contato:** e-mail de suporte, site e URL da política de privacidade (`/privacidade`).
 
@@ -47,7 +53,9 @@
 | O usuário pode pedir exclusão? | Sim — dentro do app (Ajustes) e pela página `/excluir-dados` |
 | **Local aproximado** | Coletado · não compartilhado · processado de forma efêmera · obrigatório para a previsão · finalidade: funcionalidade do app |
 | **Histórico de compras** | Coletado (pela loja/RevenueCat) · não compartilhado · finalidade: funcionalidade do app / gestão da assinatura |
-| Local exato, contatos, fotos, identificadores de publicidade | Não coletados (o local exato fica só no aparelho; o servidor recebe a coordenada arredondada) |
+| **Local exato** | Compartilhado só ao abrir o satélite: o contorno do talhão vai ao serviço de imagens (Microsoft Planetary Computer) para recortar a imagem · processado de forma efêmera · opcional · finalidade: funcionalidade do app |
+| Fotos | Não coletadas: as fotos de ocorrência ficam só no aparelho (entram no PDF que o próprio usuário compartilha) |
+| Contatos, identificadores de publicidade | Não coletados |
 
 ### Outros itens do "Conteúdo do app"
 
@@ -61,10 +69,10 @@
 
 | Campo | Texto |
 |---|---|
-| Nome (até 30) | `Grão Raiz: Clima no Campo` |
-| Subtítulo (até 30) | `Pulverização, chuva e geada` |
-| Palavras-chave (até 100) | `pulverização,pluviômetro,chuva,geada,previsão,agro,soja,milho,trigo,delta t,vento,colheita` |
-| Texto promocional (até 170) | `Semáforo de pulverização por talhão, pluviômetro com estimativa automática e aviso de geada. Feito para quem planta grãos.` |
+| Nome (até 30) | `Grão Raiz: vigia da lavoura` |
+| Subtítulo (até 30) | `Chuva, geada, doença e prova` |
+| Palavras-chave (até 100) | `pulverização,pluviômetro,geada,proagro,seguro rural,ndvi,satélite,ferrugem,soja,café,zarc` |
+| Texto promocional (até 170) | `O vigia da lavoura: avisa chuva, geada e doença no talhão, mostra o vigor pelo satélite e guarda a prova para o Proagro e o seguro.` |
 | Categoria | Clima (principal) · Produtividade (secundária) |
 | Classificação | 4+ |
 | URL de suporte / marketing | site publicado |
@@ -76,6 +84,7 @@
 | Tipo de dado | Uso | Vinculado ao usuário? | Rastreamento? |
 |---|---|---|---|
 | Localização aproximada | Funcionalidade do app | Não | Não |
+| Localização exata (contorno do talhão, só no satélite) | Funcionalidade do app | Não | Não |
 | Histórico de compras | Funcionalidade do app | Não | Não |
 
 ### Notas para o revisor

@@ -1,8 +1,11 @@
 import { acumulado, dataDe, formatarData, formatarMm, safraDe, somarDias } from '@graoraiz/clima';
+import { LinearGradient } from 'expo-linear-gradient';
 import { useRef, useState } from 'react';
 import { type HostInstance, StyleSheet, View } from 'react-native';
 
+import { IconeTempo } from '@/components/icone';
 import { Botao, Chip, Linha, T, Tela } from '@/components/ui';
+import { Fontes } from '@/constants/theme';
 import { useAgora } from '@/hooks/use-agora';
 import { useChuvaSafra } from '@/hooks/use-chuva-safra';
 import { SITE_URL } from '@/lib/config';
@@ -58,10 +61,14 @@ export default function CartaoChuvaScreen() {
         ))}
       </Linha>
 
-      <View ref={cartao} collapsable={false} style={estilos.cartao} testID="cartao-chuva">
-        <T variante="forte" cor="#D8F0DD">
-          Grão Raiz · pluviômetro
-        </T>
+      <View ref={cartao} collapsable={false} style={estilos.moldura} testID="cartao-chuva">
+        <LinearGradient colors={['#1B4F9C', '#2B78DE', '#17663A']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={estilos.cartao}>
+        <View style={estilos.topo}>
+          <T variante="forte" cor="#D8F0DD" style={estilos.marca}>
+            Grão Raiz · pluviômetro
+          </T>
+          <IconeTempo nome="raindrop-measure" tamanho={64} />
+        </View>
         {/* Tamanho fixo: com fonte grande do sistema o número estouraria o cartão quadrado. */}
         <T style={estilos.mm} cor="#ffffff" maxFontSizeMultiplier={1} adjustsFontSizeToFit numberOfLines={1}>
           {formatarMm(mm)}
@@ -75,16 +82,20 @@ export default function CartaoChuvaScreen() {
             Anote sua chuva também: {site}/baixar
           </T>
         </View>
+        </LinearGradient>
       </View>
 
       <T variante="pequeno">Inclui seus registros e, nos dias sem anotação, a estimativa automática.</T>
-      <Botao titulo="Compartilhar" aoTocar={compartilhar} carregando={compartilhando} testID="compartilhar-cartao" />
+      <Botao titulo="Compartilhar no WhatsApp" icone="whatsapp" aoTocar={compartilhar} carregando={compartilhando} testID="compartilhar-cartao" />
     </Tela>
   );
 }
 
 const estilos = StyleSheet.create({
-  cartao: { backgroundColor: '#1F6B2E', borderRadius: 20, padding: 24, gap: 6, aspectRatio: 1, justifyContent: 'center' },
-  mm: { fontSize: 72, lineHeight: 80, fontWeight: '800' },
+  moldura: { borderRadius: 24, overflow: 'hidden', aspectRatio: 1 },
+  cartao: { flex: 1, padding: 24, gap: 6, justifyContent: 'center' },
+  topo: { flexDirection: 'row', alignItems: 'center' },
+  marca: { flex: 1 },
+  mm: { fontSize: 72, lineHeight: 80, fontFamily: Fontes.extra, letterSpacing: -2 },
   rodape: { marginTop: 'auto' },
 });
