@@ -16,6 +16,8 @@ const parametros = z
     inicio: dataObrigatoria('inicio'),
     fim: dataObrigatoria('fim'),
     fuso: z.string().max(64).optional(),
+    // 1 = diário completo (chuva, temperaturas e rajada) para o dossiê; padrão só chuva.
+    completo: z.enum(['0', '1']).optional(),
   })
   .superRefine((v, ctx) => {
     if (v.inicio > v.fim) {
@@ -25,14 +27,15 @@ const parametros = z
     }
   });
 
-/** GET /api/historico?lat=&lon=&inicio=AAAA-MM-DD&fim=AAAA-MM-DD — chuva diária (reanálise ERA5). */
+/** GET /api/historico?lat=&lon=&inicio=AAAA-MM-DD&fim=AAAA-MM-DD&completo=1 — diário (reanálise ERA5). */
 export async function GET(request: NextRequest) {
   const validacao = parametros.safeParse(lerQuery(request.nextUrl));
   if (!validacao.success) return respostaErro(400, primeiraMensagem(validacao.error));
 
-  const { lat, lon, inicio, fim, fuso } = validacao.data;
+  const { lat, lon, inicio, fim, fuso, completo } = validacao.data;
   const url = urlHistoricoChuva(lat, lon, inicio, fim, {
     fuso,
+    completo: completo === '1',
     apiKey: process.env.OPEN_METEO_API_KEY || undefined,
   });
 

@@ -48,11 +48,11 @@ export function CalendarioChuva({
   return (
     <View style={estilos.caixa}>
       <Linha style={estilos.topo}>
-        <Botao titulo="‹" tipo="secundario" aoTocar={() => aoMudarMes(anterior)} desabilitado={`${anterior}-31` < inicioSafra} testID="mes-anterior" />
+        <Botao titulo="" icone="esquerda" rotuloAcessivel="Mês anterior" tipo="secundario" compacto aoTocar={() => aoMudarMes(anterior)} desabilitado={`${anterior}-31` < inicioSafra} testID="mes-anterior" />
         <T variante="subtitulo" style={estilos.titulo}>
           {formatarMes(mes)}
         </T>
-        <Botao titulo="›" tipo="secundario" aoTocar={() => aoMudarMes(proximo)} desabilitado={`${proximo}-01` > hoje} testID="mes-proximo" />
+        <Botao titulo="" icone="direita" rotuloAcessivel="Próximo mês" tipo="secundario" compacto aoTocar={() => aoMudarMes(proximo)} desabilitado={`${proximo}-01` > hoje} testID="mes-proximo" />
       </Linha>
       <View style={estilos.grade}>
         {SEMANA.map((d, i) => (
@@ -72,12 +72,19 @@ export function CalendarioChuva({
               onPress={() => aoSelecionar(data)}
               accessibilityRole="button"
               accessibilityLabel={`Dia ${Number(data.slice(8))}: ${r ? `${formatarNumero(r.mm)} milímetros ${r.origem === 'manual' ? 'anotados' : 'estimados'}` : 'sem dado'}`}
-              style={[estilos.celula, estilos.dia, ativo && { borderColor: tema.marca, borderWidth: 2 }, futuro && { opacity: 0.3 }]}>
-              <T variante="pequeno" maxFontSizeMultiplier={1.3}>
+              style={[
+                estilos.celula,
+                estilos.dia,
+                // Fundo azul mais forte quanto mais choveu: o mês se lê de relance.
+                r && r.mm >= 1 && { backgroundColor: r.mm >= 20 ? tema.chuva : tema.chuvaSuave },
+                ativo && { borderColor: tema.marca, borderWidth: 2 },
+                futuro && { opacity: 0.3 },
+              ]}>
+              <T variante="pequeno" cor={r && r.mm >= 20 ? '#ffffff' : undefined} maxFontSizeMultiplier={1.3}>
                 {Number(data.slice(8))}
               </T>
               {r ? (
-                <T variante="forte" cor={r.origem === 'manual' ? tema.marca : tema.textSecondary} style={estilos.mm} maxFontSizeMultiplier={1.3}>
+                <T variante="forte" cor={r.mm >= 20 ? '#ffffff' : r.origem === 'manual' ? tema.marca : tema.textSecondary} style={estilos.mm} maxFontSizeMultiplier={1.3}>
                   {formatarNumero(r.mm, r.mm < 10 ? 1 : 0)}
                 </T>
               ) : null}
@@ -85,7 +92,7 @@ export function CalendarioChuva({
           );
         })}
       </View>
-      <T variante="pequeno">Verde: anotado por você. Cinza: estimado pelos dados meteorológicos (mm).</T>
+      <T variante="pequeno">Número verde: anotado por você. Cinza: estimado (mm). Azul forte: 20 mm ou mais.</T>
     </View>
   );
 }
@@ -96,6 +103,6 @@ const estilos = StyleSheet.create({
   titulo: { flex: 1, textAlign: 'center' },
   grade: { flexDirection: 'row', flexWrap: 'wrap' },
   celula: { width: `${100 / 7}%`, minHeight: 52, alignItems: 'center', justifyContent: 'center' },
-  dia: { borderRadius: 10, borderWidth: 2, borderColor: 'transparent' },
+  dia: { borderRadius: 12, borderWidth: 2, borderColor: 'transparent', marginVertical: 1 },
   mm: { fontSize: 14, lineHeight: 18 },
 });

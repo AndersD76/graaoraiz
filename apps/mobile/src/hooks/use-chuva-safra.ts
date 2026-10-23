@@ -1,12 +1,14 @@
-import { mesclarChuva, type RegistroChuva, safraDe, somarDias } from '@graoraiz/clima';
+import { type DiaDiarioBruto, type DiaObservado, mesclarChuva, type RegistroChuva, safraDe, somarDias } from '@graoraiz/clima';
 import { useEffect, useMemo, useState } from 'react';
 
-import { buscarChuvaEstimada, buscarNormal } from '@/lib/dados-clima';
+import { buscarDiario, buscarNormal } from '@/lib/dados-clima';
 import { type Talhao, useEstado } from '@/lib/estado';
 
 export interface ChuvaSafra {
   /** Anotada + estimada, do início da safra até hoje. */
   registros: RegistroChuva[];
+  /** Diário do talhão: chuva (anotada vence a estimada), mínima, máxima e rajada. */
+  diario: DiaObservado[];
   /** Média histórica acumulada até ontem; null enquanto carrega ou se indisponível. */
   normal: number | null;
   carregando: boolean;
@@ -16,7 +18,7 @@ export interface ChuvaSafra {
 
 interface Estimativa {
   chave: string;
-  estimada: { data: string; mm: number }[];
+  estimado: DiaDiarioBruto[];
   semEstimativa: boolean;
 }
 
@@ -26,7 +28,7 @@ interface Normal {
 }
 
 /**
- * Junta as anotações do produtor com a estimativa automática para a safra atual.
+ * Junta as anotações do produtor com o diário estimado (modelos e reanálise) da safra atual.
  * `hoje` vem do relógio compartilhado (useAgora), para virar o dia sem reabrir o app.
  */
 export function useChuvaSafra(talhao: Talhao | null, hoje: string): ChuvaSafra {
@@ -38,14 +40,14 @@ export function useChuvaSafra(talhao: Talhao | null, hoje: string): ChuvaSafra {
   const [estimativa, setEstimativa] = useState<Estimativa | null>(null);
   const [normal, setNormal] = useState<Normal | null>(null);
 
-  // Estimativa e média histórica chegam separadas: a série de 30 anos não atrasa o resto.
+  // Diário e média histórica chegam separados: a série de 30 anos não atrasa o resto.
   useEffect(() => {
     if (lat === undefined || lon === undefined || chave === null) return;
     let ativo = true;
-    buscarChuvaEstimada({ lat, lon }, safra.inicio)
+    buscarDiario({ lat, lon }, safra.inicio)
       .then(
-        (r) => ({ estimada: r.dados, semEstimativa: r.desatualizado }),
-        () => ({ estimada: [], semEstimativa: true }),
+        (r) => ({ estimado: r.dados, semEstimativa: r.desatualizado }),
+        () => ({ estimado: [], semEstimativa: true }),
       )
       .then((r) => ativo && setEstimativa({ chave, ...r }));
     void buscarNormal({ lat, lon }, safra.inicio, somarDias(hoje, -1)).then((valor) => ativo && setNormal({ chave, valor }));
@@ -59,11 +61,23 @@ export function useChuvaSafra(talhao: Talhao | null, hoje: string): ChuvaSafra {
   const registros = useMemo(() => {
     if (!talhao) return [];
     const anotadas = estado.chuvas.filter((c) => c.talhaoId === talhao.id && c.data >= safra.inicio && c.data <= hoje);
-    return mesclarChuva(anotadas, atual?.estimada ?? []);
+    return mesclarChuva(
+      anotadas,
+      (atual?.estimado ?? []).map(({ data, mm }) => ({ data, mm })),
+    );
   }, [estado.chuvas, atual, talhao, safra.inicio, hoje]);
+
+  const diario = useMemo(() => {
+    const porData = new Map((atual?.estimado ?? []).map((d) => [d.data, d]));
+    return registros.map((r): DiaObservado => {
+      const d = porData.get(r.data);
+      return { data: r.data, chuva: r.mm, tMin: d?.tMin, tMax: d?.tMax, rajada: d?.rajada };
+    });
+  }, [registros, atual]);
 
   return {
     registros,
+    diario,
     normal: normal?.chave === chave ? normal.valor : null,
     carregando: chave !== null && atual === null,
     semEstimativa: atual?.semEstimativa ?? false,

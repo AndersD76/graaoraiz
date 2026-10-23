@@ -1,94 +1,99 @@
+import { areaHa, formatarNumero } from '@graoraiz/clima';
 import { useEffect, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
-import { WebView, type WebViewMessageEvent } from 'react-native-webview';
+import { Platform, StyleSheet, View } from 'react-native';
 
 import { CamposCoordenada } from '@/components/campos-coordenada';
-import { Botao, T } from '@/components/ui';
+import { type ControleMapa, MapaBase, type MensagemMapa } from '@/components/mapa-base';
+import { Botao, Chip, Linha, T } from '@/components/ui';
 import type { Coordenada } from '@/lib/localizacao';
-import { paginaDoMapa } from '@/lib/pagina-mapa';
 
-function comandoMover(c: Coordenada): string {
-  return `window.moverPara && window.moverPara(${c.lat}, ${c.lon}); true;`;
-}
-
-/** Mapa open-source (MapLibre + OpenFreeMap/OpenStreetMap): toque para marcar o talhão; o pino pode ser arrastado. */
-export function MapaTalhao({ coordenada, aoMudar }: { coordenada: Coordenada | null; aoMudar: (c: Coordenada) => void }) {
-  // `object` no genérico: a tipagem da biblioteca usa `P = undefined`, que zera as props no TypeScript 6.
-  const web = useRef<WebView<object>>(null);
-  // A página é montada uma vez; depois o mapa é movido por JavaScript, sem recarregar.
-  const [html] = useState(() => paginaDoMapa(coordenada));
+/**
+ * Mapa open-source (MapLibre + OpenFreeMap/OpenStreetMap) do cadastro do talhão: toque para marcar
+ * o ponto ou desenhe o contorno tocando nos cantos da lavoura (a área sai sozinha).
+ */
+export function MapaTalhao({
+  coordenada,
+  aoMudar,
+  contorno = null,
+  aoMudarContorno,
+}: {
+  coordenada: Coordenada | null;
+  aoMudar: (c: Coordenada) => void;
+  contorno?: [number, number][] | null;
+  aoMudarContorno?: (c: [number, number][] | null) => void;
+}) {
+  const mapa = useRef<ControleMapa>(null);
+  const [modo, setModo] = useState<'ponto' | 'contorno'>('ponto');
   const [semMapa, setSemMapa] = useState(false);
-  const [digitar, setDigitar] = useState(false);
-  const carregado = useRef(false);
-  const pendente = useRef<Coordenada | null>(null);
+  const [digitar, setDigitar] = useState(Platform.OS === 'web');
   const ultimaDoMapa = useRef<string | null>(null);
 
-  // Coordenada vinda de fora (GPS ou campos): move o pino; se o mapa ainda não carregou, guarda para depois.
+  // Coordenada vinda de fora (GPS ou campos digitados) move o pino.
   useEffect(() => {
     if (!coordenada || `${coordenada.lat},${coordenada.lon}` === ultimaDoMapa.current) return;
-    if (carregado.current) web.current?.injectJavaScript(comandoMover(coordenada));
-    else pendente.current = coordenada;
+    mapa.current?.enviar({ mover: coordenada });
   }, [coordenada]);
 
-  const aoReceber = (e: WebViewMessageEvent) => {
-    try {
-      const dados = JSON.parse(e.nativeEvent.data) as { lat?: number; lon?: number; semMapa?: boolean; carregado?: boolean };
-      if (dados.semMapa) setSemMapa(true);
-      if (dados.carregado) {
-        carregado.current = true;
-        setSemMapa(false);
-        if (pendente.current) web.current?.injectJavaScript(comandoMover(pendente.current));
-        pendente.current = null;
-      }
-      if (typeof dados.lat === 'number' && typeof dados.lon === 'number') {
-        ultimaDoMapa.current = `${dados.lat},${dados.lon}`;
-        aoMudar({ lat: dados.lat, lon: dados.lon });
-      }
-    } catch {
-      // Mensagem que não é do mapa: ignora.
+  const aoMensagem = (m: MensagemMapa) => {
+    if (m.semMapa || m.erroMapa) setSemMapa(true);
+    if (m.carregado) setSemMapa(false);
+    if (typeof m.lat === 'number' && typeof m.lon === 'number') {
+      ultimaDoMapa.current = `${m.lat},${m.lon}`;
+      aoMudar({ lat: m.lat, lon: m.lon });
     }
+    if (m.contorno) aoMudarContorno?.(m.contorno.length >= 3 ? m.contorno : m.contorno.length ? m.contorno : null);
   };
 
-  const tentarDeNovo = () => {
-    carregado.current = false;
-    pendente.current = coordenada;
-    setSemMapa(false);
-    web.current?.reload();
+  const trocarModo = (novo: 'ponto' | 'contorno') => {
+    setModo(novo);
+    mapa.current?.enviar({ modo: novo });
   };
+
+  const area = contorno && contorno.length >= 3 ? areaHa(contorno) : null;
 
   return (
     <View style={estilos.caixa}>
-      <View style={estilos.moldura}>
-        <WebView<object>
-          ref={web}
-          source={{ html, baseUrl: 'https://graoraiz.app/' }}
-          originWhitelist={['*']}
-          onMessage={aoReceber}
-          onError={() => setSemMapa(true)}
-          nestedScrollEnabled
-          // iPhone: sem rolagem nem "elástico" da página; os gestos ficam com o mapa.
-          bounces={false}
-          scrollEnabled={false}
-          style={estilos.mapa}
-          accessibilityLabel="Mapa para marcar o talhão"
-        />
-      </View>
+      {aoMudarContorno ? (
+        <Linha>
+          <Chip rotulo="Marcar ponto" icone="pino" ativo={modo === 'ponto'} aoTocar={() => trocarModo('ponto')} testID="modo-ponto" />
+          <Chip rotulo="Desenhar contorno" icone="regua" ativo={modo === 'contorno'} aoTocar={() => trocarModo('contorno')} testID="modo-contorno" />
+        </Linha>
+      ) : null}
+      <MapaBase controle={mapa} inicial={coordenada} opcoes={{ contorno }} aoMensagem={aoMensagem} rotulo="Mapa para marcar o talhão" />
       {semMapa ? (
         <>
           <T variante="pequeno">Sem internet para carregar o mapa. Use “Estou no talhão”, digite as coordenadas ou tente de novo com sinal.</T>
-          <Botao titulo="Tentar carregar o mapa de novo" tipo="secundario" aoTocar={tentarDeNovo} />
+          <Botao titulo="Tentar carregar o mapa de novo" tipo="secundario" icone="atualizar" aoTocar={() => mapa.current?.recarregar()} />
         </>
+      ) : modo === 'contorno' ? (
+        <T variante="pequeno">Toque nos cantos da lavoura, um de cada vez. A área é calculada sozinha.</T>
       ) : (
         <T variante="pequeno">Toque no mapa sobre a lavoura para marcar o talhão. Mapa: OpenFreeMap / OpenStreetMap.</T>
       )}
-      <Botao titulo={digitar ? 'Esconder coordenadas' : 'Digitar coordenadas'} tipo="texto" aoTocar={() => setDigitar((d) => !d)} />
+      {modo === 'contorno' ? (
+        <Linha>
+          {area !== null ? (
+            <T variante="forte" style={estilos.flex} testID="area-contorno">
+              {formatarNumero(area, 1)} ha
+            </T>
+          ) : (
+            <T variante="pequeno" style={estilos.flex}>
+              {contorno?.length ?? 0} de 3 cantos no mínimo
+            </T>
+          )}
+          <Botao titulo="Desfazer" tipo="secundario" compacto icone="esquerda" aoTocar={() => mapa.current?.enviar({ desfazer: true })} />
+          <Botao titulo="Limpar" tipo="secundario" compacto icone="lixeira" aoTocar={() => mapa.current?.enviar({ limpar: true })} />
+        </Linha>
+      ) : null}
+      {Platform.OS !== 'web' ? (
+        <Botao titulo={digitar ? 'Esconder coordenadas' : 'Digitar coordenadas'} tipo="texto" aoTocar={() => setDigitar((d) => !d)} />
+      ) : null}
       {digitar ? <CamposCoordenada coordenada={coordenada} aoMudar={aoMudar} /> : null}
     </View>
   );
 }
 
 const estilos = StyleSheet.create({
-  caixa: { gap: 6 },
-  moldura: { height: 280, borderRadius: 16, overflow: 'hidden' },
-  mapa: { flex: 1 },
+  caixa: { gap: 8 },
+  flex: { flex: 1 },
 });

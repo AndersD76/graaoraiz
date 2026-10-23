@@ -3,34 +3,49 @@ import Constants from 'expo-constants';
 import { useFocusEffect, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useCallback, useState } from 'react';
-import { Linking, View } from 'react-native';
+import { Linking, StyleSheet, View } from 'react-native';
 
-import { Aviso, Botao, Cartao, Chip, Interruptor, Linha, T, Tela } from '@/components/ui';
+import { Aviso, Botao, Campo, Cartao, Chip, Divisor, Interruptor, Linha, T, Tela } from '@/components/ui';
+import { useTheme } from '@/hooks/use-theme';
 import { assinaturaDisponivel, atualizarStatusAssinatura, restaurarCompras } from '@/lib/assinatura';
 import { pedirPermissaoNotificacoes, type PermissaoAvisos, permissaoAvisos, reagendarAvisos } from '@/lib/avisos';
 import { PERMITE_SIMULAR_PRO, SITE_URL } from '@/lib/config';
 import { confirmar, informar } from '@/lib/dialogo';
-import { apagarTudo, definirProSimulado, salvarLimiares, salvarPreferencias, useEstado, usePro } from '@/lib/estado';
+import {
+  apagarTudo,
+  definirProSimulado,
+  definirTema,
+  salvarLimiares,
+  salvarPreferencias,
+  salvarProdutor,
+  salvarSeguro,
+  TIPOS_SEGURO,
+  useEstado,
+  usePro,
+} from '@/lib/estado';
 
-const HORAS_AVISO = [17, 18, 19, 20];
+const HORAS_PULVERIZACAO = [17, 18, 19, 20];
+const HORAS_BOLETIM = [5, 6, 7, 8];
+const PRAZOS = [null, 3, 5, 7, 10, 15] as const;
 
 function Ajuste({ rotulo, valor, unidade, passo, min, max, aoMudar, bloqueado }: {
   rotulo: string; valor: number; unidade: string; passo: number; min: number; max: number; aoMudar: (v: number) => void; bloqueado: boolean;
 }) {
   return (
-    <Linha style={{ justifyContent: 'space-between', flexWrap: 'nowrap' }}>
-      <T style={{ flex: 1 }}>{rotulo}</T>
-      <Botao titulo="−" tipo="secundario" desabilitado={bloqueado || valor - passo < min} aoTocar={() => aoMudar(Math.round((valor - passo) * 10) / 10)} />
-      <T variante="forte" style={{ minWidth: 72, textAlign: 'center' }}>
+    <Linha style={estilos.ajuste}>
+      <T style={estilos.flex}>{rotulo}</T>
+      <Botao titulo="−" tipo="secundario" compacto desabilitado={bloqueado || valor - passo < min} aoTocar={() => aoMudar(Math.round((valor - passo) * 10) / 10)} />
+      <T variante="forte" style={estilos.valorAjuste}>
         {valor} {unidade}
       </T>
-      <Botao titulo="+" tipo="secundario" desabilitado={bloqueado || valor + passo > max} aoTocar={() => aoMudar(Math.round((valor + passo) * 10) / 10)} />
+      <Botao titulo="+" tipo="secundario" compacto desabilitado={bloqueado || valor + passo > max} aoTocar={() => aoMudar(Math.round((valor + passo) * 10) / 10)} />
     </Linha>
   );
 }
 
 export default function AjustesScreen() {
   const router = useRouter();
+  const tema = useTheme();
   const estado = useEstado();
   const pro = usePro();
   const p = estado.preferencias;
@@ -69,36 +84,86 @@ export default function AjustesScreen() {
   return (
     <Tela titulo="Ajustes">
       <Cartao>
+        <T variante="subtitulo">Aparência</T>
+        <Linha>
+          <Chip rotulo="Automático" icone="nuvemSol" ativo={estado.tema === 'auto'} aoTocar={() => definirTema('auto')} testID="tema-auto" />
+          <Chip rotulo="Claro" icone="sol" ativo={estado.tema === 'claro'} aoTocar={() => definirTema('claro')} testID="tema-claro" />
+          <Chip rotulo="Escuro" icone="lua" ativo={estado.tema === 'escuro'} aoTocar={() => definirTema('escuro')} testID="tema-escuro" />
+        </Linha>
+        <T variante="pequeno">No automático, segue o tema do celular. O claro lê melhor sob sol forte.</T>
+      </Cartao>
+
+      <Cartao>
+        <T variante="subtitulo">Você</T>
+        <Campo rotulo="Seu nome (boletim e dossiê)" value={estado.produtor} onChangeText={salvarProdutor} placeholder="Ex.: Daniel" maxLength={40} testID="campo-produtor" />
+      </Cartao>
+
+      <Cartao>
+        <T variante="subtitulo">Proagro e seguro</T>
+        <T variante="pequeno">Com isso o caderno e o dossiê mostram até quando comunicar cada evento do clima.</T>
+        <Linha>
+          {TIPOS_SEGURO.map((s) => (
+            <Chip key={s.valor} rotulo={s.rotulo} ativo={estado.seguro.tipo === s.valor} aoTocar={() => salvarSeguro({ ...estado.seguro, tipo: s.valor })} testID={`seguro-${s.valor}`} />
+          ))}
+        </Linha>
+        {estado.seguro.tipo !== 'nenhum' ? (
+          <>
+            <Campo
+              rotulo="Banco, cooperativa ou seguradora"
+              value={estado.seguro.agente}
+              onChangeText={(agente) => salvarSeguro({ ...estado.seguro, agente })}
+              placeholder="Ex.: Sicredi"
+              maxLength={60}
+            />
+            <T variante="rotulo">Prazo do contrato para comunicar perda</T>
+            <Linha>
+              {PRAZOS.map((d) => (
+                <Chip key={String(d)} rotulo={d === null ? 'Não sei' : `${d} dias`} ativo={estado.seguro.prazoDias === d} aoTocar={() => salvarSeguro({ ...estado.seguro, prazoDias: d })} testID={`prazo-${d ?? 'nao-sei'}`} />
+              ))}
+            </Linha>
+            <T variante="pequeno">Confira no contrato ou com o gerente. Na dúvida, comunique a perda assim que perceber.</T>
+          </>
+        ) : null}
+      </Cartao>
+
+      <Cartao>
         <T variante="subtitulo">Avisos no celular</T>
         {permissao.estado !== 'concedida' ? (
           <>
             <Aviso tipo="atencao">
               {permissao.podePedir
-                ? 'Os avisos estão desligados no celular.'
+                ? 'Os avisos estão desligados no celular. Sem eles o vigia não consegue chamar você.'
                 : 'Os avisos foram bloqueados no celular. Ligue em Configurações → Notificações → Grão Raiz.'}
             </Aviso>
-            <Botao titulo={permissao.podePedir ? 'Permitir avisos' : 'Abrir configurações do celular'} aoTocar={permitirAvisos} />
+            <Botao titulo={permissao.podePedir ? 'Permitir avisos' : 'Abrir configurações do celular'} icone="sino" aoTocar={permitirAvisos} />
           </>
         ) : null}
-        <Interruptor rotulo="Geada" descricao="Na tarde anterior à madrugada fria." valor={p.geada} aoMudar={(geada) => mudarPreferencias({ geada })} />
-        <Interruptor rotulo="Temporal" descricao="Trovoada, granizo ou ventania, algumas horas antes." valor={p.temporal} aoMudar={(temporal) => mudarPreferencias({ temporal })} />
-        <Interruptor
-          rotulo="Janela de pulverização"
-          descricao="Na véspera, quando o dia seguinte tiver horário bom."
-          valor={p.pulverizacao}
-          aoMudar={(pulverizacao) => mudarPreferencias({ pulverizacao })}
-          bloqueado={!pro}
-        />
-        <Interruptor rotulo="Tempo firme" descricao="Quando vierem 3 dias ou mais sem chuva." valor={p.janelaSeca} aoMudar={(janelaSeca) => mudarPreferencias({ janelaSeca })} bloqueado={!pro} />
-        <Interruptor rotulo="Veranico" descricao="10 dias sem chuva com lavoura plantada." valor={p.veranico} aoMudar={(veranico) => mudarPreferencias({ veranico })} bloqueado={!pro} />
-        <T variante="forte">Horário do aviso de pulverização</T>
-        <Linha>
-          {HORAS_AVISO.map((h) => (
-            <Chip key={h} rotulo={`${h}h`} ativo={p.horaPulverizacao === h} aoTocar={() => mudarPreferencias({ horaPulverizacao: h })} />
-          ))}
-        </Linha>
+        <Interruptor icone="chuva" rotulo="Chuva chegando" descricao="Umas 2 h antes: cobrir o café, recolher a máquina." valor={p.chuva} aoMudar={(chuva) => mudarPreferencias({ chuva })} />
+        <Interruptor icone="raio" rotulo="Temporal" descricao="Trovoada, granizo ou ventania, algumas horas antes." valor={p.temporal} aoMudar={(temporal) => mudarPreferencias({ temporal })} />
+        <Interruptor icone="geada" rotulo="Geada" descricao="Na tarde anterior à madrugada fria." valor={p.geada} aoMudar={(geada) => mudarPreferencias({ geada })} />
+        <Divisor />
+        <Interruptor icone="microfone" rotulo="Boletim da manhã" descricao="O resumo do vigia todo dia, no horário escolhido." valor={p.boletim} aoMudar={(boletim) => mudarPreferencias({ boletim })} bloqueado={!pro} />
+        {pro && p.boletim ? (
+          <Linha>
+            {HORAS_BOLETIM.map((h) => (
+              <Chip key={h} rotulo={`${h}h`} ativo={p.horaBoletim === h} aoTocar={() => mudarPreferencias({ horaBoletim: h })} />
+            ))}
+          </Linha>
+        ) : null}
+        <Interruptor icone="pulverizador" rotulo="Janela de pulverização" descricao="Na véspera, quando o dia seguinte tiver horário bom." valor={p.pulverizacao} aoMudar={(pulverizacao) => mudarPreferencias({ pulverizacao })} bloqueado={!pro} />
+        {pro && p.pulverizacao ? (
+          <Linha>
+            {HORAS_PULVERIZACAO.map((h) => (
+              <Chip key={h} rotulo={`${h}h`} ativo={p.horaPulverizacao === h} aoTocar={() => mudarPreferencias({ horaPulverizacao: h })} />
+            ))}
+          </Linha>
+        ) : null}
+        <Interruptor icone="gota" rotulo="Chuva sobre a aplicação" descricao="Quando chover no prazo do produto que você aplicou." valor={p.lavagem} aoMudar={(lavagem) => mudarPreferencias({ lavagem })} bloqueado={!pro} />
+        <Interruptor icone="praga" rotulo="Doença pelo clima" descricao="Risco alto de ferrugem, míldio, requeima e outras da sua cultura." valor={p.doenca} aoMudar={(doenca) => mudarPreferencias({ doenca })} bloqueado={!pro} />
+        <Interruptor icone="sol" rotulo="Tempo firme" descricao="Quando vierem 3 dias ou mais sem chuva." valor={p.janelaSeca} aoMudar={(janelaSeca) => mudarPreferencias({ janelaSeca })} bloqueado={!pro} />
+        <Interruptor icone="semChuva" rotulo="Veranico" descricao="10 dias sem chuva com lavoura plantada." valor={p.veranico} aoMudar={(veranico) => mudarPreferencias({ veranico })} bloqueado={!pro} />
         <T variante="pequeno">
-          Avisos de geada moderada e tempo firme não tocam entre {p.silencioInicio}h e {p.silencioFim}h. Temporal e geada forte avisam a qualquer hora.
+          Avisos não urgentes não tocam entre {p.silencioInicio}h e {p.silencioFim}h. Temporal, chuva chegando e geada forte avisam a qualquer hora.
         </T>
       </Cartao>
 
@@ -118,10 +183,10 @@ export default function AjustesScreen() {
         {pro ? <Botao titulo="Voltar aos padrões" tipo="texto" aoTocar={() => mudarLimiares(LIMIARES_PULVERIZACAO_PADRAO)} /> : null}
       </Cartao>
 
-      <Cartao>
+      <Cartao tom={pro ? 'marca' : 'destaque'}>
         <T variante="subtitulo">Assinatura</T>
-        <T>{pro ? 'Você tem o Grão Raiz Pro.' : 'Plano grátis.'}</T>
-        {!pro ? <Botao titulo="Conhecer o Pro" aoTocar={() => router.push('/assinatura')} testID="ajustes-pro" /> : null}
+        <T cor={tema.text}>{pro ? 'Você tem o Grão Raiz Pro. Obrigado!' : 'Plano grátis: 1 talhão, previsão de 7 dias e avisos de chuva, temporal e geada.'}</T>
+        {!pro ? <Botao titulo="Conhecer o Pro" icone="coroa" aoTocar={() => router.push('/assinatura')} testID="ajustes-pro" /> : null}
         {assinaturaDisponivel() ? (
           <Botao
             titulo="Restaurar compras"
@@ -147,13 +212,16 @@ export default function AjustesScreen() {
 
       <Cartao>
         <T variante="subtitulo">Seus dados</T>
-        <T variante="pequeno">Talhões, anotações e ajustes ficam só neste celular. Para buscar a previsão, o app envia a localização do talhão arredondada (cerca de 1 km), sem identificar você.</T>
+        <T variante="pequeno">
+          Talhões, caderno, fotos e ajustes ficam só neste celular. Para buscar a previsão, o app envia a localização do talhão arredondada (cerca de 1 km), sem identificar você. As imagens de satélite usam o contorno do talhão.
+        </T>
         <Botao
           titulo="Apagar todos os meus dados"
           tipo="perigo"
+          icone="lixeira"
           testID="apagar-dados"
           aoTocar={async () => {
-            const ok = await confirmar('Apagar tudo', 'Isso apaga talhões, anotações de chuva, ocorrências e ajustes deste celular. Não dá para desfazer.', 'Apagar');
+            const ok = await confirmar('Apagar tudo', 'Isso apaga talhões, caderno, fotos, anotações de chuva e ajustes deste celular. Não dá para desfazer.', 'Apagar');
             if (!ok) return;
             apagarTudo();
             void reagendarAvisos(); // sem talhões: cancela os avisos agendados
@@ -163,13 +231,21 @@ export default function AjustesScreen() {
         />
       </Cartao>
 
-      <View style={{ gap: 4 }}>
+      <View style={estilos.links}>
         <Botao titulo="Política de privacidade" tipo="texto" aoTocar={() => WebBrowser.openBrowserAsync(`${SITE_URL}/privacidade`)} />
         <Botao titulo="Termos de uso" tipo="texto" aoTocar={() => WebBrowser.openBrowserAsync(`${SITE_URL}/termos`)} />
-        <T variante="pequeno" style={{ textAlign: 'center' }}>
-          Grão Raiz {Constants.expoConfig?.version ?? ''} · Dados meteorológicos: Open-Meteo.com (CC BY 4.0)
+        <T variante="pequeno" style={estilos.centro}>
+          Grão Raiz {Constants.expoConfig?.version ?? ''} · Dados meteorológicos: Open-Meteo.com (CC BY 4.0) · Imagens: Copernicus Sentinel-2
         </T>
       </View>
     </Tela>
   );
 }
+
+const estilos = StyleSheet.create({
+  ajuste: { justifyContent: 'space-between', flexWrap: 'nowrap' },
+  flex: { flex: 1 },
+  valorAjuste: { minWidth: 72, textAlign: 'center' },
+  links: { gap: 4 },
+  centro: { textAlign: 'center' },
+});

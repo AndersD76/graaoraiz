@@ -1,7 +1,7 @@
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 
-import { dadosIniciais, FormTalhao } from '@/components/form-talhao';
+import { dadosIniciais, FormTalhao, lerArea } from '@/components/form-talhao';
 import { Botao, Tela } from '@/components/ui';
 import { reagendarAvisos } from '@/lib/avisos';
 import { confirmar } from '@/lib/dialogo';
@@ -30,6 +30,11 @@ export default function TalhaoScreen() {
       lon: dados.coordenada.lon,
       cultura: dados.cultura,
       dataPlantio: dados.dataPlantio,
+      solo: dados.solo,
+      areaHa: lerArea(dados.areaTexto),
+      contorno: dados.contorno && dados.contorno.length >= 3 ? dados.contorno : null,
+      zarc: dados.zarc,
+      baixada: dados.baixada,
     });
     void reagendarAvisos({ buscar: true });
     router.back();
@@ -37,7 +42,7 @@ export default function TalhaoScreen() {
 
   const excluir = async () => {
     if (!existente) return;
-    const ok = await confirmar('Excluir talhão', `Apagar "${existente.nome}" e as anotações de chuva dele?`, 'Excluir');
+    const ok = await confirmar('Excluir talhão', `Apagar "${existente.nome}" com as anotações, ocorrências e aplicações dele?`, 'Excluir');
     if (!ok) return;
     removerTalhao(existente.id);
     void reagendarAvisos();
@@ -47,8 +52,8 @@ export default function TalhaoScreen() {
   return (
     <Tela comAbas={false} cabecalhoNativo>
       <FormTalhao dados={dados} aoMudar={setDados} />
-      <Botao titulo="Salvar talhão" aoTocar={salvar} desabilitado={!valido} testID="salvar-talhao" />
-      {existente ? <Botao titulo="Excluir talhão" tipo="perigo" aoTocar={excluir} testID="excluir-talhao" /> : null}
+      <Botao titulo="Salvar talhão" icone="check" aoTocar={salvar} desabilitado={!valido} testID="salvar-talhao" />
+      {existente ? <Botao titulo="Excluir talhão" tipo="perigo" icone="lixeira" aoTocar={excluir} testID="excluir-talhao" /> : null}
     </Tela>
   );
 }

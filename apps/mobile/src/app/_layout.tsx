@@ -1,9 +1,19 @@
-import { DefaultTheme, Stack, ThemeProvider, useRouter } from 'expo-router';
+import {
+  PlusJakartaSans_400Regular,
+  PlusJakartaSans_500Medium,
+  PlusJakartaSans_600SemiBold,
+  PlusJakartaSans_700Bold,
+  PlusJakartaSans_800ExtraBold,
+  useFonts,
+} from '@expo-google-fonts/plus-jakarta-sans';
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
+import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { AppState } from 'react-native';
 
-import { Colors } from '@/constants/theme';
+import { Fontes } from '@/constants/theme';
+import { useEsquema, useTheme } from '@/hooks/use-theme';
 import { iniciarAssinatura } from '@/lib/assinatura';
 import { configurarNotificacoes, ouvirToqueNosAvisos, reagendarAvisos } from '@/lib/avisos';
 import { obterEstado, selecionarTalhao } from '@/lib/estado';
@@ -18,10 +28,23 @@ export const unstable_settings = { anchor: '(tabs)' };
 
 export default function RootLayout() {
   const router = useRouter();
+  const esquema = useEsquema();
+  const tema = useTheme();
+  const [fontesProntas, erroFontes] = useFonts({
+    PlusJakartaSans_400Regular,
+    PlusJakartaSans_500Medium,
+    PlusJakartaSans_600SemiBold,
+    PlusJakartaSans_700Bold,
+    PlusJakartaSans_800ExtraBold,
+  });
+  // Sem as fontes (falha rara), o app segue com a fonte do sistema em vez de travar na abertura.
+  const pronto = fontesProntas || erroFontes !== null;
 
   useEffect(() => {
-    // O estado é lido de forma síncrona do aparelho: a primeira tela já está pronta.
-    void SplashScreen.hideAsync();
+    if (pronto) void SplashScreen.hideAsync();
+  }, [pronto]);
+
+  useEffect(() => {
     void iniciarAssinatura();
     void registrarTarefaFundo();
     void reagendarAvisos({ buscar: true });
@@ -41,22 +64,37 @@ export default function RootLayout() {
     [router],
   );
 
+  if (!pronto) return null;
+
+  const base = esquema === 'dark' ? DarkTheme : DefaultTheme;
+  const temaNavegacao = {
+    ...base,
+    colors: { ...base.colors, primary: tema.marca, background: tema.background, card: tema.background, text: tema.text, border: tema.borda },
+  };
+
   return (
-    <ThemeProvider value={DefaultTheme}>
+    <ThemeProvider value={temaNavegacao}>
+      <StatusBar style={esquema === 'dark' ? 'light' : 'dark'} />
       <Stack
         screenOptions={{
-          headerTintColor: Colors.light.marca,
-          headerTitleStyle: { fontWeight: '700', color: Colors.light.text },
+          headerTintColor: tema.marca,
+          headerTitleStyle: { fontFamily: Fontes.negrito, color: tema.text },
+          headerShadowVisible: false,
+          headerStyle: { backgroundColor: tema.background },
           headerBackTitle: 'Voltar',
-          contentStyle: { backgroundColor: Colors.light.background },
+          contentStyle: { backgroundColor: tema.background },
         }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="onboarding" options={{ headerShown: false, gestureEnabled: false }} />
         <Stack.Screen name="talhao" options={{ title: 'Talhão' }} />
         <Stack.Screen name="pulverizacao" options={{ title: 'Pulverização hora a hora' }} />
         <Stack.Screen name="cartao-chuva" options={{ title: 'Cartão de chuva' }} />
-        <Stack.Screen name="relatorio" options={{ title: 'Relatório da safra' }} />
-        <Stack.Screen name="assinatura" options={{ title: 'Grão Raiz Pro', presentation: 'modal' }} />
+        <Stack.Screen name="satelite" options={{ title: 'Satélite' }} />
+        <Stack.Screen name="dossie" options={{ title: 'Dossiê do talhão' }} />
+        <Stack.Screen name="aplicacao" options={{ title: 'Apliquei agora', presentation: 'modal' }} />
+        <Stack.Screen name="ocorrencia" options={{ title: 'Ocorrência', presentation: 'modal' }} />
+        <Stack.Screen name="boletim" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
+        <Stack.Screen name="assinatura" options={{ headerShown: false, presentation: 'modal' }} />
       </Stack>
     </ThemeProvider>
   );
