@@ -9,6 +9,7 @@ import { Ilustracao, type NomeIlustracao } from '@/components/icone';
 import { Botao, T, Tela } from '@/components/ui';
 import { MaxContentWidth, Raio, Spacing } from '@/constants/theme';
 import { pedirPermissaoNotificacoes, reagendarAvisos } from '@/lib/avisos';
+import { EXIGE_CONTA, useConta } from '@/lib/conta';
 import { obterEstado, salvarTalhao } from '@/lib/estado';
 
 const RECURSOS: { ilustracao: NomeIlustracao; titulo: string; texto: string }[] = [
@@ -25,7 +26,9 @@ export default function OnboardingScreen() {
   const [ativando, setAtivando] = useState(false);
   // Quem já tem talhão e cai aqui (link direto) volta para o app: a apresentação não cria talhão extra.
   const [jaTinhaTalhao] = useState(() => obterEstado().talhoes.length > 0);
+  const conta = useConta();
 
+  if (EXIGE_CONTA && !conta) return <Redirect href="/entrar" />;
   if (jaTinhaTalhao) return <Redirect href="/" />;
 
   const concluir = () => {

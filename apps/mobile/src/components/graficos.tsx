@@ -2,8 +2,11 @@ import {
   type AvaliacaoHora,
   type Dia,
   diaDaSemana,
+  diasEntre,
+  type DiaObservado,
   formatarData,
   formatarHora,
+  formatarMes,
   formatarMm,
   formatarNumero,
   type Hora,
@@ -11,7 +14,7 @@ import {
 } from '@graoraiz/clima';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ScrollView, StyleSheet, View } from 'react-native';
-import Svg, { Circle, Defs, Line, LinearGradient as GradienteSvg, Path, Stop, Text as TextoSvg } from 'react-native-svg';
+import Svg, { Circle, Defs, Line, LinearGradient as GradienteSvg, Path, Rect, Stop, Text as TextoSvg } from 'react-native-svg';
 
 import { ehDia } from '@/components/capa-tempo';
 import { IconeTempo, nomeTempo } from '@/components/icone';
@@ -169,6 +172,111 @@ export function GraficoVigor({ pontos, largura = 320, altura = 150 }: { pontos: 
           </TextoSvg>
         ) : null,
       )}
+    </Svg>
+  );
+}
+
+/**
+ * Linha do tempo dos últimos meses no mesmo eixo de datas: temperatura (faixa da mínima à máxima,
+ * com a linha do 0 °C), chuva de cada dia e vigor do satélite. Os eventos do clima viram pontos no topo.
+ */
+export function GraficoPanorama({
+  dias,
+  vigor,
+  eventos,
+  inicio,
+  fim,
+  largura,
+}: {
+  dias: DiaObservado[];
+  vigor: { data: string; valor: number }[];
+  eventos: { data: string; severo: boolean }[];
+  inicio: string;
+  fim: string;
+  largura: number;
+}) {
+  const tema = useTheme();
+  const total = Math.max(diasEntre(inicio, fim), 1);
+  const esq = 30;
+  const w = largura - esq - 8;
+  const x = (data: string) => esq + (diasEntre(inicio, data) / total) * w;
+  const rotulo = (texto: string, y: number) => (
+    <TextoSvg x={esq} y={y} fontSize={11} fill={tema.textSecondary} fontFamily={Fontes.media}>
+      {texto}
+    </TextoSvg>
+  );
+
+  // Temperatura
+  const comTemp = dias.filter((d) => d.tMin !== undefined && d.tMax !== undefined);
+  const tTopo = 18;
+  const tAlt = 110;
+  const tBaixo = Math.floor(Math.min(0, ...comTemp.map((d) => d.tMin!)) / 5) * 5;
+  const tAlto = Math.ceil(Math.max(20, ...comTemp.map((d) => d.tMax!)) / 5) * 5;
+  const yT = (v: number) => tTopo + tAlt - ((v - tBaixo) / (tAlto - tBaixo)) * tAlt;
+  const linhaMax = comTemp.map((d, i) => `${i ? 'L' : 'M'}${x(d.data).toFixed(1)},${yT(d.tMax!).toFixed(1)}`).join(' ');
+  const linhaMin = comTemp.map((d, i) => `${i ? 'L' : 'M'}${x(d.data).toFixed(1)},${yT(d.tMin!).toFixed(1)}`).join(' ');
+  const faixa = comTemp.length
+    ? `${linhaMax} ${[...comTemp].reverse().map((d) => `L${x(d.data).toFixed(1)},${yT(d.tMin!).toFixed(1)}`).join(' ')} Z`
+    : '';
+
+  // Chuva
+  const cTopo = tTopo + tAlt + 26;
+  const cAlt = 70;
+  const cMax = Math.max(10, ...dias.map((d) => d.chuva));
+  const barra = Math.max(1.5, w / total - 1);
+
+  // Vigor
+  const comVigor = vigor.length > 0;
+  const vTopo = cTopo + cAlt + 26;
+  const vAlt = 70;
+  const yV = (v: number) => vTopo + vAlt - Math.min(Math.max(v, 0), 1) * vAlt;
+  const linhaVigor = vigor.map((p, i) => `${i ? 'L' : 'M'}${x(p.data).toFixed(1)},${yV(p.valor).toFixed(1)}`).join(' ');
+
+  const base = comVigor ? vTopo + vAlt : cTopo + cAlt;
+  const altura = base + 20;
+  // Início de cada mês dentro do período (Date.UTC com o mês de 1 a 12 já dá o mês seguinte).
+  const meses: string[] = [];
+  for (let m = new Date(Date.UTC(Number(inicio.slice(0, 4)), Number(inicio.slice(5, 7)), 1)); m.toISOString().slice(0, 10) <= fim; m = new Date(Date.UTC(m.getUTCFullYear(), m.getUTCMonth() + 1, 1))) {
+    meses.push(m.toISOString().slice(0, 10));
+  }
+
+  return (
+    <Svg width={largura} height={altura} accessibilityLabel="Linha do tempo dos últimos meses: temperatura, chuva e vigor">
+      {meses.map((m) => (
+        <Line key={`m${m}`} x1={x(m)} x2={x(m)} y1={tTopo - 4} y2={base} stroke={tema.borda} />
+      ))}
+      {meses.map((m) => (
+        <TextoSvg key={`r${m}`} x={x(m) + 3} y={altura - 5} fontSize={10} fill={tema.textSecondary} fontFamily={Fontes.media}>
+          {formatarMes(m.slice(0, 7)).split('/')[0]}
+        </TextoSvg>
+      ))}
+
+      {rotulo('Temperatura (°C): máxima e mínima', 12)}
+      {[tBaixo, 0, tAlto].filter((v, i, a) => a.indexOf(v) === i).map((v) => (
+        <TextoSvg key={`t${v}`} x={2} y={yT(v) + 4} fontSize={10} fill={tema.textSecondary} fontFamily={Fontes.media}>
+          {String(v)}
+        </TextoSvg>
+      ))}
+      {tBaixo < 0 ? <Line x1={esq} x2={largura - 8} y1={yT(0)} y2={yT(0)} stroke={tema.frio} strokeDasharray="4 4" /> : null}
+      {faixa ? <Path d={faixa} fill={tema.destaque} fillOpacity={0.14} /> : null}
+      {linhaMax ? <Path d={linhaMax} stroke={tema.destaque} strokeWidth={1.8} fill="none" strokeLinejoin="round" /> : null}
+      {linhaMin ? <Path d={linhaMin} stroke={tema.frio} strokeWidth={1.8} fill="none" strokeLinejoin="round" /> : null}
+      {eventos.map((e) => (
+        <Circle key={`e${e.data}`} cx={x(e.data)} cy={tTopo + 2} r={4} fill={e.severo ? tema.ruim : tema.atencao} />
+      ))}
+
+      {rotulo(`Chuva por dia (mm) · escala até ${formatarNumero(cMax, 0)}`, cTopo - 8)}
+      <Line x1={esq} x2={largura - 8} y1={cTopo + cAlt} y2={cTopo + cAlt} stroke={tema.borda} />
+      {dias.map((d) =>
+        d.chuva > 0 ? <Rect key={`c${d.data}`} x={x(d.data) - barra / 2} y={cTopo + cAlt - (d.chuva / cMax) * cAlt} width={barra} height={(d.chuva / cMax) * cAlt} fill={tema.chuva} rx={1} /> : null,
+      )}
+
+      {comVigor ? rotulo('Vigor da lavoura (satélite, 0 a 1)', vTopo - 8) : null}
+      {comVigor ? <Line x1={esq} x2={largura - 8} y1={yV(0.5)} y2={yV(0.5)} stroke={tema.borda} strokeDasharray="4 4" /> : null}
+      {comVigor ? <Path d={linhaVigor} stroke={tema.bom} strokeWidth={2.5} fill="none" strokeLinejoin="round" /> : null}
+      {vigor.map((p) => (
+        <Circle key={`v${p.data}`} cx={x(p.data)} cy={yV(p.valor)} r={3.5} fill={tema.backgroundElement} stroke={tema.bom} strokeWidth={2} />
+      ))}
     </Svg>
   );
 }

@@ -159,6 +159,7 @@ export default function ChuvaScreen() {
       </Cartao>
 
       <Botao titulo="Compartilhar cartão de chuva" icone="whatsapp" aoTocar={() => router.push('/cartao-chuva')} testID="abrir-cartao" />
+      <Botao titulo="Ver os últimos 3 meses" tipo="secundario" icone="grafico" aoTocar={() => router.push('/panorama')} testID="chuva-panorama" />
       <Botao titulo={pro ? 'Dossiê do talhão (PDF)' : 'Dossiê do talhão (PDF) · Pro'} tipo="secundario" icone="pdf" aoTocar={() => router.push(pro ? '/dossie' : '/assinatura')} testID="chuva-dossie" />
     </Tela>
   );

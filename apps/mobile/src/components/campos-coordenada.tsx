@@ -7,6 +7,11 @@ function ler(texto: string): number {
   return Number(texto.replace(',', '.'));
 }
 
+/** GPS e mapa dão 15 casas; 6 bastam (cerca de 10 cm). */
+function mostrar(n: number): string {
+  return String(Number(n.toFixed(6)));
+}
+
 function chaveDe(c: Coordenada | null): string | null {
   return c ? `${c.lat},${c.lon}` : null;
 }
@@ -23,8 +28,8 @@ export function CamposCoordenada({ coordenada, aoMudar }: { coordenada: Coordena
   const [digitado, setDigitado] = useState<Digitado | null>(null);
   const chaveAtual = chaveDe(coordenada);
   const usarDigitado = digitado !== null && digitado.chave === chaveAtual;
-  const latTexto = usarDigitado ? digitado.lat : coordenada ? String(coordenada.lat) : '';
-  const lonTexto = usarDigitado ? digitado.lon : coordenada ? String(coordenada.lon) : '';
+  const latTexto = usarDigitado ? digitado.lat : coordenada ? mostrar(coordenada.lat) : '';
+  const lonTexto = usarDigitado ? digitado.lon : coordenada ? mostrar(coordenada.lon) : '';
 
   const mudar = (lat: string, lon: string) => {
     const la = ler(lat);

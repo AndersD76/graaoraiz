@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <defs>
+    <radialGradient id="pluma" cx="0.38" cy="0.32" r="0.8">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="0.55" stop-color="#F1F3F7"/>
+      <stop offset="1" stop-color="#C3CAD6"/>
+    </radialGradient>
+    <linearGradient id="bractea" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#9A6A3E"/>
+      <stop offset="1" stop-color="#4A2C16"/>
+    </linearGradient>
+    <linearGradient id="haste" x1="0" x2="1">
+      <stop offset="0" stop-color="#8C6A3E"/>
+      <stop offset="1" stop-color="#5A3E1E"/>
+    </linearGradient>
+    <linearGradient id="folha" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7CCB5C"/>
+      <stop offset="1" stop-color="#2E7A2C"/>
+    </linearGradient>
+    <filter id="sombra" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="5" stdDeviation="5" flood-color="#4A5568" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <!-- haste e folha -->
+  <path d="M128 196 C 126 214, 122 230, 114 248" stroke="url(#haste)" stroke-width="10" fill="none" stroke-linecap="round"/>
+  <path d="M122 226 C 100 206, 66 204, 44 222 C 58 220, 64 236, 80 238 C 92 242, 108 236, 122 226 Z" fill="url(#folha)"/>
+  <path d="M120 226 C 100 222, 78 224, 58 226" stroke="#BDE6A6" stroke-width="2.5" fill="none" opacity="0.7"/>
+
+  <!-- brácteas (casca aberta do capulho) -->
+  <g fill="url(#bractea)">
+    <path d="M128 178 L 52 196 L 92 150 Z"/>
+    <path d="M128 178 L 204 196 L 164 150 Z"/>
+    <path d="M128 182 L 96 222 L 112 170 Z"/>
+    <path d="M128 182 L 160 222 L 144 170 Z"/>
+  </g>
+
+  <!-- pluma: quatro gomos (sombra para não sumir em fundo branco) -->
+  <g filter="url(#sombra)">
+  <circle cx="96" cy="104" r="44" fill="url(#pluma)"/>
+  <circle cx="160" cy="104" r="44" fill="url(#pluma)"/>
+  <circle cx="92" cy="150" r="42" fill="url(#pluma)"/>
+  <circle cx="164" cy="150" r="42" fill="url(#pluma)"/>
+  <circle cx="128" cy="78" r="38" fill="url(#pluma)"/>
+  <circle cx="128" cy="132" r="40" fill="url(#pluma)"/>
+  </g>
+  <!-- vincos entre os gomos -->
+  <g stroke="#B7BFCC" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.8">
+    <path d="M110 64 C 104 84, 104 100, 112 118"/>
+    <path d="M146 64 C 152 84, 152 100, 144 118"/>
+    <path d="M86 134 C 100 128, 112 130, 118 140"/>
+    <path d="M170 134 C 156 128, 144 130, 138 140"/>
+  </g>
+</svg>

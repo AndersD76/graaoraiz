@@ -1,6 +1,7 @@
 import { useEffect, useImperativeHandle, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
+import { CreditosMapa } from '@/components/creditos-mapa';
 import type { ComandoMapa, PropsMapaBase } from '@/components/mapa-base';
 import { paginaDoMapa } from '@/lib/pagina-mapa';
 
@@ -24,7 +25,7 @@ function enderecoDaPagina(html: string): string {
   return URL.createObjectURL(new Blob([html], { type: 'text/html' }));
 }
 
-export function MapaBase({ inicial, opcoes, altura = 280, aoMensagem, controle, rotulo = 'Mapa do talhão' }: PropsMapaBase) {
+export function MapaBase({ inicial, opcoes, altura = 280, aoMensagem, controle, rotulo = 'Mapa do talhão', creditoExtra }: PropsMapaBase) {
   const iframe = useRef<HTMLIFrameElement>(null);
   const [html] = useState(() => paginaDoMapa(inicial, opcoes).replace('<head>', `<head>${PONTE}`));
   const [endereco, setEndereco] = useState(() => enderecoDaPagina(html));
@@ -69,12 +70,16 @@ export function MapaBase({ inicial, opcoes, altura = 280, aoMensagem, controle, 
   }, []);
 
   return (
-    <View style={[estilos.moldura, { height: altura }]}>
-      <iframe ref={iframe} src={endereco} title={rotulo} style={{ border: 0, width: '100%', height: '100%' }} />
+    <View style={estilos.caixa}>
+      <View style={[estilos.moldura, { height: altura }]}>
+        <iframe ref={iframe} src={endereco} title={rotulo} style={{ border: 0, width: '100%', height: '100%' }} />
+      </View>
+      <CreditosMapa extra={creditoExtra} />
     </View>
   );
 }
 
 const estilos = StyleSheet.create({
+  caixa: { gap: 4 },
   moldura: { borderRadius: 20, overflow: 'hidden' },
 });

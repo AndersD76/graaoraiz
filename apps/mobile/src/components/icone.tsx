@@ -38,9 +38,10 @@ export function nomeTempo(codigo: number | undefined, dia = true): NomeTempo {
   if (codigo === 0) return `clear-${p}`;
   if (codigo === 1) return `mostly-clear-${p}`;
   if (codigo === 2) return `partly-cloudy-${p}`;
-  if (codigo === 3) return `overcast-${p}`;
+  // Céu encoberto e garoa: só nuvens. O "overcast-day" dos Meteocons mostra sol, e o texto diz "Nublado".
+  if (codigo === 3) return 'overcast';
   if (codigo === 45 || codigo === 48) return `fog-${p}`;
-  if (codigo >= 51 && codigo <= 55) return `partly-cloudy-${p}-drizzle`;
+  if (codigo >= 51 && codigo <= 55) return 'drizzle';
   if (codigo === 56 || codigo === 57 || codigo === 66 || codigo === 67) return 'sleet';
   if (codigo === 61 || codigo === 80) return `partly-cloudy-${p}-rain`;
   if (codigo === 63 || codigo === 81) return 'rain';

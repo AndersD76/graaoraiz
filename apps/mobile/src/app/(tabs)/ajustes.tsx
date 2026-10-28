@@ -9,7 +9,8 @@ import { Aviso, Botao, Campo, Cartao, Chip, Divisor, Interruptor, Linha, T, Tela
 import { useTheme } from '@/hooks/use-theme';
 import { assinaturaDisponivel, atualizarStatusAssinatura, restaurarCompras } from '@/lib/assinatura';
 import { pedirPermissaoNotificacoes, type PermissaoAvisos, permissaoAvisos, reagendarAvisos } from '@/lib/avisos';
-import { PERMITE_SIMULAR_PRO, SITE_URL } from '@/lib/config';
+import { LIBERA_PRO, PERMITE_SIMULAR_PRO, SITE_URL } from '@/lib/config';
+import { ErroConta, excluirConta, sair, useConta } from '@/lib/conta';
 import { confirmar, informar } from '@/lib/dialogo';
 import {
   apagarTudo,
@@ -52,6 +53,8 @@ export default function AjustesScreen() {
   const L = estado.limiares;
   const [permissao, setPermissao] = useState<PermissaoAvisos>({ estado: 'pendente', podePedir: true });
   const [restaurando, setRestaurando] = useState(false);
+  const conta = useConta();
+  const [saindo, setSaindo] = useState(false);
 
   // Relê ao voltar para a tela (o usuário pode ter mudado nas configurações do celular).
   useFocusEffect(
@@ -185,7 +188,7 @@ export default function AjustesScreen() {
 
       <Cartao tom={pro ? 'marca' : 'destaque'}>
         <T variante="subtitulo">Assinatura</T>
-        <T cor={tema.text}>{pro ? 'Você tem o Grão Raiz Pro. Obrigado!' : 'Plano grátis: 1 talhão, previsão de 7 dias e avisos de chuva, temporal e geada.'}</T>
+        <T cor={tema.text}>{LIBERA_PRO ? 'Versão de demonstração: todos os módulos do Pro liberados.' : pro ? 'Você tem o Grão Raiz Pro. Obrigado!' :'Plano grátis: 1 talhão, previsão de 7 dias e avisos de chuva, temporal e geada.'}</T>
         {!pro ? <Botao titulo="Conhecer o Pro" icone="coroa" aoTocar={() => router.push('/assinatura')} testID="ajustes-pro" /> : null}
         {assinaturaDisponivel() ? (
           <Botao
@@ -210,6 +213,58 @@ export default function AjustesScreen() {
         ) : null}
       </Cartao>
 
+      {conta ? (
+        <Cartao testID="cartao-conta">
+          <T variante="subtitulo">Sua conta</T>
+          <T variante="forte">{conta.nome}</T>
+          <T variante="pequeno">{conta.email}</T>
+          <T variante="pequeno">
+            {conta.demo
+              ? 'Conta de demonstração: mexa à vontade. As alterações ficam só neste celular e somem ao sair.'
+              : 'Talhões, caderno, anotações e ajustes ficam neste celular e guardados na sua conta (as fotos, só no celular). Para buscar a previsão, o app envia a localização do talhão arredondada (cerca de 1 km). As imagens de satélite usam o contorno do talhão.'}
+          </T>
+          <Botao
+            titulo={conta.demo ? 'Sair da demonstração' : 'Sair desta conta'}
+            tipo="secundario"
+            carregando={saindo}
+            testID="sair-conta"
+            aoTocar={async () => {
+              const ok = await confirmar(
+                'Sair',
+                conta.demo ? 'Sair da conta de demonstração?' : 'Seus dados continuam guardados na conta. Neste celular eles são apagados até você entrar de novo.',
+                'Sair',
+              );
+              if (!ok) return;
+              setSaindo(true);
+              try {
+                await sair();
+                router.replace('/entrar');
+              } finally {
+                setSaindo(false);
+              }
+            }}
+          />
+          {!conta.demo ? (
+            <Botao
+              titulo="Excluir minha conta"
+              tipo="perigo"
+              icone="lixeira"
+              testID="excluir-conta"
+              aoTocar={async () => {
+                const ok = await confirmar('Excluir conta', 'Isso apaga sua conta e todos os dados guardados nela e neste celular. Não dá para desfazer.', 'Excluir');
+                if (!ok) return;
+                try {
+                  await excluirConta();
+                  void atualizarStatusAssinatura();
+                  router.replace('/entrar');
+                } catch (e) {
+                  informar('Excluir conta', e instanceof ErroConta ? e.message : 'Não foi possível excluir agora. Tente de novo.');
+                }
+              }}
+            />
+          ) : null}
+        </Cartao>
+      ) : (
       <Cartao>
         <T variante="subtitulo">Seus dados</T>
         <T variante="pequeno">
@@ -230,12 +285,13 @@ export default function AjustesScreen() {
           }}
         />
       </Cartao>
+      )}
 
       <View style={estilos.links}>
         <Botao titulo="Política de privacidade" tipo="texto" aoTocar={() => WebBrowser.openBrowserAsync(`${SITE_URL}/privacidade`)} />
         <Botao titulo="Termos de uso" tipo="texto" aoTocar={() => WebBrowser.openBrowserAsync(`${SITE_URL}/termos`)} />
         <T variante="pequeno" style={estilos.centro}>
-          Grão Raiz {Constants.expoConfig?.version ?? ''} · Dados meteorológicos: Open-Meteo.com (CC BY 4.0) · Imagens: Copernicus Sentinel-2
+          Grão Raiz {Constants.expoConfig?.version ?? ''} · Dados meteorológicos: Open-Meteo.com (CC BY 4.0) · Imagens: Copernicus Sentinel-2 e Esri
         </T>
       </View>
     </Tela>

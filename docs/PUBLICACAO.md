@@ -23,8 +23,12 @@ Guia prático para levar o app `apps/mobile` às duas lojas usando o EAS (builds
 | 4 | **Domínio + site publicado** (`apps/web`) | Política de privacidade, termos e exclusão de dados (exigidos pelas lojas) | ~R$ 40/ano + hospedagem |
 | 5 | **RevenueCat** + produtos de assinatura nas duas lojas | Cobrança do Pro | grátis até US$ 2,5 mil/mês |
 | 6 | **Open-Meteo comercial** (no servidor `apps/web`) | Uso comercial da previsão | US$ 29/mês |
+| 7 | **ArcGIS Location Platform** (Esri) | Imagem de satélite do mapa em app comercial (hoje o app usa o serviço público, sem chave) | tem faixa grátis |
+| 8 | **Resend** (resend.com) + domínio verificado | E-mail do "esqueci a senha" (`RESEND_API_KEY` e `EMAIL_REMETENTE` no servidor) | grátis até 3 mil e-mails/mês |
 
-O mapa é open-source (MapLibre + OpenFreeMap/OpenStreetMap): não precisa de chave do Google Maps.
+A checagem de EUDR e crédito rural (`/api/conformidade`) usa serviços públicos sem chave: PRODES/INPE (TerraBrasilis) e CAR (SICAR). O servidor recebe o contorno do talhão para consultar; a política de privacidade precisa dizer isso.
+
+O mapa usa MapLibre com imagem de satélite da Esri (World Imagery) e os nomes de lugares do OpenFreeMap/OpenStreetMap: não precisa de Google Maps. Antes de publicar, troque a imagem pela versão com chave da conta ArcGIS (`IMAGEM_SATELITE` em `apps/mobile/src/lib/pagina-mapa.ts`).
 
 Conta pessoal ou de empresa:
 - **Google Play pessoal:** exige teste fechado com **12 testadores por 14 dias seguidos** antes de liberar a produção.
@@ -126,7 +130,9 @@ Cadastre em expo.dev → projeto → **Environment variables** (para development
 
 - [ ] Site publicado com `/privacidade`, `/termos`, `/excluir-dados` e responsável preenchido.
 - [ ] Variáveis do EAS cadastradas (seção 4).
-- [ ] Mapa carregando no aparelho (precisa de internet; atribuição OpenStreetMap visível).
+- [ ] Servidor com `DATABASE_URL`, `AUTH_SECRET`, `RESEND_API_KEY` e `EMAIL_REMETENTE`; tabelas de `apps/web/db/contas.sql` aplicadas; "esqueci a senha" testado com e-mail de verdade.
+- [ ] Política de privacidade cita a conta (nome, e-mail, dados na nuvem) e a consulta do contorno ao PRODES e ao CAR.
+- [ ] Mapa de satélite carregando no aparelho (precisa de internet; atribuição Esri e OpenStreetMap visível) e com a chave ArcGIS (item 7).
 - [ ] Produtos de assinatura ativos nas duas lojas e no RevenueCat (entitlement `pro`).
 - [ ] Testes automáticos passando (`npm test` e `npm run e2e -w @graoraiz/mobile`).
 - [ ] Teste em aparelho real: talhão, previsão, anotação de chuva, cartão, aviso de geada (dá para forçar mudando os limites), compra de teste e restauração.

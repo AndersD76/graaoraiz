@@ -1,0 +1,28 @@
+🌱 *Grão Raiz – versão de teste (grátis)*
+O vigia da sua lavoura: diz se dá pra pulverizar, avisa geada e temporal, mostra o satélite da lavoura e o preço do dia.
+
+📲 *Instalar (Android)*
+1. Toque no link: [LINK DO APK]
+2. Abra o arquivo baixado. Se o celular pedir, permita "instalar apps desta fonte".
+
+👤 *Entrar*
+• Toque em *Criar conta* (nome, e-mail e senha). Seus dados ficam guardados na conta.
+• Só quer conhecer? Toque em *Entrar na demonstração*: duas lavouras reais perto de Passo Fundo.
+
+🗺️ *Cadastre sua lavoura (1 minuto)*
+1. Toque em *Começar*.
+2. Em cima da lavoura, toque em *Estou no talhão: usar minha localização*. Ou aproxime o mapa e toque na lavoura.
+3. Escolha a cultura e toque em *Continuar*.
+4. Toque em *Ativar avisos* para receber geada, temporal e chuva chegando.
+
+✅ *No dia a dia*
+• *Hoje*: o que o vigia diz (pulverizar, doença, geada) e as próximas 24 h, hora a hora.
+• *Apliquei agora*: registra a aplicação com o clima da hora. Vira prova no caderno.
+• *Chuva*: anote o pluviômetro e compare a safra com a média de 30 anos.
+• *Satélite*: foto da lavoura e mapa de vigor.
+• *Mercado hoje*: soja, milho, trigo e boi (Cepea) e dólar. Marque um preço-alvo e o app avisa quando chegar.
+• *Últimos 3 meses*: chuva, temperatura, vigor e eventos do clima num gráfico só.
+• Em *Lavoura* você desenha o contorno do talhão e a área sai sozinha.
+• *EUDR e crédito*: confere se o talhão teve desmatamento (PRODES/INPE) e mostra o seu CAR. Gera o arquivo que a cooperativa pede para exportar para a Europa.
+
+💬 Achou algo estranho ou tem uma ideia? Responda aqui no grupo. Toda sugestão ajuda!

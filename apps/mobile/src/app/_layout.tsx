@@ -16,6 +16,7 @@ import { Fontes } from '@/constants/theme';
 import { useEsquema, useTheme } from '@/hooks/use-theme';
 import { iniciarAssinatura } from '@/lib/assinatura';
 import { configurarNotificacoes, ouvirToqueNosAvisos, reagendarAvisos } from '@/lib/avisos';
+import { sincronizar } from '@/lib/conta';
 import { obterEstado, selecionarTalhao } from '@/lib/estado';
 // A tarefa em si é definida no index.ts (ponto de entrada); aqui só pedimos o registro.
 import { registrarTarefaFundo } from '@/lib/tarefa-fundo';
@@ -48,8 +49,11 @@ export default function RootLayout() {
     void iniciarAssinatura();
     void registrarTarefaFundo();
     void reagendarAvisos({ buscar: true });
+    void sincronizar();
     const assinatura = AppState.addEventListener('change', (estado) => {
-      if (estado === 'active') void reagendarAvisos({ buscar: true });
+      if (estado !== 'active') return;
+      void reagendarAvisos({ buscar: true });
+      void sincronizar();
     });
     return () => assinatura.remove();
   }, []);
@@ -85,6 +89,7 @@ export default function RootLayout() {
           contentStyle: { backgroundColor: tema.background },
         }}>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="entrar" options={{ headerShown: false, gestureEnabled: false }} />
         <Stack.Screen name="onboarding" options={{ headerShown: false, gestureEnabled: false }} />
         <Stack.Screen name="talhao" options={{ title: 'Talhão' }} />
         <Stack.Screen name="pulverizacao" options={{ title: 'Pulverização hora a hora' }} />
@@ -95,6 +100,9 @@ export default function RootLayout() {
         <Stack.Screen name="ocorrencia" options={{ title: 'Ocorrência', presentation: 'modal' }} />
         <Stack.Screen name="boletim" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
         <Stack.Screen name="assinatura" options={{ headerShown: false, presentation: 'modal' }} />
+        <Stack.Screen name="precos" options={{ title: 'Preços do dia' }} />
+        <Stack.Screen name="conformidade" options={{ title: 'EUDR e crédito rural' }} />
+        <Stack.Screen name="panorama" options={{ title: 'Últimos 3 meses' }} />
       </Stack>
     </ThemeProvider>
   );
