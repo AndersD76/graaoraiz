@@ -8,7 +8,7 @@ import { Botao, Chip, Linha, T } from '@/components/ui';
 import type { Coordenada } from '@/lib/localizacao';
 
 /**
- * Mapa open-source (MapLibre + OpenFreeMap/OpenStreetMap) do cadastro do talhão: toque para marcar
+ * Mapa de satélite (MapLibre + Esri, nomes do OpenStreetMap) do cadastro do talhão: toque para marcar
  * o ponto ou desenhe o contorno tocando nos cantos da lavoura (a área sai sozinha).
  */
 export function MapaTalhao({
@@ -68,7 +68,11 @@ export function MapaTalhao({
       ) : modo === 'contorno' ? (
         <T variante="pequeno">Toque nos cantos da lavoura, um de cada vez. A área é calculada sozinha.</T>
       ) : (
-        <T variante="pequeno">Toque no mapa sobre a lavoura para marcar o talhão. Mapa: OpenFreeMap / OpenStreetMap.</T>
+        <T variante="pequeno">
+          {Platform.OS === 'web'
+            ? 'Arraste para mover o mapa e use os botões + e − para aproximar. Depois, toque na lavoura.'
+            : 'Mova o mapa com dois dedos e aproxime com pinça. Depois, toque na lavoura.'}
+        </T>
       )}
       {modo === 'contorno' ? (
         <Linha>

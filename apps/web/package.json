@@ -12,6 +12,8 @@
   "dependencies": {
     "@graoraiz/clima": "*",
     "next": "16.4.2",
+    "pg": "^8.23.1",
+    "polygon-clipping": "^0.15.7",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "zod": "^4.6.7"
@@ -19,6 +21,7 @@
   "devDependencies": {
     "@tailwindcss/turbopack": "^4",
     "@types/node": "^20",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",

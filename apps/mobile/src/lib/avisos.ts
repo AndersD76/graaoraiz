@@ -4,6 +4,7 @@ import { Platform } from 'react-native';
 
 import { buscarChuvaEstimada, buscarPrevisao, type Previsao, previsaoEmCache, type Resultado } from '@/lib/dados-clima';
 import { atualizar, type Estado, obterEstado, talhoesLiberados, temPro } from '@/lib/estado';
+import { avisosDePreco, precosParaAvisos } from '@/lib/precos';
 
 const CANAL = 'avisos';
 /** Folga mínima para agendar: data no passado faz o iOS rejeitar e o Android descartar o aviso. */
@@ -119,6 +120,7 @@ async function executar(opcoes: { buscar?: boolean }): Promise<number> {
     }
     dados.push({ talhaoId: talhao.id, previsao, semChuva });
   }
+  const precos = e.alertasPreco.length ? await precosParaAvisos() : null;
 
   // 2) …e só então lê o relógio: os horários calculados não ficam no passado.
   const agora = isoLocal(new Date());
@@ -160,6 +162,21 @@ async function executar(opcoes: { buscar?: boolean }): Promise<number> {
       agendados.push({ id: aviso.id, quando: aviso.quando });
     } catch {
       // Um aviso com problema não derruba os outros; ele volta a ser tentado na próxima rodada.
+    }
+  }
+
+  // Preço-alvo: aviso imediato, uma vez por alvo (depois da limpeza acima, para não ser cancelado).
+  for (const aviso of avisosDePreco(obterEstado().alertasPreco, precos)) {
+    if (entregues.has(aviso.id)) continue;
+    try {
+      await Notifications.scheduleNotificationAsync({
+        identifier: aviso.id,
+        content: { title: aviso.titulo, body: aviso.corpo, data: { tipo: 'preco' } },
+        trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: new Date(Date.now() + FOLGA_MS), channelId: CANAL },
+      });
+      entregues.add(aviso.id);
+    } catch {
+      // Tenta de novo na próxima rodada.
     }
   }
 

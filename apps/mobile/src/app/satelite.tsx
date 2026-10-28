@@ -1,4 +1,4 @@
-import { formatarData, formatarNumero, quadradoEmVolta } from '@graoraiz/clima';
+import { CULTURAS, dataDe, diasEntre, formatarData, formatarNumero, isoLocal, quadradoEmVolta } from '@graoraiz/clima';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
@@ -11,8 +11,24 @@ import { Aviso, Botao, Cartao, Carregando, Chip, Linha, Secao, T, Tela } from '@
 import { MaxContentWidth, Raio, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { useVigor } from '@/hooks/use-vigor';
-import { talhaoAtual, useEstado, usePro } from '@/lib/estado';
+import { type Talhao, talhaoAtual, useEstado, usePro } from '@/lib/estado';
 import { ATRIBUICAO_SATELITE, type Cena, cenasRecentes, type ModoSatelite, urlBlocos } from '@/lib/satelite';
+
+/** "foto": imagem de alta resolução (Esri, sem data); "real" e "vigor": a passagem escolhida do Sentinel-2 (10 m). */
+type ModoTela = 'foto' | ModoSatelite;
+
+/** Fase da lavoura pela data de plantio e o ciclo da cultura: explica quedas e altas normais do vigor. */
+function faseDaLavoura(t: Talhao): { dias: number; texto: string } | null {
+  if (!t.cultura || !t.dataPlantio) return null;
+  const ciclo = CULTURAS[t.cultura].cicloDias;
+  const dias = diasEntre(t.dataPlantio, dataDe(isoLocal(new Date())));
+  const nome = CULTURAS[t.cultura].rotulo.toLowerCase();
+  if (dias < 0) return null;
+  if (dias < 25) return { dias, texto: `A ${nome} tem ${dias} dias: o satélite ainda vê mais solo do que planta, e o vigor é baixo mesmo em lavoura boa.` };
+  if (ciclo && dias >= ciclo * 0.8) return { dias, texto: `A ${nome} tem ${dias} dias, fim do ciclo: o vigor cai porque a lavoura está secando para a colheita. Queda agora é esperada; preocupa se vier em mancha.` };
+  if (ciclo && dias < ciclo * 0.45) return { dias, texto: `A ${nome} tem ${dias} dias, em crescimento: o normal é o vigor subir a cada passagem. Queda nessa fase pede uma ida ao campo.` };
+  return { dias, texto: `A ${nome} tem ${dias} dias, perto do auge: o vigor deve ficar alto e estável. Queda forte agora pede uma ida ao campo.` };
+}
 
 export default function SateliteScreen() {
   const router = useRouter();
@@ -24,7 +40,7 @@ export default function SateliteScreen() {
   const mapa = useRef<ControleMapa>(null);
   const [cenas, setCenas] = useState<{ talhaoId: string; lista: Cena[] } | { talhaoId: string; erro: string } | null>(null);
   const [escolhida, setEscolhida] = useState<string | null>(null);
-  const [modo, setModo] = useState<ModoSatelite>('real');
+  const [modo, setModo] = useState<ModoTela>('foto');
   const { serie, carregando: carregandoVigor, erro: erroVigor } = useVigor(pro ? talhao : null, 10);
 
   useEffect(() => {
@@ -45,35 +61,44 @@ export default function SateliteScreen() {
   const limpasVigor = new Set((serie ?? []).map((v) => v.cenaId));
   const limpas = lista.filter((c) => limpasVigor.has(c.id) || c.nuvensCena < 25).slice(0, 12);
   const cena = limpas.find((c) => c.id === escolhida) ?? limpas[0] ?? null;
-  const modoEfetivo: ModoSatelite = pro ? modo : 'real';
+  const modoEfetivo: ModoTela = pro || modo !== 'vigor' ? modo : 'foto';
   const cenaId = cena?.id ?? null;
 
-  // Troca só a camada de imagem; o mapa e o contorno continuam onde estão.
+  // Troca só a camada de imagem; o mapa e o contorno continuam onde estão. Na foto, só a base de alta resolução.
+  const camada = cenaId && modoEfetivo !== 'foto' ? urlBlocos(cenaId, modoEfetivo) : null;
   useEffect(() => {
-    if (cenaId) mapa.current?.enviar({ camada: urlBlocos(cenaId, modoEfetivo) });
-  }, [cenaId, modoEfetivo]);
+    mapa.current?.enviar({ camada });
+  }, [camada]);
 
   if (!talhao) return null;
   const contorno = talhao.contorno ?? quadradoEmVolta(talhao.lat, talhao.lon, talhao.areaHa ?? 16);
   const ultimo = serie?.at(-1);
   const anterior = serie && serie.length > 1 ? serie[serie.length - 2] : undefined;
   const larguraGrafico = Math.min(width, MaxContentWidth) - Spacing.three * 4;
+  const fase = faseDaLavoura(talhao);
 
   return (
     <Tela comAbas={false} cabecalhoNativo>
       <View style={estilos.cabecalho}>
         <T variante="titulo">{talhao.nome}</T>
-        <T variante="pequeno">{cena ? `Passagem de ${formatarData(cena.data)}/${cena.data.slice(0, 4)}` : 'Imagens do satélite Sentinel-2'}</T>
+        <T variante="pequeno">
+          {modoEfetivo === 'foto'
+            ? 'Foto de satélite em alta resolução (a data da foto varia por região)'
+            : cena
+              ? `Passagem do Sentinel-2 de ${formatarData(cena.data)}/${cena.data.slice(0, 4)}`
+              : 'Imagens do satélite Sentinel-2'}
+        </T>
       </View>
 
       <View>
         <MapaBase
           controle={mapa}
           inicial={{ lat: talhao.lat, lon: talhao.lon }}
-          opcoes={{ modo: 'ver', contorno, camada: cena ? urlBlocos(cena.id, modoEfetivo) : null }}
+          opcoes={{ modo: 'ver', contorno, camada }}
           altura={360}
           aoMensagem={() => undefined}
           rotulo="Imagem de satélite do talhão"
+          creditoExtra={modoEfetivo === 'foto' ? null : 'Copernicus Sentinel-2'}
         />
         {modoEfetivo === 'vigor' ? (
           <View style={[estilos.legenda, { backgroundColor: tema.backgroundElement }]}>
@@ -89,7 +114,8 @@ export default function SateliteScreen() {
       </View>
 
       <Linha>
-        <Chip rotulo="Imagem real" icone="olho" ativo={modoEfetivo === 'real'} aoTocar={() => setModo('real')} testID="modo-real" />
+        <Chip rotulo="Foto em alta" icone="olho" ativo={modoEfetivo === 'foto'} aoTocar={() => setModo('foto')} testID="modo-foto" />
+        <Chip rotulo="Última passagem" icone="calendario" ativo={modoEfetivo === 'real'} aoTocar={() => setModo('real')} testID="modo-real" />
         <Chip rotulo={pro ? 'Vigor da lavoura' : 'Vigor · Pro'} icone={pro ? 'folha' : 'cadeado'} ativo={modoEfetivo === 'vigor'} aoTocar={() => (pro ? setModo('vigor') : router.push('/assinatura'))} testID="modo-vigor" />
       </Linha>
 
@@ -99,7 +125,7 @@ export default function SateliteScreen() {
         <Aviso tipo="atencao" titulo="Só imagens com nuvem">Nos últimos meses as passagens sobre o talhão vieram encobertas. O satélite volta a cada 5 dias.</Aviso>
       ) : null}
 
-      {limpas.length > 0 ? (
+      {limpas.length > 0 && modoEfetivo !== 'foto' ? (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={estilos.datas}>
           {limpas.map((c) => (
             <Chip key={c.id} rotulo={formatarData(c.data)} ativo={c.id === cena?.id} aoTocar={() => setEscolhida(c.id)} testID={`cena-${c.data}`} />
@@ -133,6 +159,11 @@ export default function SateliteScreen() {
                 ) : null}
               </Linha>
               <GraficoVigor pontos={(serie ?? []).map((v) => ({ data: v.data, valor: v.media }))} largura={larguraGrafico} />
+              {fase ? (
+                <Aviso tipo="info" titulo="Fase da lavoura" icone="calendario">
+                  {fase.texto}
+                </Aviso>
+              ) : null}
               {ultimo.baixo >= 0.05 ? (
                 <Aviso tipo="atencao" titulo={`${Math.round(ultimo.baixo * 100)}% do talhão com vigor abaixo do resto`}>
                   {`${talhao.areaHa ? `Cerca de ${formatarNumero(talhao.areaHa * ultimo.baixo, 1)} ha. ` : ''}Veja as manchas vermelhas no mapa de vigor e confira no campo: falha de plantio, praga, doença, encharcamento ou compactação.`}
@@ -169,10 +200,7 @@ export default function SateliteScreen() {
 const estilos = StyleSheet.create({
   cabecalho: { gap: 2 },
   legenda: {
-    position: 'absolute',
-    left: 12,
-    right: 12,
-    bottom: 12,
+    marginTop: 8,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,

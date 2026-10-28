@@ -13,7 +13,8 @@
     "preview": {
       "distribution": "internal",
       "android": { "buildType": "apk" },
-      "environment": "preview"
+      "environment": "preview",
+      "env": { "EXPO_PUBLIC_LIBERAR_PRO": "1" }
     },
     "production": {
       "autoIncrement": true,

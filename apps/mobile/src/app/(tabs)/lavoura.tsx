@@ -53,7 +53,7 @@ export default function LavouraScreen() {
   const podeAdicionar = pro || estado.talhoes.length < LIMITE_TALHOES_GRATIS;
   const area = estado.talhoes.reduce((s, t) => s + (t.areaHa ?? 0), 0);
 
-  const abrir = (t: Talhao, rota: '/satelite' | '/dossie') => {
+  const abrir = (t: Talhao, rota: '/satelite' | '/dossie' | '/conformidade') => {
     selecionarTalhao(t.id);
     router.push(rota);
   };
@@ -112,6 +112,7 @@ export default function LavouraScreen() {
               <View style={estilos.acoes}>
                 <AcaoTalhao icone="satelite" rotulo="Satélite" aoTocar={() => abrir(t, '/satelite')} testID={`satelite-${t.nome}`} />
                 <AcaoTalhao icone="pdf" rotulo="Dossiê" aoTocar={() => abrir(t, '/dossie')} testID={`dossie-${t.nome}`} />
+                <AcaoTalhao icone="escudo" rotulo="EUDR e crédito" aoTocar={() => abrir(t, '/conformidade')} testID={`conformidade-${t.nome}`} />
                 <AcaoTalhao icone="editar" rotulo="Editar" aoTocar={() => router.push({ pathname: '/talhao', params: { id: t.id } })} testID={`editar-${t.nome}`} />
                 {t.id !== atual?.id ? <AcaoTalhao icone="casa" rotulo="Ver no Hoje" aoTocar={() => selecionarTalhao(t.id)} /> : null}
               </View>

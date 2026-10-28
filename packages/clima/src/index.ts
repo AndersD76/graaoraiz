@@ -21,3 +21,5 @@ export * from './geada';
 export * from './vigia';
 export * from './dossie';
 export * from './geo';
+export * from './conformidade';
+export * from './panorama';

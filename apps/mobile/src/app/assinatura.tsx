@@ -11,7 +11,7 @@ import { Aviso, Botao, Cartao, Chip, Linha, Medalha, T } from '@/components/ui';
 import { MaxContentWidth, Raio, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { assinaturaDisponivel, carregarPlanos, comprar, type PlanoAssinatura, restaurarCompras } from '@/lib/assinatura';
-import { PERMITE_SIMULAR_PRO, PRECOS_REFERENCIA, SITE_URL } from '@/lib/config';
+import { LIBERA_PRO, PERMITE_SIMULAR_PRO, PRECOS_REFERENCIA, SITE_URL } from '@/lib/config';
 import { informar } from '@/lib/dialogo';
 import { definirProSimulado, usePro } from '@/lib/estado';
 
@@ -97,7 +97,11 @@ export default function AssinaturaScreen() {
       </LinearGradient>
 
       <View style={[estilos.conteudo, estilos.corpo]}>
-        {pro ? <Aviso tipo="bom" titulo="Pro ativo">Obrigado por assinar! Tudo liberado.</Aviso> : null}
+        {LIBERA_PRO ? (
+          <Aviso tipo="bom" titulo="Versão de demonstração">Todos os módulos do Pro estão liberados para você conhecer.</Aviso>
+        ) : pro ? (
+          <Aviso tipo="bom" titulo="Pro ativo">Obrigado por assinar! Tudo liberado.</Aviso>
+        ) : null}
 
         <Cartao testID="calculadora">
           <T variante="subtitulo">Quanto custa uma aplicação lavada pela chuva?</T>

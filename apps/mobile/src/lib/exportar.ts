@@ -1,3 +1,4 @@
+import * as FileSystem from 'expo-file-system/legacy';
 import * as Print from 'expo-print';
 import * as Sharing from 'expo-sharing';
 import type { RefObject } from 'react';
@@ -21,4 +22,11 @@ export async function compartilharPdf(html: string, titulo: string): Promise<voi
 export async function compartilharImagem(alvo: RefObject<HostInstance | null>, titulo: string): Promise<void> {
   const uri = await captureRef(alvo, { format: 'png', quality: 1 });
   await compartilhar(uri, 'image/png', 'public.png', titulo);
+}
+
+/** Grava um arquivo de texto (ex.: GeoJSON da EUDR) e abre o compartilhamento. */
+export async function compartilharArquivo(texto: string, nomeArquivo: string, mimeType: string, titulo: string): Promise<void> {
+  const uri = `${FileSystem.cacheDirectory}${nomeArquivo}`;
+  await FileSystem.writeAsStringAsync(uri, texto);
+  await compartilhar(uri, mimeType, 'public.json', titulo);
 }

@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { CapaTempo } from '@/components/capa-tempo';
+import { CartaoMercado } from '@/components/cartao-mercado';
 import { RodapeFonte, SeletorTalhao } from '@/components/clima';
 import { FaixaHoras, ListaDias } from '@/components/graficos';
 import { Icone, Ilustracao, type NomeIcone } from '@/components/icone';
@@ -124,6 +125,10 @@ export default function HojeScreen() {
               />
             ))}
           </View>
+
+          <Botao titulo="Últimos 3 meses: chuva, temperatura e vigor" tipo="secundario" icone="grafico" aoTocar={() => router.push('/panorama')} testID="abrir-panorama" />
+
+          <CartaoMercado cultura={talhao?.cultura ?? null} />
 
           <Secao titulo="Próximas 24 horas" acao="Pulverização" aoTocarAcao={() => router.push('/pulverizacao')} />
           <Cartao style={estilos.semPadding}>

@@ -1,0 +1,213 @@
+{
+  "versao": 2,
+  "talhoes": [
+    {
+      "id": "demo-trigo",
+      "nome": "Trigo do Capão",
+      "lat": -28.201083,
+      "lon": -52.412762,
+      "cultura": "trigo",
+      "dataPlantio": "2026-06-15",
+      "criadoEm": "2026-06-10T11:20:00.000Z",
+      "solo": "argiloso",
+      "zarc": {
+        "inicio": "2026-06-01",
+        "fim": "2026-07-20"
+      },
+      "areaHa": 47.3,
+      "contorno": [
+        [
+          -28.19989,
+          -52.416859
+        ],
+        [
+          -28.199329,
+          -52.415019
+        ],
+        [
+          -28.198355,
+          -52.413108
+        ],
+        [
+          -28.198168,
+          -52.411692
+        ],
+        [
+          -28.198081,
+          -52.40971
+        ],
+        [
+          -28.198642,
+          -52.408365
+        ],
+        [
+          -28.202136,
+          -52.407445
+        ],
+        [
+          -28.202223,
+          -52.409823
+        ],
+        [
+          -28.203071,
+          -52.411551
+        ],
+        [
+          -28.203758,
+          -52.413037
+        ],
+        [
+          -28.204344,
+          -52.413886
+        ],
+        [
+          -28.203845,
+          -52.416222
+        ],
+        [
+          -28.20357,
+          -52.41778
+        ],
+        [
+          -28.201262,
+          -52.417426
+        ]
+      ],
+      "baixada": false
+    },
+    {
+      "id": "demo-soja",
+      "nome": "Soja da Sanga",
+      "lat": -28.200957,
+      "lon": -52.421172,
+      "cultura": "soja",
+      "dataPlantio": "2026-10-10",
+      "criadoEm": "2026-09-28T12:05:00.000Z",
+      "solo": "argiloso",
+      "zarc": {
+        "inicio": "2026-10-01",
+        "fim": "2026-12-31"
+      },
+      "areaHa": 37.1,
+      "contorno": [
+        [
+          -28.199281,
+          -52.425321
+        ],
+        [
+          -28.198257,
+          -52.419483
+        ],
+        [
+          -28.198257,
+          -52.4177
+        ],
+        [
+          -28.198897,
+          -52.417264
+        ],
+        [
+          -28.200003,
+          -52.417343
+        ],
+        [
+          -28.201144,
+          -52.417607
+        ],
+        [
+          -28.203088,
+          -52.419219
+        ],
+        [
+          -28.203938,
+          -52.420936
+        ],
+        [
+          -28.204275,
+          -52.422494
+        ],
+        [
+          -28.203263,
+          -52.423842
+        ],
+        [
+          -28.201633,
+          -52.424925
+        ],
+        [
+          -28.200736,
+          -52.424634
+        ],
+        [
+          -28.200259,
+          -52.423974
+        ],
+        [
+          -28.200061,
+          -52.425229
+        ]
+      ],
+      "baixada": false
+    }
+  ],
+  "talhaoSelecionado": "demo-soja",
+  "chuvas": [],
+  "eventos": [],
+  "aplicacoes": [],
+  "seguro": {
+    "tipo": "nenhum",
+    "agente": "",
+    "prazoDias": null
+  },
+  "produtor": "Demonstração Grão Raiz",
+  "preferencias": {
+    "geada": true,
+    "temporal": true,
+    "pulverizacao": true,
+    "janelaSeca": true,
+    "veranico": true,
+    "chuva": true,
+    "lavagem": true,
+    "doenca": true,
+    "boletim": true,
+    "horaBoletim": 6,
+    "horaPulverizacao": 18,
+    "silencioInicio": 21,
+    "silencioFim": 6
+  },
+  "limiares": {
+    "vento2m": {
+      "minimo": 3,
+      "idealMaximo": 10,
+      "maximo": 15
+    },
+    "rajada2m": {
+      "atencao": 15,
+      "maximo": 20
+    },
+    "deltaT": {
+      "idealMinimo": 2,
+      "idealMaximo": 8,
+      "maximo": 10
+    },
+    "umidade": {
+      "idealMinima": 55,
+      "minima": 45
+    },
+    "temperatura": {
+      "idealMaxima": 30,
+      "maxima": 35
+    },
+    "chuva": {
+      "horasSemChuvaApos": 2,
+      "mmMaximo": 0.5,
+      "probAtencao": 40,
+      "probMaxima": 60
+    }
+  },
+  "avisosAgendados": [],
+  "avisosEntregues": [],
+  "pro": false,
+  "proSimulado": false,
+  "tema": "auto"
+}

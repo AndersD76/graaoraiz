@@ -11,7 +11,7 @@ import {
 import { useSyncExternalStore } from 'react';
 
 import { apagar, chaves, gravar, ler } from '@/lib/armazenamento';
-import { PERMITE_SIMULAR_PRO } from '@/lib/config';
+import { LIBERA_PRO, PERMITE_SIMULAR_PRO } from '@/lib/config';
 
 export type { Cultura };
 
@@ -94,6 +94,15 @@ export interface AvisoAgendado {
 
 export type PreferenciaTema = 'auto' | 'claro' | 'escuro';
 
+/** Aviso de preço-alvo de um indicador do Cepea (id do catálogo de /api/precos). */
+export interface AlertaPreco {
+  indicador: number;
+  /** Avisar quando passar deste valor; null = não. */
+  acima: number | null;
+  /** Avisar quando cair abaixo deste valor; null = não. */
+  abaixo: number | null;
+}
+
 export interface Estado {
   versao: 2;
   talhoes: Talhao[];
@@ -104,6 +113,9 @@ export interface Estado {
   seguro: Seguro;
   /** Nome do produtor, para o boletim e o dossiê. */
   produtor: string;
+  /** CPF ou CNPJ do produtor, para a ficha da EUDR e do crédito rural. */
+  documentoProdutor: string;
+  alertasPreco: AlertaPreco[];
   preferencias: PreferenciasAvisos;
   limiares: LimiaresPulverizacao;
   avisosAgendados: AvisoAgendado[];
@@ -130,6 +142,8 @@ function inicial(): Estado {
     aplicacoes: [],
     seguro: { tipo: 'nenhum', agente: '', prazoDias: null },
     produtor: '',
+    documentoProdutor: '',
+    alertasPreco: [],
     preferencias: PREFERENCIAS_AVISOS_PADRAO,
     limiares: LIMIARES_PULVERIZACAO_PADRAO,
     avisosAgendados: [],
@@ -183,9 +197,29 @@ export function atualizar(alterar: (atual: Estado) => Estado): void {
   ouvintes.forEach((ouvinte) => ouvinte());
 }
 
-function assinar(ouvinte: () => void): () => void {
+/** Avisa a cada alteração do estado (a sincronização com a conta usa para enviar à nuvem). */
+export function assinar(ouvinte: () => void): () => void {
   ouvintes.add(ouvinte);
   return () => ouvintes.delete(ouvinte);
+}
+
+/** O que vai para a nuvem: tudo, menos o que é deste aparelho (avisos agendados e compra na loja). */
+export type EstadoNuvem = Omit<Estado, 'avisosAgendados' | 'avisosEntregues' | 'pro' | 'proSimulado'>;
+
+export function dadosParaNuvem(e: Estado): EstadoNuvem {
+  const { avisosAgendados: _a, avisosEntregues: _b, pro: _c, proSimulado: _d, ...resto } = e;
+  return resto;
+}
+
+/** Troca os dados pelos da conta (vindos da nuvem), mantendo o que é deste aparelho. */
+export function substituirEstado(daNuvem: Partial<EstadoNuvem>): void {
+  atualizar((atual) => ({
+    ...normalizar(daNuvem as Partial<Estado>),
+    avisosAgendados: atual.avisosAgendados,
+    avisosEntregues: atual.avisosEntregues,
+    pro: atual.pro,
+    proSimulado: atual.proSimulado,
+  }));
 }
 
 /** Estado inteiro; a referência só muda quando algo é alterado. */
@@ -194,7 +228,7 @@ export function useEstado(): Estado {
 }
 
 export function temPro(e: Estado): boolean {
-  return e.pro || (PERMITE_SIMULAR_PRO && e.proSimulado);
+  return LIBERA_PRO || e.pro || (PERMITE_SIMULAR_PRO && e.proSimulado);
 }
 
 export function usePro(): boolean {
@@ -298,6 +332,18 @@ export function salvarSeguro(seguro: Seguro): void {
 
 export function salvarProdutor(produtor: string): void {
   atualizar((e) => ({ ...e, produtor }));
+}
+
+export function salvarDocumentoProdutor(documentoProdutor: string): void {
+  atualizar((e) => ({ ...e, documentoProdutor }));
+}
+
+/** Grava (ou tira, se os dois limites forem null) o aviso de preço de um indicador. */
+export function salvarAlertaPreco(alerta: AlertaPreco): void {
+  atualizar((e) => {
+    const outros = e.alertasPreco.filter((a) => a.indicador !== alerta.indicador);
+    return { ...e, alertasPreco: alerta.acima === null && alerta.abaixo === null ? outros : [...outros, alerta] };
+  });
 }
 
 export function salvarPreferencias(preferencias: PreferenciasAvisos): void {
