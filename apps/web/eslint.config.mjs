@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // App web gerado por scripts/montar-app.mjs.
+    "public/**",
   ]),
 ]);
 

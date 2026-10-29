@@ -11,7 +11,7 @@ App de clima para o campo: diz se dá para pulverizar, colher ou entrar com máq
 | Pasta | O que é |
 |---|---|
 | `apps/mobile` | App Android/iOS em Expo (SDK 58), local-first: dados no aparelho, avisos locais, PDF no aparelho |
-| `apps/web` | Site (landing com lista de espera, privacidade, termos, exclusão de dados) e API que repassa o Open-Meteo com cache |
+| `apps/web` | Servidor: o app web na raiz, páginas legais (privacidade, termos, exclusão de dados) e API (contas, preços, EUDR/CAR, Open-Meteo com cache) |
 | `packages/clima` | Regras de decisão climática em TypeScript puro, com testes |
 | `docs` | Plano, publicação e ficha das lojas; `docs/legado` guarda planos antigos |
 | `legado/web-v0` | Versão web anterior (rastreabilidade/EUDR), só para referência; também na tag `legado-web-v0` |
