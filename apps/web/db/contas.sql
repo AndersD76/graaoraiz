@@ -35,3 +35,19 @@ create table if not exists app.recuperacao_senha (
 );
 
 comment on table app.recuperacao_senha is 'Código de recuperação de senha em andamento (só o hash; apagado ao usar).';
+
+-- Avaliações da versão de teste (página /avaliar, sem login). Contato só se a pessoa quiser resposta.
+create table if not exists app.avaliacao (
+  id            uuid        primary key default gen_random_uuid(),
+  nota          smallint    not null check (nota between 1 and 5),
+  indicaria     text        check (indicaria in ('sim', 'talvez', 'nao')),
+  ajudou        text[]      not null default '{}',
+  melhorar      text        check (char_length(melhorar) <= 2000),
+  perfil        text        check (perfil in ('produtor', 'tecnico', 'cooperativa', 'outro')),
+  cidade        text        check (char_length(cidade) <= 80),
+  contato       text        check (char_length(contato) <= 120),
+  origem        text        check (char_length(origem) <= 40),
+  criado_em     timestamptz not null default now()
+);
+
+comment on table app.avaliacao is 'Opiniões de quem testou o app. Lidas no painel /avaliacoes (com chave).';

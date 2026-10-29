@@ -1,6 +1,6 @@
 import { ImageResponse } from 'next/og';
 
-export const alt = 'Grão Raiz — o tempo certo para agir no seu talhão';
+export const alt = 'Grão Raiz — o vigia da sua lavoura';
 export const size = { width: 1200, height: 630 };
 export const contentType = 'image/png';
 
@@ -31,10 +31,10 @@ export default function ImagemCompartilhamento() {
         </div>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <div style={{ fontSize: 76, fontWeight: 800, lineHeight: 1.1, maxWidth: 980 }}>
-            O tempo certo para agir no seu talhão
+            O vigia da sua lavoura
           </div>
           <div style={{ marginTop: 28, fontSize: 34, color: '#4A524B', maxWidth: 1000 }}>
-            Pulverização, janela seca para colher, pluviômetro e avisos de geada e temporal.
+            Hora de pulverizar, geada e temporal, satélite, preço do dia e EUDR, por talhão.
           </div>
         </div>
         <div style={{ display: 'flex', height: 16, borderRadius: 8, overflow: 'hidden' }}>

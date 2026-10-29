@@ -5,6 +5,7 @@ import { SITE_URL } from '@/lib/config';
 const PAGINAS: { caminho: string; atualizacao: string; prioridade: number }[] = [
   { caminho: '/', atualizacao: '2026-10-22', prioridade: 1 },
   { caminho: '/baixar', atualizacao: '2026-10-22', prioridade: 0.6 },
+  { caminho: '/avaliar', atualizacao: '2026-10-29', prioridade: 0.5 },
   { caminho: '/privacidade', atualizacao: '2026-10-22', prioridade: 0.3 },
   { caminho: '/termos', atualizacao: '2026-10-22', prioridade: 0.3 },
   { caminho: '/excluir-dados', atualizacao: '2026-10-22', prioridade: 0.3 },

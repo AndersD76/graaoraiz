@@ -6,12 +6,12 @@ import { Rodape } from '@/components/rodape';
 import { NOME_APP, SITE_URL } from '@/lib/config';
 
 const DESCRICAO =
-  'Semáforo de pulverização com o melhor horário, janela de tempo seco para colher, pluviômetro e avisos de geada e temporal — por talhão, não por cidade.';
+  'Hora de pulverizar, risco de geada e temporal, satélite, chuva, preço do dia e EUDR e crédito rural, por talhão e não por cidade.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `${NOME_APP} — o tempo certo para agir no seu talhão`,
+    default: `${NOME_APP} — o vigia da sua lavoura`,
     template: `%s | ${NOME_APP}`,
   },
   description: DESCRICAO,
@@ -22,7 +22,7 @@ export const metadata: Metadata = {
     locale: 'pt_BR',
     siteName: NOME_APP,
     url: '/',
-    title: `${NOME_APP} — o tempo certo para agir no seu talhão`,
+    title: `${NOME_APP} — o vigia da sua lavoura`,
     description: DESCRICAO,
   },
   twitter: { card: 'summary_large_image' },

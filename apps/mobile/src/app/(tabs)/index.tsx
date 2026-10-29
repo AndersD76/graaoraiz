@@ -17,6 +17,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useVigia } from '@/hooks/use-vigia';
 import { reagendarAvisos } from '@/lib/avisos';
 import { talhaoAtual, useEstado, usePro } from '@/lib/estado';
+import { useMunicipio } from '@/lib/municipio';
 
 const DIAS_GRATIS = 7;
 
@@ -48,6 +49,7 @@ export default function HojeScreen() {
   const talhao = talhaoAtual(estado);
   const { resultado, carregando, erro, atualizar } = usePrevisao(talhao?.lat, talhao?.lon);
   const itens = useVigia(talhao, resultado, agora);
+  const municipio = useMunicipio(talhao?.lat, talhao?.lon);
 
   const hoje = dataDe(agora);
   const horaAtual = `${agora.slice(0, 13)}:00`;
@@ -67,11 +69,22 @@ export default function HojeScreen() {
 
   const topo = (
     <View style={estilos.topo}>
-      <Pressable onPress={() => router.push('/lavoura')} accessibilityRole="button" accessibilityLabel={`Talhão ${talhao?.nome ?? ''}`} style={estilos.talhao}>
+      <Pressable
+        onPress={() => router.push('/lavoura')}
+        accessibilityRole="button"
+        accessibilityLabel={`Talhão ${talhao?.nome ?? ''}${municipio ? `, ${municipio.nome}, ${municipio.uf}` : ''}`}
+        style={estilos.talhao}>
         <Icone nome="pino" tamanho={18} cor="#ffffff" />
-        <T variante="forte" cor="#ffffff" numberOfLines={1} style={estilos.nomeTalhao}>
-          {talhao?.nome}
-        </T>
+        <View style={estilos.nomeTalhao}>
+          <T variante="forte" cor="#ffffff" numberOfLines={1}>
+            {talhao?.nome}
+          </T>
+          {municipio ? (
+            <T variante="pequeno" cor="rgba(255,255,255,0.85)" numberOfLines={1} style={estilos.municipio} testID="municipio-talhao">
+              {municipio.nome}, {municipio.uf}
+            </T>
+          ) : null}
+        </View>
         <Icone nome="baixo" tamanho={14} cor="rgba(255,255,255,0.8)" />
       </Pressable>
       <T variante="pequeno" cor="rgba(255,255,255,0.85)" style={estilos.data}>
@@ -175,9 +188,10 @@ const estilos = StyleSheet.create({
     borderRadius: Raio.total,
     paddingHorizontal: 12,
     paddingVertical: 7,
-    maxWidth: '58%',
+    maxWidth: '64%',
   },
   nomeTalhao: { flexShrink: 1 },
+  municipio: { fontSize: 12, lineHeight: 15 },
   data: { flex: 1, textAlign: 'right' },
   botaoCapa: { width: 40, height: 40, borderRadius: 20, backgroundColor: 'rgba(255,255,255,0.18)', alignItems: 'center', justifyContent: 'center' },
   capaVazia: {
