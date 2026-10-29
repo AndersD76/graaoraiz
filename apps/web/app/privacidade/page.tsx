@@ -109,12 +109,18 @@ export default function Privacidade() {
         <strong>Base legal:</strong> execução de contrato (art. 7º, V, da LGPD).
       </p>
 
-      <h2>3. Dados tratados pelo site (lista de espera)</h2>
+      <h2>3. Dados tratados pelo site (lista de espera e avaliação)</h2>
       <p>
         Se você entrar na lista de espera, guardamos o que preencher: contato (WhatsApp ou e-mail) e, se informar,
         nome, cidade, UF, cultura e se quer testar a versão de teste. Usamos esses dados apenas para avisar sobre o
         lançamento do app e convidar para testes. Eles ficam armazenados em um banco de dados contratado (Supabase),
         com acesso restrito ao nosso servidor.
+      </p>
+      <p>
+        Se você responder à avaliação da versão de teste (página /avaliar), guardamos as respostas sem o seu nome: nota,
+        o que ajudou, comentário, perfil e, se informar, cidade e contato. Usamos as respostas para melhorar o app e o
+        contato só para responder você. Elas ficam em um banco de dados contratado (Neon), com acesso restrito ao nosso
+        servidor.
       </p>
       <p>
         <strong>Base legal:</strong> consentimento (art. 7º, I, da LGPD), que você pode revogar a qualquer momento.

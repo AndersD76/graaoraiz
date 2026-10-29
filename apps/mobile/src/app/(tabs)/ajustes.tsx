@@ -288,6 +288,13 @@ export default function AjustesScreen() {
       )}
 
       <View style={estilos.links}>
+        <Botao
+          titulo="Avaliar o app"
+          icone="estrela"
+          tipo="secundario"
+          aoTocar={() => WebBrowser.openBrowserAsync(`${SITE_URL}/avaliar?origem=app`)}
+          testID="avaliar-app"
+        />
         <Botao titulo="Política de privacidade" tipo="texto" aoTocar={() => WebBrowser.openBrowserAsync(`${SITE_URL}/privacidade`)} />
         <Botao titulo="Termos de uso" tipo="texto" aoTocar={() => WebBrowser.openBrowserAsync(`${SITE_URL}/termos`)} />
         <T variante="pequeno" style={estilos.centro}>

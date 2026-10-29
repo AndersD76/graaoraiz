@@ -1,0 +1,16 @@
+🌱 *Grão Raiz – venha testar (grátis)*
+
+Estamos testando o *Grão Raiz*, um app feito para quem está na lavoura: mostra a hora certa de pulverizar, o risco de geada e temporal, o satélite do talhão, a chuva e o preço do dia. Também confere EUDR e crédito rural pelo PRODES e pelo CAR.
+
+👉 *Abra aqui:* https://graaoraiz-production.up.railway.app
+Abre no navegador do celular (Android ou iPhone), sem instalar nada.
+
+*Como testar em 1 minuto*
+1. Toque no link.
+2. Toque em *Entrar na demonstração* para ver duas lavouras reais perto de Passo Fundo. Ou toque em *Criar conta* e marque o seu talhão no mapa.
+3. Veja as abas *Hoje*, *Lavoura* e *Chuva*. Na Lavoura tem o satélite e o botão *EUDR e crédito*.
+
+⭐ *Depois, conte o que achou* (1 minuto, sem cadastro):
+https://graaoraiz-production.up.railway.app/avaliar?origem=whatsapp
+
+📲 *Compartilhe* com vizinhos, agrônomos e com a sua cooperativa. Quanto mais gente testar, melhor o app fica para todo mundo.

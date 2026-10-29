@@ -17,7 +17,7 @@ const IMAGEM_COMPARTILHAMENTO = {
   url: '/opengraph-image',
   width: 1200,
   height: 630,
-  alt: `${NOME_APP} — o tempo certo para agir no seu talhão`,
+  alt: `${NOME_APP} — o vigia da sua lavoura`,
 };
 
 /** Metadados de uma página, incluindo Open Graph completo (o Next não mescla objetos aninhados). */
