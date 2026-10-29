@@ -1,7 +1,8 @@
 # @graoraiz/web — site e API do Grão Raiz
 
-Site público (landing page, Política de Privacidade, Termos de Uso, exclusão de dados e página de download) e uma API
-pequena usada pelo app e pelo site. Feito com Next.js (App Router, Cache Components), TypeScript e Tailwind CSS.
+Servidor do Grão Raiz: a versão web do app na raiz, as páginas legais (Política de Privacidade, Termos de Uso,
+exclusão de dados e página de download) e a API usada pelo app. Feito com Next.js (App Router, Cache Components),
+TypeScript e Tailwind CSS.
 
 As regras e URLs do Open-Meteo vêm do pacote compartilhado [`@graoraiz/clima`](../../packages/clima).
 
@@ -9,7 +10,7 @@ As regras e URLs do Open-Meteo vêm do pacote compartilhado [`@graoraiz/clima`](
 
 | Rota             | Conteúdo                                                                                    |
 | ---------------- | ------------------------------------------------------------------------------------------- |
-| `/`              | Landing: hero, exemplo do semáforo, como funciona, recursos, planos, dúvidas, lista de espera |
+| `/`              | O app (`apps/mobile` exportado para web por `scripts/montar-app.mjs`, com o Pro liberado). As rotas do app (`/lavoura`, `/precos`...) caem no `index.html` |
 | `/privacidade`   | Política de Privacidade (LGPD)                                                              |
 | `/termos`        | Termos de Uso                                                                               |
 | `/excluir-dados` | Como apagar dados (URL exigida pela Google Play)                                            |
@@ -57,12 +58,15 @@ npm install                          # uma vez, na raiz (workspaces)
 npm run dev -w @graoraiz/web         # desenvolvimento em http://localhost:3000
 npm run lint -w @graoraiz/web
 npm run typecheck -w @graoraiz/web
-npm run build -w @graoraiz/web       # build de produção
+npm run build -w @graoraiz/web       # build de produção (exporta o app web para public/ e roda o next build)
 npm run start -w @graoraiz/web       # serve o build
 ```
 
 ## Deploy
 
+- Hoje no Railway (serviço `graaoraiz`, branch `app-clima`, cada push publica): build `npm run build -w @graoraiz/web`
+  e início `npm run start -w @graoraiz/web` (variáveis `RAILPACK_BUILD_CMD` e `RAILPACK_START_CMD`), a partir da raiz
+  do monorepo.
 - Funciona em qualquer hospedagem que rode Next.js no Node.js (Vercel, Netlify, Render, Fly.io, VPS com `next start` etc.).
 - Na Vercel: importe o repositório, defina **Root Directory** como `apps/web` e configure as variáveis acima. O
   plano Hobby (gratuito) da Vercel é só para uso pessoal e não comercial — para um produto com assinatura paga, use o

@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
 import { BotoesLoja, TEM_LOJA } from '@/components/botoes-loja';
 import { Simbolo } from '@/components/marca';
 import { metadadosPagina } from '@/lib/metadados';
@@ -27,8 +26,8 @@ export default function Baixar() {
         A chuva e o tempo do seu talhão, no celular
       </h1>
       <p className="mt-4 text-lg leading-relaxed text-texto-2">
-        O Grão Raiz é um app gratuito para produtor de grãos, com plano Pro opcional. Sem cadastro: seus dados ficam no
-        seu celular.
+        O Grão Raiz é um app gratuito para produtor de grãos, com plano Pro opcional. Crie sua conta e os dados da
+        lavoura ficam guardados na nuvem.
       </p>
       <ul className="mt-6 flex flex-col gap-3">
         {DESTAQUES.map((d) => (
@@ -45,22 +44,17 @@ export default function Baixar() {
         ) : (
           <div className="rounded-2xl bg-superficie p-6">
             <p className="text-lg font-bold">Em breve no Android e no iPhone</p>
-            <p className="mt-2 text-texto-2">Deixe seu contato e avisamos quando o app chegar às lojas.</p>
-            <Link
-              href="/#lista-espera"
+            <p className="mt-2 text-texto-2">Enquanto isso, use no navegador do celular ou do computador.</p>
+            {/* <a> e não <Link>: a raiz é o app web (arquivo estático), não uma página do Next. */}
+            <a
+              href="/"
               className="mt-5 inline-flex min-h-12 items-center justify-center rounded-full bg-marca px-6 font-semibold text-white hover:bg-marca-escura"
             >
-              Entrar na lista de espera
-            </Link>
+              Abrir o app
+            </a>
           </div>
         )}
       </div>
-
-      <p className="mt-10">
-        <Link href="/" className="inline-flex min-h-11 items-center font-semibold text-marca underline underline-offset-2">
-          Saiba mais sobre o Grão Raiz
-        </Link>
-      </p>
     </section>
   );
 }

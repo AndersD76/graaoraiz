@@ -20,6 +20,9 @@
 # production
 /build
 
+# app web gerado por scripts/montar-app.mjs
+/public/
+
 # misc
 .DS_Store
 *.pem
