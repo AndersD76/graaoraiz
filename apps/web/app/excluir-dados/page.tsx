@@ -5,42 +5,54 @@ import { CONTATO_EMAIL } from '@/lib/config';
 import { metadadosPagina } from '@/lib/metadados';
 
 export const metadata: Metadata = metadadosPagina({
-  titulo: 'Excluir seus dados',
-  descricao:
-    'Como apagar os dados do app Grão Raiz no celular, cancelar a assinatura na loja e pedir a remoção da lista de espera do site.',
+  titulo: 'Excluir sua conta e seus dados',
+  descricao: 'Como excluir a conta do Grão Raiz e todos os dados dela, pelo app ou por e-mail, e como cancelar a assinatura na loja.',
   caminho: '/excluir-dados',
 });
 
 export default function ExcluirDados() {
-  const assunto = encodeURIComponent('Excluir meus dados da lista de espera');
+  const assunto = encodeURIComponent('Excluir minha conta do Grão Raiz');
+  const emailContato = (
+    <a href={`mailto:${CONTATO_EMAIL}?subject=${assunto}`} className="break-all">
+      {CONTATO_EMAIL}
+    </a>
+  );
   return (
-    <DocumentoLegal titulo="Excluir seus dados" avisoRevisao={false}>
-      <p>
-        O Grão Raiz não tem cadastro nem conta. Por isso, a maior parte dos seus dados está no seu celular, e você mesmo
-        pode apagá-la. Veja abaixo como excluir cada tipo de dado.
-      </p>
+    <DocumentoLegal titulo="Excluir sua conta e seus dados" avisoRevisao={false}>
+      <p>Você pode excluir a sua conta do Grão Raiz e todos os dados dela a qualquer momento, pelo próprio app ou por e-mail.</p>
 
-      <h2>1. Dados do aplicativo (talhões, chuvas e preferências)</h2>
+      <h2>1. Pelo app (na hora)</h2>
       <ol>
-        <li>Abra o Grão Raiz.</li>
+        <li>Abra o Grão Raiz e entre na sua conta.</li>
         <li>
-          Vá em <strong>Ajustes</strong>.
+          Toque na <strong>engrenagem</strong> (Ajustes), no alto da tela Hoje ou no menu.
         </li>
         <li>
-          Toque em <strong>“Apagar todos os meus dados”</strong> e confirme.
+          Em <strong>Sua conta</strong>, toque em <strong>“Excluir minha conta”</strong> e confirme.
         </li>
       </ol>
+
+      <h2>2. Por e-mail (sem o app)</h2>
       <p>
-        Isso apaga do aparelho todos os talhões, registros de chuva, previsões salvas e preferências. Desinstalar o app
-        também remove esses dados do celular. Como eles nunca são enviados para nós, não há cópia em nossos servidores.
+        Envie um e-mail para {emailContato}, a partir do e-mail da sua conta, com o assunto “Excluir minha conta do Grão
+        Raiz”. Atendemos em até 15 dias e avisamos quando for concluído.
       </p>
 
-      <h2>2. Assinatura Pro</h2>
+      <h2>3. O que é apagado</h2>
+      <ul>
+        <li>a conta (nome, e-mail e senha);</li>
+        <li>os dados da lavoura guardados na conta: talhões, chuvas, caderno, ocorrências e preferências;</li>
+        <li>os seus anúncios de máquinas, as fotos deles e os registros de quem pediu o seu contato;</li>
+        <li>no aparelho, tudo o que o app tinha guardado.</li>
+      </ul>
       <p>
-        Os dados de compra e assinatura são gerenciados pela loja onde você assinou e pelo serviço de gestão de
-        assinaturas (RevenueCat), vinculados a um identificador anônimo. Apagar o app ou os dados não cancela a
-        assinatura. Para cancelar:
+        <strong>O que fica guardado:</strong> se você marcou alguma máquina como vendida, o registro da venda e da
+        comissão (valor, data e contato) fica guardado pelo prazo exigido pela legislação fiscal e civil, em geral 5
+        anos. Os registros de acesso ficam 6 meses, como pede o Marco Civil da Internet.
       </p>
+
+      <h2>4. Assinatura Pro</h2>
+      <p>Excluir a conta não cancela a assinatura feita pela loja. Para cancelar:</p>
       <ul>
         <li>
           <strong>Android:</strong> abra a Google Play, toque na sua foto de perfil → <strong>Pagamentos e assinaturas</strong>{' '}
@@ -51,19 +63,11 @@ export default function ExcluirDados() {
           Grão Raiz → <strong>Cancelar assinatura</strong>.
         </li>
       </ul>
-      <p>
-        Para excluir os dados que a Google ou a Apple guardam sobre suas compras, siga as opções de privacidade da sua
-        conta na respectiva loja.
-      </p>
 
-      <h2>3. Lista de espera do site</h2>
+      <h2>5. Avaliação e lista de espera</h2>
       <p>
-        Se você se cadastrou na lista de espera, envie um e-mail para{' '}
-        <a href={`mailto:${CONTATO_EMAIL}?subject=${assunto}`} className="break-all">
-          {CONTATO_EMAIL}
-        </a>{' '}
-        pedindo a exclusão e informe o contato (WhatsApp ou e-mail) que usou no cadastro. O pedido é atendido em até 15
-        dias, e avisamos quando for concluído.
+        Se você respondeu à avaliação ou entrou na lista de espera, peça a exclusão por e-mail para {emailContato} e
+        informe o contato que usou.
       </p>
 
       <p>

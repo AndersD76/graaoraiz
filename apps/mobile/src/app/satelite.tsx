@@ -2,13 +2,14 @@ import { CULTURAS, dataDe, diasEntre, formatarData, formatarNumero, isoLocal, qu
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, View, useWindowDimensions } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 import { GraficoVigor } from '@/components/graficos';
 import { Icone } from '@/components/icone';
 import { type ControleMapa, MapaBase } from '@/components/mapa-base';
 import { Aviso, Botao, Cartao, Carregando, Chip, Linha, Secao, T, Tela } from '@/components/ui';
-import { MaxContentWidth, Raio, Spacing } from '@/constants/theme';
+import { Raio, Spacing } from '@/constants/theme';
+import { useLayout } from '@/hooks/use-layout';
 import { useTheme } from '@/hooks/use-theme';
 import { useVigor } from '@/hooks/use-vigor';
 import { type Talhao, talhaoAtual, useEstado, usePro } from '@/lib/estado';
@@ -36,7 +37,7 @@ export default function SateliteScreen() {
   const estado = useEstado();
   const pro = usePro();
   const talhao = talhaoAtual(estado);
-  const { width } = useWindowDimensions();
+  const { larguraUtil } = useLayout();
   const mapa = useRef<ControleMapa>(null);
   const [cenas, setCenas] = useState<{ talhaoId: string; lista: Cena[] } | { talhaoId: string; erro: string } | null>(null);
   const [escolhida, setEscolhida] = useState<string | null>(null);
@@ -74,7 +75,7 @@ export default function SateliteScreen() {
   const contorno = talhao.contorno ?? quadradoEmVolta(talhao.lat, talhao.lon, talhao.areaHa ?? 16);
   const ultimo = serie?.at(-1);
   const anterior = serie && serie.length > 1 ? serie[serie.length - 2] : undefined;
-  const larguraGrafico = Math.min(width, MaxContentWidth) - Spacing.three * 4;
+  const larguraGrafico = larguraUtil - Spacing.three * 2;
   const fase = faseDaLavoura(talhao);
 
   return (

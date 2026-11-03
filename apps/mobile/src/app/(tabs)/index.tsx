@@ -8,10 +8,11 @@ import { CartaoMercado } from '@/components/cartao-mercado';
 import { RodapeFonte, SeletorTalhao } from '@/components/clima';
 import { FaixaHoras, ListaDias } from '@/components/graficos';
 import { Icone, Ilustracao, type NomeIcone } from '@/components/icone';
-import { Aviso, Botao, Cartao, Carregando, Secao, T, Tela } from '@/components/ui';
+import { Aviso, Botao, Cartao, Carregando, Colunas, Secao, T, Tela } from '@/components/ui';
 import { CartaoVigia } from '@/components/vigia';
 import { Raio, Spacing } from '@/constants/theme';
 import { useAgora } from '@/hooks/use-agora';
+import { useLayout } from '@/hooks/use-layout';
 import { usePrevisao } from '@/hooks/use-previsao';
 import { useTheme } from '@/hooks/use-theme';
 import { useVigia } from '@/hooks/use-vigia';
@@ -50,6 +51,7 @@ export default function HojeScreen() {
   const { resultado, carregando, erro, atualizar } = usePrevisao(talhao?.lat, talhao?.lon);
   const itens = useVigia(talhao, resultado, agora);
   const municipio = useMunicipio(talhao?.lat, talhao?.lon);
+  const { menuLateral } = useLayout();
 
   const hoje = dataDe(agora);
   const horaAtual = `${agora.slice(0, 13)}:00`;
@@ -93,6 +95,11 @@ export default function HojeScreen() {
       <Pressable onPress={() => router.push('/boletim')} accessibilityRole="button" accessibilityLabel="Ouvir o boletim" style={estilos.botaoCapa} testID="abrir-boletim">
         <Icone nome="microfone" tamanho={20} cor="#ffffff" />
       </Pressable>
+      {menuLateral ? null : (
+        <Pressable onPress={() => router.push('/ajustes')} accessibilityRole="button" accessibilityLabel="Ajustes" style={estilos.botaoCapa} testID="abrir-ajustes">
+          <Icone nome="engrenagem" tamanho={20} cor="#ffffff" />
+        </Pressable>
+      )}
     </View>
   );
 
@@ -107,6 +114,9 @@ export default function HojeScreen() {
         </View>
       )}
 
+      <Colunas
+        esquerda={
+          <>
       <SeletorTalhao selecionado={talhao} />
 
       {!resultado && !carregando && erro ? (
@@ -138,7 +148,13 @@ export default function HojeScreen() {
               />
             ))}
           </View>
-
+        </>
+      ) : null}
+          </>
+        }
+        direita={
+          resultado ? (
+        <>
           <Botao titulo="Últimos 3 meses: chuva, temperatura e vigor" tipo="secundario" icone="grafico" aoTocar={() => router.push('/panorama')} testID="abrir-panorama" />
 
           <CartaoMercado cultura={talhao?.cultura ?? null} />
@@ -173,7 +189,9 @@ export default function HojeScreen() {
           </Cartao>
           <RodapeFonte em={resultado.em} desatualizado={resultado.desatualizado} />
         </>
-      ) : null}
+          ) : null
+        }
+      />
     </Tela>
   );
 }

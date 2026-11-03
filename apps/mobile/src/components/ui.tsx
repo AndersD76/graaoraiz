@@ -1,5 +1,5 @@
 import type { Status } from '@graoraiz/clima';
-import type { ReactNode } from 'react';
+import { Children, isValidElement, type ReactNode } from 'react';
 import {
   ActivityIndicator,
   Platform,
@@ -19,7 +19,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icone, type NomeIcone } from '@/components/icone';
-import { BottomTabInset, Fontes, MaxContentWidth, Raio, Spacing } from '@/constants/theme';
+import { BottomTabInset, Fontes, Raio, Spacing } from '@/constants/theme';
+import { useLayout } from '@/hooks/use-layout';
 import { useTheme } from '@/hooks/use-theme';
 
 // Texto --------------------------------------------------------------------
@@ -61,6 +62,7 @@ export function Tela({
 }) {
   const insets = useSafeAreaInsets();
   const tema = useTheme();
+  const { larguraConteudo, menuLateral } = useLayout();
   const topoSeguro = cabecalhoNativo ? 0 : insets.top;
   return (
     <ScrollView
@@ -68,8 +70,10 @@ export function Tela({
       contentContainerStyle={[
         estilos.tela,
         {
+          maxWidth: larguraConteudo,
           paddingTop: semTopo ? 0 : topoSeguro + Spacing.three,
-          paddingBottom: insets.bottom + (comAbas ? BottomTabInset : 0) + Spacing.five,
+          // Com o menu lateral do computador não há barra embaixo para desviar.
+          paddingBottom: insets.bottom + (comAbas && !menuLateral ? BottomTabInset : 0) + Spacing.five,
         },
       ]}
       // iPhone: rola o conteúdo para o campo em foco não ficar atrás do teclado.
@@ -89,6 +93,41 @@ export function Tela({
       ) : null}
       {children}
     </ScrollView>
+  );
+}
+
+/** Cartões lado a lado conforme a largura: uma coluna no celular, mais no tablet e no computador. */
+export function Grade({ children, larguraMinima = 300, maxColunas = 3 }: { children: ReactNode; larguraMinima?: number; maxColunas?: number }) {
+  const { larguraUtil } = useLayout();
+  const colunas = Math.max(1, Math.min(maxColunas, Math.floor((larguraUtil + Spacing.three) / (larguraMinima + Spacing.three))));
+  const largura = (larguraUtil - Spacing.three * (colunas - 1)) / colunas;
+  return (
+    <View style={estilos.grade}>
+      {Children.toArray(children).map((item, i) => (
+        <View key={isValidElement(item) && item.key !== null ? item.key : i} style={{ width: colunas === 1 ? '100%' : largura }}>
+          {item}
+        </View>
+      ))}
+    </View>
+  );
+}
+
+/** Duas colunas lado a lado no computador; no celular e no tablet, uma embaixo da outra. */
+export function Colunas({ esquerda, direita }: { esquerda: ReactNode; direita: ReactNode }) {
+  const { formato } = useLayout();
+  if (formato !== 'computador') {
+    return (
+      <>
+        {esquerda}
+        {direita}
+      </>
+    );
+  }
+  return (
+    <View style={estilos.colunas}>
+      <View style={estilos.coluna}>{esquerda}</View>
+      <View style={estilos.coluna}>{direita}</View>
+    </View>
   );
 }
 
@@ -363,7 +402,10 @@ const estilos = StyleSheet.create({
   forte: { fontFamily: Fontes.seminegrito, fontSize: 16, lineHeight: 22 },
   pequeno: { fontFamily: Fontes.media, fontSize: 14, lineHeight: 20 },
   rotulo: { fontFamily: Fontes.negrito, fontSize: 12, lineHeight: 16, letterSpacing: 0.8, textTransform: 'uppercase' },
-  tela: { paddingHorizontal: Spacing.three, gap: Spacing.three, width: '100%', maxWidth: MaxContentWidth, alignSelf: 'center' },
+  tela: { paddingHorizontal: Spacing.three, gap: Spacing.three, width: '100%', alignSelf: 'center' },
+  grade: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.three },
+  colunas: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.four },
+  coluna: { flex: 1, minWidth: 0, gap: Spacing.three },
   cabecalho: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two },
   cartao: { borderRadius: Raio.grande, padding: Spacing.three, gap: Spacing.two, borderWidth: StyleSheet.hairlineWidth },
   linha: { flexDirection: 'row', alignItems: 'center', gap: Spacing.two, flexWrap: 'wrap' },

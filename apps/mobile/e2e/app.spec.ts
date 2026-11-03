@@ -8,8 +8,13 @@ async function capturar(page: Page, nome: string) {
   await page.screenshot({ path: `${CAPTURAS}/${nome}.png`, fullPage: true });
 }
 
-async function irParaAba(page: Page, nome: 'Hoje' | 'Lavoura' | 'Caderno' | 'Chuva' | 'Ajustes') {
-  await page.getByRole('tab', { name: nome, exact: true }).or(page.getByRole('link', { name: nome, exact: true })).first().click();
+async function irParaAba(page: Page, nome: 'Hoje' | 'Lavoura' | 'Máquinas' | 'Caderno' | 'Chuva' | 'Ajustes') {
+  // Ajustes não é aba: abre pela engrenagem do Hoje e, por cima das abas, fecha voltando.
+  const aba = nome === 'Ajustes' ? 'Hoje' : nome;
+  const alvo = page.getByRole('tab', { name: aba, exact: true }).or(page.getByRole('link', { name: aba, exact: true })).first();
+  if (!(await alvo.isVisible())) await page.goBack();
+  await alvo.click();
+  if (nome === 'Ajustes') await page.getByTestId('abrir-ajustes').click();
 }
 
 /** Faz a apresentação inicial e cria o primeiro talhão pela "localização do celular". */

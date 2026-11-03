@@ -1,8 +1,8 @@
-import { timingSafeEqual } from 'node:crypto';
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import { AJUDOU, INDICARIA, PERFIS, rotuloDe } from '@/lib/avaliacoes';
 import { banco } from '@/lib/contas';
+import { chavePainelConfere } from '@/lib/painel';
 
 export const metadata: Metadata = {
   title: 'Avaliações recebidas',
@@ -21,14 +21,6 @@ interface Linha {
   criado_em: Date;
 }
 
-function chaveConfere(informada: string | undefined): boolean {
-  const certa = process.env.AVALIACOES_CHAVE;
-  if (!certa || !informada) return false;
-  const a = Buffer.from(informada);
-  const b = Buffer.from(certa);
-  return a.length === b.length && timingSafeEqual(a, b);
-}
-
 const dataHora = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short', timeZone: 'America/Sao_Paulo' });
 
 function Numero({ rotulo, valor }: { rotulo: string; valor: string }) {
@@ -42,7 +34,7 @@ function Numero({ rotulo, valor }: { rotulo: string; valor: string }) {
 
 async function Painel({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
   const { chave } = await searchParams;
-  if (!chaveConfere(typeof chave === 'string' ? chave : undefined)) {
+  if (!chavePainelConfere(chave)) {
     return <p className="text-lg text-texto-2">Abra o painel pelo link com a chave (?chave=…).</p>;
   }
 

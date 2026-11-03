@@ -1,12 +1,13 @@
 import { ATRIBUICAO_OPEN_METEO, dataDe, formatarData, formatarMes, formatarMm, formatarNumero, resumirPanorama } from '@graoraiz/clima';
 import { useRouter } from 'expo-router';
-import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { GraficoPanorama } from '@/components/graficos';
 import { Icone } from '@/components/icone';
 import { Aviso, Botao, Cartao, Carregando, Secao, T, Tela } from '@/components/ui';
-import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { Spacing } from '@/constants/theme';
 import { useAgora } from '@/hooks/use-agora';
+import { useLayout } from '@/hooks/use-layout';
 import { usePanorama } from '@/hooks/use-panorama';
 import { useTheme } from '@/hooks/use-theme';
 import { useVigor } from '@/hooks/use-vigor';
@@ -38,7 +39,7 @@ export default function PanoramaScreen() {
   const pro = usePro();
   const talhao = talhaoAtual(estado);
   const hoje = dataDe(useAgora());
-  const { width } = useWindowDimensions();
+  const { larguraUtil } = useLayout();
   const p = usePanorama(talhao, hoje);
   const { serie, carregando: carregandoVigor } = useVigor(pro ? talhao : null, 16);
 
@@ -48,7 +49,7 @@ export default function PanoramaScreen() {
   const eventos = eventosDoTalhao(p.diario, talhao);
   const vigor = (serie ?? []).filter((v) => v.data >= p.inicio).map((v) => ({ data: v.data, valor: v.media }));
   const diferenca = p.normal && p.normal > 0 ? ((resumo.chuvaTotal - p.normal) * 100) / p.normal : null;
-  const largura = Math.min(width, MaxContentWidth) - Spacing.three * 4;
+  const largura = larguraUtil - Spacing.three * 2;
   const vigorInicio = vigor[0];
   const vigorFim = vigor.at(-1);
 
