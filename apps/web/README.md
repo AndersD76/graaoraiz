@@ -24,6 +24,10 @@ As regras e URLs do Open-Meteo vêm do pacote compartilhado [`@graoraiz/clima`](
 | `GET /api/historico?lat=&lon=&inicio=AAAA-MM-DD&fim=AAAA-MM-DD` | Chuva diária histórica (reanálise). Período máximo de 31 anos. Cache de 1 dia na CDN.                     |
 | `POST /api/lista-espera`                                      | Cadastro na lista de espera (JSON). Grava no Supabase quando configurado.                                  |
 
+| `GET /api/municipio?lat=&lon=`                                | Município do ponto pela malha do IBGE.                                                                     |
+| `GET/POST /api/anuncios`, `/api/anuncios/<id>` e subrotas      | Classificados de máquinas: listar, anunciar, editar, pausar, contato (registrado), vendido (comissão), fotos. |
+| `/painel/maquinas?chave=` e `/avaliacoes?chave=`               | Painéis internos (anúncios, vendas e comissões; avaliações). Chave em `PAINEL_CHAVE` ou `AVALIACOES_CHAVE`. |
+
 Erros de validação respondem `400 { "erro": "..." }`; falhas do Open-Meteo, `502 { "erro": "..." }`.
 Sem Supabase configurado, a lista de espera responde `200 { ok: true, armazenado: false }` em desenvolvimento
 (e registra a entrada no console) e `503` em produção.

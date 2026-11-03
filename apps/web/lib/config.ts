@@ -24,9 +24,9 @@ export const RESPONSAVEL = texto(process.env.NEXT_PUBLIC_RESPONSAVEL) ?? RESPONS
 /** Enquanto o responsável não for preenchido, os textos legais mostram um aviso de revisão. */
 export const RESPONSAVEL_PENDENTE = RESPONSAVEL === RESPONSAVEL_PLACEHOLDER;
 
-export const PRECO = { mensal: 'R$ 19,90', anual: 'R$ 149,90' } as const;
+export const PRECO = { mensal: 'R$ 29,90', anual: 'R$ 249,90' } as const;
 
 /** Data exibida na Política de Privacidade e nos Termos de Uso. */
-export const ULTIMA_ATUALIZACAO_LEGAL = '22 de outubro de 2026';
+export const ULTIMA_ATUALIZACAO_LEGAL = '3 de novembro de 2026';
 
 export const NOME_APP = 'Grão Raiz';

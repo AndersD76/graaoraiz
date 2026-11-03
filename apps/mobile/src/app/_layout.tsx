@@ -103,6 +103,10 @@ export default function RootLayout() {
         <Stack.Screen name="precos" options={{ title: 'Preços do dia' }} />
         <Stack.Screen name="conformidade" options={{ title: 'EUDR e crédito rural' }} />
         <Stack.Screen name="panorama" options={{ title: 'Últimos 3 meses' }} />
+        <Stack.Screen name="ajustes" options={{ title: 'Ajustes' }} />
+        <Stack.Screen name="maquina/[id]" options={{ title: 'Máquina' }} />
+        <Stack.Screen name="anunciar" options={{ title: 'Anunciar máquina' }} />
+        <Stack.Screen name="meus-anuncios" options={{ title: 'Meus anúncios' }} />
       </Stack>
     </ThemeProvider>
   );

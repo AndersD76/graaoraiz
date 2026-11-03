@@ -23,3 +23,4 @@ export * from './dossie';
 export * from './geo';
 export * from './conformidade';
 export * from './panorama';
+export * from './maquinas';

@@ -85,7 +85,7 @@ export default function AjustesScreen() {
   const mudarLimiares = (novos: LimiaresPulverizacao) => salvarLimiares(novos);
 
   return (
-    <Tela titulo="Ajustes">
+    <Tela comAbas={false} cabecalhoNativo>
       <Cartao>
         <T variante="subtitulo">Aparência</T>
         <Linha>

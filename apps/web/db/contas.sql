@@ -51,3 +51,71 @@ create table if not exists app.avaliacao (
 );
 
 comment on table app.avaliacao is 'Opiniões de quem testou o app. Lidas no painel /avaliacoes (com chave).';
+
+-- Classificados de máquinas e implementos usados. Quem anuncia aceita a comissão sobre a venda.
+create table if not exists app.anuncio (
+  id                  uuid          primary key default gen_random_uuid(),
+  conta_id            uuid          not null references app.conta (id) on delete cascade,
+  categoria           text          not null check (categoria in ('trator', 'colheitadeira', 'plantadeira', 'pulverizador', 'implemento', 'caminhao', 'outro')),
+  titulo              text          not null check (char_length(titulo) between 5 and 80),
+  marca               text          check (char_length(marca) <= 40),
+  modelo              text          check (char_length(modelo) <= 60),
+  ano                 smallint      check (ano between 1950 and 2100),
+  horas               integer       check (horas between 0 and 200000),
+  preco               numeric(12,2) not null check (preco > 0),
+  municipio           text          not null check (char_length(municipio) between 2 and 80),
+  uf                  char(2)       not null,
+  descricao           text          check (char_length(descricao) <= 3000),
+  whatsapp            text          not null check (whatsapp ~ '^[0-9]{10,13}$'),
+  fotos               uuid[]        not null default '{}',
+  situacao            text          not null default 'ativo' check (situacao in ('ativo', 'pausado', 'vendido', 'removido')),
+  comissao_percentual numeric(5,2)  not null,
+  aceite_termos_em    timestamptz   not null,
+  criado_em           timestamptz   not null default now(),
+  atualizado_em       timestamptz   not null default now(),
+  vendido_em          timestamptz,
+  valor_venda         numeric(12,2),
+  comissao_valor      numeric(12,2),
+  comissao_paga_em    timestamptz
+);
+
+create index if not exists anuncio_situacao_criado on app.anuncio (situacao, criado_em desc);
+create index if not exists anuncio_conta on app.anuncio (conta_id);
+
+-- Fotos dos anúncios em JPEG já reduzido no celular (até ~700 KB cada).
+create table if not exists app.foto_anuncio (
+  id            uuid        primary key default gen_random_uuid(),
+  conta_id      uuid        not null references app.conta (id) on delete cascade,
+  dados         bytea       not null,
+  criado_em     timestamptz not null default now()
+);
+
+-- Quem pediu o WhatsApp de cada anúncio: base para cobrar a comissão de vendas feitas pelo app.
+create table if not exists app.contato_anuncio (
+  anuncio_id    uuid        not null references app.anuncio (id) on delete cascade,
+  conta_id      uuid        not null references app.conta (id) on delete cascade,
+  criado_em     timestamptz not null default now(),
+  primary key (anuncio_id, conta_id)
+);
+
+comment on table app.anuncio is 'Anúncios de máquinas e implementos usados. Comissão sobre a venda aceita ao anunciar.';
+comment on table app.foto_anuncio is 'Fotos dos anúncios (JPEG), servidas por /api/anuncios/fotos/<id>.';
+comment on table app.contato_anuncio is 'Pedidos de contato com o vendedor (quem viu o WhatsApp de qual anúncio).';
+
+-- Registro de cada venda com comissão: cópia que fica mesmo se o vendedor excluir a conta (prazo legal).
+create table if not exists app.venda (
+  anuncio_id          uuid          primary key,
+  conta_id            uuid,
+  titulo              text          not null,
+  categoria           text          not null,
+  valor_venda         numeric(12,2) not null,
+  comissao_percentual numeric(5,2)  not null,
+  comissao_valor      numeric(12,2) not null,
+  vendedor_nome       text          not null,
+  vendedor_email      text          not null,
+  whatsapp            text          not null,
+  vendido_em          timestamptz   not null default now(),
+  comissao_paga_em    timestamptz
+);
+
+comment on table app.venda is 'Vendas marcadas nos classificados e a comissão devida. Sem ligação com a conta: sobrevive à exclusão dela.';

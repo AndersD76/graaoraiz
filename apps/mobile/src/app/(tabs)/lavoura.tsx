@@ -3,7 +3,7 @@ import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Icone, Ilustracao, type NomeIcone } from '@/components/icone';
-import { Botao, Cartao, Selo, T, Tela } from '@/components/ui';
+import { Botao, Cartao, Grade, Selo, T, Tela } from '@/components/ui';
 import { Raio, Spacing } from '@/constants/theme';
 import { useAgora } from '@/hooks/use-agora';
 import { useTheme } from '@/hooks/use-theme';
@@ -62,6 +62,7 @@ export default function LavouraScreen() {
     <Tela
       titulo="Lavoura"
       subtitulo={`${estado.talhoes.length} ${estado.talhoes.length === 1 ? 'talhão' : 'talhões'}${area ? ` · ${formatarNumero(area, 1)} ha` : ''}`}>
+      <Grade larguraMinima={380} maxColunas={3}>
       {estado.talhoes.map((t) => {
         const bloqueado = !liberados.includes(t);
         const info = t.cultura ? CULTURAS[t.cultura] : null;
@@ -120,6 +121,7 @@ export default function LavouraScreen() {
           </Cartao>
         );
       })}
+      </Grade>
 
       <Botao
         titulo={podeAdicionar ? 'Adicionar talhão' : 'Adicionar talhão · Pro'}

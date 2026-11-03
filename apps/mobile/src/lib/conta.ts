@@ -90,6 +90,11 @@ async function chamar<T>(caminho: string, opcoes: { metodo?: string; corpo?: unk
   }
 }
 
+/** Chamada ao servidor com a sessão deste aparelho (se houver), para as outras partes do app. */
+export function chamarServidor<T>(caminho: string, opcoes: { metodo?: string; corpo?: unknown } = {}): Promise<T> {
+  return chamar<T>(caminho, { ...opcoes, token: sessao?.token });
+}
+
 // ---------- sincronização ----------
 
 /** JSON do último estado que a nuvem tem (enviado ou baixado): evita reenviar o mesmo. */
