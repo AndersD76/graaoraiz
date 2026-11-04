@@ -2,7 +2,7 @@ import { useSyncExternalStore } from 'react';
 
 import { apagar, gravar, ler } from '@/lib/armazenamento';
 import { reagendarAvisos } from '@/lib/avisos';
-import { SERVIDOR_URL, DEMO_EMAIL, DEMO_SENHA } from '@/lib/config';
+import { SERVIDOR_URL } from '@/lib/config';
 import { apagarTudo, assinar, dadosParaNuvem, type EstadoNuvem, obterEstado, salvarProdutor, substituirEstado } from '@/lib/estado';
 
 /**
@@ -31,8 +31,11 @@ const CHAVE_PENDENTE = 'graoraiz:sincronizacao-pendente';
 const LIMITE_REDE_MS = 20_000;
 const ESPERA_ENVIO_MS = 2_000;
 
-/** Com servidor de contas configurado, o app pede login antes de tudo. */
-export const EXIGE_CONTA = SERVIDOR_URL !== null;
+/**
+ * Com servidor de contas configurado, o app abre sem login (Máquinas e o convite para cadastrar o talhão).
+ * A conta só é pedida para cadastrar talhão, anunciar e falar com vendedor.
+ */
+export const COM_CONTAS = SERVIDOR_URL !== null;
 
 let sessao: Sessao | null = ler<Sessao>(CHAVE_SESSAO);
 const ouvintes = new Set<() => void>();
@@ -153,13 +156,20 @@ export async function sincronizar(): Promise<void> {
     else if (ler<boolean>(CHAVE_PENDENTE)) await enviar();
     else await baixar();
   } catch (e) {
-    if (e instanceof ErroConta && e.status === 401) definirSessao(null); // sessão vencida: pede login de novo
+    if (e instanceof ErroConta && e.status === 401) {
+      // Sessão vencida: a conta de verdade pede login de novo; os dados da demonstração saem do aparelho.
+      if (sessao?.conta.demo) apagarTudo();
+      definirSessao(null);
+    }
   }
 }
 
 // ---------- entrar, criar conta, sair ----------
 
-async function iniciar(r: { token: string; conta: Conta }): Promise<void> {
+async function iniciar(r: { token: string; conta: Conta }, nome?: string): Promise<void> {
+  // Trocando a conta de demonstração por outra: os dados de exemplo não podem subir para a conta nova.
+  if (sessao?.conta.demo) apagarTudo();
+  if (nome && !obterEstado().produtor) salvarProdutor(nome.trim());
   ultimoSincronizado = null;
   definirSessao({ token: r.token, conta: r.conta, baixado: false });
   try {
@@ -177,8 +187,7 @@ export async function entrar(email: string, senha: string): Promise<Conta> {
 
 export async function criarConta(nome: string, email: string, senha: string): Promise<Conta> {
   const r = await chamar<{ token: string; conta: Conta }>('/api/conta/cadastro', { metodo: 'POST', corpo: { nome, email, senha } });
-  if (!obterEstado().produtor) salvarProdutor(nome.trim());
-  await iniciar(r);
+  await iniciar(r, nome);
   return r.conta;
 }
 
@@ -193,10 +202,6 @@ export async function redefinirSenha(email: string, codigo: string, senha: strin
   const r = await chamar<{ token: string; conta: Conta }>('/api/conta/redefinir', { metodo: 'POST', corpo: { email, codigo, senha } });
   await iniciar(r);
   return r.conta;
-}
-
-export function entrarNaDemonstracao(): Promise<Conta> {
-  return entrar(DEMO_EMAIL, DEMO_SENHA);
 }
 
 /** Tira a conta deste aparelho. Os dados ficam guardados na conta; no aparelho são apagados. */

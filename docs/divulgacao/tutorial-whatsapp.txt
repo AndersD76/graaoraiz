@@ -5,12 +5,12 @@ O vigia da sua lavoura: diz se dá pra pulverizar, avisa geada e temporal, mostr
 1. Toque no link: [LINK DO APK]
 2. Abra o arquivo baixado. Se o celular pedir, permita "instalar apps desta fonte".
 
-👤 *Entrar*
-• Toque em *Criar conta* (nome, e-mail e senha). Seus dados ficam guardados na conta.
-• Só quer conhecer? Toque em *Entrar na demonstração*: duas lavouras reais perto de Passo Fundo.
+👀 *Abre sem cadastro*
+• O app abre direto, sem login. Em *Máquinas* você já vê os usados à venda.
+• A conta (nome, e-mail e senha) só é pedida para cadastrar o talhão, anunciar ou falar com o vendedor. Seus dados ficam guardados nela.
 
 🗺️ *Cadastre sua lavoura (1 minuto)*
-1. Toque em *Começar*.
+1. Toque em *Cadastrar meu talhão*, crie a conta e toque em *Começar*.
 2. Em cima da lavoura, toque em *Estou no talhão: usar minha localização*. Ou aproxime o mapa e toque na lavoura.
 3. Escolha a cultura e toque em *Continuar*.
 4. Toque em *Ativar avisos* para receber geada, temporal e chuva chegando.

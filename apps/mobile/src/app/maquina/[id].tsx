@@ -7,7 +7,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { Aviso, Botao, Cartao, Carregando, Colunas, Divisor, LinhaInfo, T, Tela } from '@/components/ui';
 import { Raio, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
-import { ErroConta, sair, useConta } from '@/lib/conta';
+import { ErroConta, useConta } from '@/lib/conta';
 import { informar } from '@/lib/dialogo';
 import { chamarVendedor, compartilharAnuncio, urlFoto, useAnuncio } from '@/lib/maquinas';
 
@@ -41,7 +41,7 @@ export default function MaquinaScreen() {
 
   const preco = formatarReais(anuncio.preco);
   const fotoAtual = anuncio.fotos[Math.min(foto, anuncio.fotos.length - 1)];
-  const demo = conta?.demo ?? true;
+  const semConta = !conta || conta.demo;
 
   const chamar = async () => {
     setChamando(true);
@@ -94,18 +94,11 @@ export default function MaquinaScreen() {
           <Botao titulo="Editar anúncio" icone="editar" aoTocar={() => router.push({ pathname: '/anunciar', params: { id: anuncio.id } })} />
           <Botao titulo="Meus anúncios" tipo="secundario" icone="lista" aoTocar={() => router.push('/meus-anuncios')} />
         </Cartao>
-      ) : demo ? (
+      ) : semConta ? (
         <Cartao tom="destaque">
-          <T variante="forte">Crie sua conta para falar com o vendedor</T>
-          <T variante="pequeno">Na demonstração dá para ver tudo, mas o contato do vendedor só aparece para quem tem conta.</T>
-          <Botao
-            titulo="Sair da demonstração e criar conta"
-            icone="usuario"
-            aoTocar={async () => {
-              await sair();
-              router.replace('/entrar');
-            }}
-          />
+          <T variante="forte">Entre para falar com o vendedor</T>
+          <T variante="pequeno">Sem conta dá para ver tudo; o WhatsApp do vendedor aparece para quem entra. Criar a conta é grátis.</T>
+          <Botao titulo="Entrar ou criar conta" icone="usuario" aoTocar={() => router.push('/entrar')} testID="entrar-para-chamar" />
         </Cartao>
       ) : (
         <Botao titulo="Chamar no WhatsApp" icone="whatsapp" carregando={chamando} aoTocar={chamar} testID="chamar-vendedor" />

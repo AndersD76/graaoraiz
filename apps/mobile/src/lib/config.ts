@@ -7,14 +7,11 @@
 export const API_URL = process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, '') || null;
 
 /**
- * Servidor das contas (apps/web: /api/conta/*). Com ele o app pede login e guarda os dados na nuvem;
- * sem ele (testes automáticos, desenvolvimento) o app funciona só no aparelho, sem login.
+ * Servidor das contas (apps/web: /api/conta/*). Com ele o app abre sem login e pede a conta para cadastrar
+ * talhão, anunciar e falar com vendedor (os dados ficam na nuvem); sem ele (testes automáticos,
+ * desenvolvimento) o app funciona só no aparelho, sem login.
  */
 export const SERVIDOR_URL = process.env.EXPO_PUBLIC_SERVIDOR_URL?.replace(/\/$/, '') || API_URL;
-
-/** Conta de demonstração (só leitura no servidor): a mesma lavoura de exemplo para qualquer um. */
-export const DEMO_EMAIL = 'demo@graoraiz.com.br';
-export const DEMO_SENHA = 'demo2026';
 
 /** Site com política de privacidade, termos e página de download. */
 export const SITE_URL = process.env.EXPO_PUBLIC_SITE_URL?.replace(/\/$/, '') || 'https://graoraiz.com.br';

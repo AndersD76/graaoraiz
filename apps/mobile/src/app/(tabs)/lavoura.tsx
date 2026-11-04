@@ -3,6 +3,7 @@ import { useRouter } from 'expo-router';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Icone, Ilustracao, type NomeIcone } from '@/components/icone';
+import { SemTalhao } from '@/components/sem-talhao';
 import { Botao, Cartao, Grade, Selo, T, Tela } from '@/components/ui';
 import { Raio, Spacing } from '@/constants/theme';
 import { useAgora } from '@/hooks/use-agora';
@@ -57,6 +58,10 @@ export default function LavouraScreen() {
     selecionarTalhao(t.id);
     router.push(rota);
   };
+
+  if (estado.talhoes.length === 0) {
+    return <SemTalhao titulo="Lavoura" ilustracao="satellite" texto="Seus talhões com cultura e plantio, o satélite de cada um e o botão EUDR e crédito rural (PRODES e CAR)." />;
+  }
 
   return (
     <Tela

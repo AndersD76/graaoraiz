@@ -10,7 +10,7 @@ import { Aviso, Botao, Campo, Cartao, Carregando, Chip, Interruptor, Linha, T, T
 import { Raio, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { SITE_URL } from '@/lib/config';
-import { chamarServidor, ErroConta, sair, useConta } from '@/lib/conta';
+import { chamarServidor, ErroConta, useConta } from '@/lib/conta';
 import { informar } from '@/lib/dialogo';
 import { talhaoAtual, useEstado } from '@/lib/estado';
 import { enviarFoto, escolherFotos, salvarAnuncio, urlFoto, useMeusAnuncios, whatsappSalvo } from '@/lib/maquinas';
@@ -99,16 +99,9 @@ export default function AnunciarScreen() {
     return (
       <Tela comAbas={false} cabecalhoNativo>
         <Cartao tom="destaque">
-          <T variante="subtitulo">Crie sua conta para anunciar</T>
-          <T variante="pequeno">Na demonstração dá para ver os anúncios. Para anunciar, entre com a sua conta: o anúncio fica guardado nela.</T>
-          <Botao
-            titulo="Sair da demonstração e criar conta"
-            icone="usuario"
-            aoTocar={async () => {
-              await sair();
-              router.replace('/entrar');
-            }}
-          />
+          <T variante="subtitulo">Entre para anunciar</T>
+          <T variante="pequeno">Sem conta dá para ver os anúncios. Para anunciar, entre na sua conta: o anúncio fica guardado nela. Criar a conta é grátis.</T>
+          <Botao titulo="Entrar ou criar conta" icone="usuario" aoTocar={() => router.push('/entrar')} testID="entrar-para-anunciar" />
         </Cartao>
       </Tela>
     );

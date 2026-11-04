@@ -6,6 +6,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { CapaTempo } from '@/components/capa-tempo';
 import { CartaoMercado } from '@/components/cartao-mercado';
 import { RodapeFonte, SeletorTalhao } from '@/components/clima';
+import { SemTalhao } from '@/components/sem-talhao';
 import { FaixaHoras, ListaDias } from '@/components/graficos';
 import { Icone, Ilustracao, type NomeIcone } from '@/components/icone';
 import { Aviso, Botao, Cartao, Carregando, Colunas, Secao, T, Tela } from '@/components/ui';
@@ -68,6 +69,17 @@ export default function HojeScreen() {
     await atualizar();
     await reagendarAvisos();
   };
+
+  if (!talhao) {
+    return (
+      <SemTalhao
+        titulo="Grão Raiz"
+        subtitulo="O vigia da sua lavoura"
+        ilustracao="man_farmer"
+        texto="Marque o seu talhão no mapa e o app diz a hora certa de pulverizar, avisa geada e temporal e mostra o satélite, a chuva e o preço do dia."
+      />
+    );
+  }
 
   const topo = (
     <View style={estilos.topo}>
