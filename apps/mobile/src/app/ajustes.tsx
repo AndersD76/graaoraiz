@@ -10,7 +10,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { assinaturaDisponivel, atualizarStatusAssinatura, restaurarCompras } from '@/lib/assinatura';
 import { pedirPermissaoNotificacoes, type PermissaoAvisos, permissaoAvisos, reagendarAvisos } from '@/lib/avisos';
 import { LIBERA_PRO, PERMITE_SIMULAR_PRO, SITE_URL } from '@/lib/config';
-import { ErroConta, excluirConta, sair, useConta } from '@/lib/conta';
+import { COM_CONTAS, ErroConta, excluirConta, sair, useConta } from '@/lib/conta';
 import { confirmar, informar } from '@/lib/dialogo';
 import {
   apagarTudo,
@@ -263,6 +263,14 @@ export default function AjustesScreen() {
               }}
             />
           ) : null}
+        </Cartao>
+      ) : COM_CONTAS ? (
+        <Cartao testID="cartao-conta">
+          <T variante="subtitulo">Sua conta</T>
+          <T variante="pequeno">
+            Você ainda não entrou. Sem conta dá para ver as máquinas à venda; para cadastrar seu talhão, anunciar ou falar com um vendedor, entre ou crie sua conta grátis.
+          </T>
+          <Botao titulo="Entrar ou criar conta" icone="usuario" aoTocar={() => router.push('/entrar')} testID="entrar-conta" />
         </Cartao>
       ) : (
       <Cartao>

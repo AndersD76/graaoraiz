@@ -1,37 +1,50 @@
-import { Redirect, useRouter } from 'expo-router';
+import { Redirect, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Ilustracao } from '@/components/icone';
 import { Aviso, Botao, Campo, Cartao, Chip, Linha, T, Tela } from '@/components/ui';
 import { useTheme } from '@/hooks/use-theme';
-import { LIBERA_PRO } from '@/lib/config';
-import { criarConta, entrar, entrarNaDemonstracao, ErroConta, pedirCodigo, redefinirSenha, useConta } from '@/lib/conta';
+import { criarConta, entrar, ErroConta, pedirCodigo, redefinirSenha, useConta } from '@/lib/conta';
+import { obterEstado, useEstado } from '@/lib/estado';
 
 type Modo = 'entrar' | 'criar' | 'recuperar';
 
-/** Entrar ou criar conta (e-mail e senha). Os dados do app ficam guardados na conta. */
+/**
+ * Entrar ou criar conta (e-mail e senha). Os dados do app ficam guardados na conta.
+ * O app abre sem conta; esta tela aparece quando a pessoa quer cadastrar talhão, anunciar ou falar com vendedor.
+ */
 export default function EntrarScreen() {
   const router = useRouter();
   const tema = useTheme();
   const conta = useConta();
-  const [modo, setModo] = useState<Modo>('entrar');
+  const { talhoes } = useEstado();
+  const parametros = useLocalSearchParams<{ modo?: string; depois?: string }>();
+  const [modo, setModo] = useState<Modo>(parametros.modo === 'criar' ? 'criar' : 'entrar');
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [codigo, setCodigo] = useState('');
   const [codigoEnviado, setCodigoEnviado] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
-  const [ocupado, setOcupado] = useState<'conta' | 'demo' | 'codigo' | null>(null);
+  const [ocupado, setOcupado] = useState<'conta' | 'codigo' | null>(null);
 
-  if (conta) return <Redirect href="/" />;
+  // Enquanto entra, quem navega é o executar (volta para onde a pessoa estava).
+  if (conta && !conta.demo && ocupado === null) return <Redirect href="/" />;
 
-  const executar = async (qual: 'conta' | 'demo', acao: () => Promise<unknown>) => {
+  // Sem conta nem dados (ou na conta de demonstração): dá para voltar ao app sem entrar.
+  // Com dados no aparelho e sem conta, a sessão venceu: precisa entrar de novo.
+  const podeContinuar = conta?.demo === true || talhoes.length === 0;
+  const voltar = () => (router.canGoBack() ? router.back() : router.replace('/'));
+
+  const executar = async (acao: () => Promise<unknown>) => {
     setErro(null);
-    setOcupado(qual);
+    setOcupado('conta');
     try {
       await acao();
-      router.replace('/');
+      // Veio de "Cadastrar meu talhão": conta ainda sem talhão vai direto para o primeiro.
+      if (parametros.depois === 'onboarding' && obterEstado().talhoes.length === 0) router.replace('/onboarding');
+      else voltar();
     } catch (e) {
       setErro(e instanceof ErroConta ? e.message : 'Algo deu errado. Tente de novo.');
     } finally {
@@ -64,17 +77,17 @@ export default function EntrarScreen() {
     if (modo === 'recuperar') {
       if (!/^\d{6}$/.test(codigo.trim())) return setErro('Digite o código de 6 números que chegou no e-mail.');
       if (senha.length < 6) return setErro('A senha nova precisa de pelo menos 6 caracteres.');
-      return void executar('conta', () => redefinirSenha(email.trim(), codigo.trim(), senha));
+      return void executar(() => redefinirSenha(email.trim(), codigo.trim(), senha));
     }
     if (modo === 'criar' && !nome.trim()) return setErro('Informe seu nome.');
     if (!email.trim()) return setErro('Informe o e-mail.');
     if (modo === 'criar' && senha.length < 6) return setErro('A senha precisa de pelo menos 6 caracteres.');
     if (!senha) return setErro('Informe a senha.');
-    void executar('conta', () => (modo === 'criar' ? criarConta(nome, email.trim(), senha) : entrar(email.trim(), senha)));
+    void executar(() => (modo === 'criar' ? criarConta(nome, email.trim(), senha) : entrar(email.trim(), senha)));
   };
 
   return (
-    <Tela comAbas={false}>
+    <Tela comAbas={false} estreita>
       <View style={estilos.topo}>
         <Ilustracao nome="man_farmer" tamanho={96} />
         <T variante="rotulo" cor={tema.marca}>
@@ -162,21 +175,7 @@ export default function EntrarScreen() {
         {modo === 'recuperar' && codigoEnviado ? <Botao titulo="Mandar outro código" tipo="texto" aoTocar={mandarCodigo} desabilitado={ocupado !== null} /> : null}
       </Cartao>
 
-      {LIBERA_PRO ? (
-        <Cartao tom="destaque">
-          <T variante="subtitulo">Só quer conhecer?</T>
-          <T variante="pequeno">Entre na conta de demonstração: duas lavouras reais, de soja e de trigo, perto de Passo Fundo.</T>
-          <Botao
-            titulo="Entrar na demonstração"
-            tipo="secundario"
-            icone="folha"
-            aoTocar={() => void executar('demo', entrarNaDemonstracao)}
-            carregando={ocupado === 'demo'}
-            desabilitado={ocupado !== null}
-            testID="entrar-demo"
-          />
-        </Cartao>
-      ) : null}
+      {podeContinuar ? <Botao titulo="Continuar sem conta" tipo="texto" aoTocar={voltar} desabilitado={ocupado !== null} testID="continuar-sem-conta" /> : null}
     </Tela>
   );
 }

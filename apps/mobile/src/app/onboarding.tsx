@@ -9,7 +9,7 @@ import { Ilustracao, type NomeIlustracao } from '@/components/icone';
 import { Botao, T, Tela } from '@/components/ui';
 import { MaxContentWidth, Raio, Spacing } from '@/constants/theme';
 import { pedirPermissaoNotificacoes, reagendarAvisos } from '@/lib/avisos';
-import { EXIGE_CONTA, useConta } from '@/lib/conta';
+import { COM_CONTAS, useConta } from '@/lib/conta';
 import { obterEstado, salvarTalhao } from '@/lib/estado';
 
 const RECURSOS: { ilustracao: NomeIlustracao; titulo: string; texto: string }[] = [
@@ -28,7 +28,8 @@ export default function OnboardingScreen() {
   const [jaTinhaTalhao] = useState(() => obterEstado().talhoes.length > 0);
   const conta = useConta();
 
-  if (EXIGE_CONTA && !conta) return <Redirect href="/entrar" />;
+  // Cadastrar talhão pede conta: o talhão fica guardado nela.
+  if (COM_CONTAS && !conta) return <Redirect href={{ pathname: '/entrar', params: { modo: 'criar', depois: 'onboarding' } }} />;
   if (jaTinhaTalhao) return <Redirect href="/" />;
 
   const concluir = () => {

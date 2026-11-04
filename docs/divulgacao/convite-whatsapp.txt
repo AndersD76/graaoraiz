@@ -7,7 +7,7 @@ Abre no navegador do celular (Android ou iPhone), sem instalar nada.
 
 *Como testar em 1 minuto*
 1. Toque no link.
-2. Toque em *Entrar na demonstração* para ver duas lavouras reais perto de Passo Fundo. Ou toque em *Criar conta* e marque o seu talhão no mapa.
+2. O app abre sem cadastro. Para ver o seu talhão, toque em *Cadastrar meu talhão*, crie a conta e marque a lavoura no mapa.
 3. Veja as abas *Hoje*, *Lavoura*, *Máquinas* e *Chuva*. Na Lavoura tem o satélite e o botão *EUDR e crédito*; em Máquinas você anuncia o que está parado no galpão.
 
 ⭐ *Depois, conte o que achou* (1 minuto, sem cadastro):

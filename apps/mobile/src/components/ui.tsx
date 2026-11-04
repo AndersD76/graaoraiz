@@ -19,7 +19,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icone, type NomeIcone } from '@/components/icone';
-import { BottomTabInset, Fontes, Raio, Spacing } from '@/constants/theme';
+import { BottomTabInset, Fontes, MaxContentWidth, Raio, Spacing } from '@/constants/theme';
 import { useLayout } from '@/hooks/use-layout';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -45,6 +45,7 @@ export function Tela({
   comAbas = true,
   cabecalhoNativo = false,
   semTopo = false,
+  estreita = false,
 }: {
   titulo?: string;
   subtitulo?: string;
@@ -59,6 +60,8 @@ export function Tela({
   cabecalhoNativo?: boolean;
   /** Conteúdo encostado no topo (ex.: capa com gradiente que cuida da área segura). */
   semTopo?: boolean;
+  /** Formulário curto (entrar, criar conta): na largura de um celular mesmo no computador. */
+  estreita?: boolean;
 }) {
   const insets = useSafeAreaInsets();
   const tema = useTheme();
@@ -70,7 +73,7 @@ export function Tela({
       contentContainerStyle={[
         estilos.tela,
         {
-          maxWidth: larguraConteudo,
+          maxWidth: estreita ? Math.min(larguraConteudo, MaxContentWidth) : larguraConteudo,
           paddingTop: semTopo ? 0 : topoSeguro + Spacing.three,
           // Com o menu lateral do computador não há barra embaixo para desviar.
           paddingBottom: insets.bottom + (comAbas && !menuLateral ? BottomTabInset : 0) + Spacing.five,

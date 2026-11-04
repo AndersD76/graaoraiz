@@ -17,6 +17,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 
 import { SeletorTalhao } from '@/components/clima';
 import { Icone, Ilustracao, type NomeIcone } from '@/components/icone';
+import { SemTalhao } from '@/components/sem-talhao';
 import { Botao, Cartao, Medalha, Secao, Selo, T, Tela } from '@/components/ui';
 import { Raio, Spacing } from '@/constants/theme';
 import { useAgora } from '@/hooks/use-agora';
@@ -44,7 +45,7 @@ export default function CadernoScreen() {
   const { resultado } = usePrevisao(talhao?.lat, talhao?.lon);
   const { diario, carregando } = useChuvaSafra(talhao, hoje);
 
-  if (!talhao) return null;
+  if (!talhao) return <SemTalhao titulo="Caderno" ilustracao="clipboard" texto="Caderno de campo automático: aplicações, ocorrências e chuva com o clima da hora, e o dossiê em PDF para o banco, a seguradora e o Proagro." />;
   const safra = safraDe(hoje);
   const aplicacoes = estado.aplicacoes.filter((a) => a.talhaoId === talhao.id);
   const ocorrencias = estado.eventos.filter((e) => e.talhaoId === talhao.id);

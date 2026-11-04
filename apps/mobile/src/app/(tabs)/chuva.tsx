@@ -7,6 +7,7 @@ import { StyleSheet, View } from 'react-native';
 import { CalendarioChuva } from '@/components/calendario-chuva';
 import { SeletorTalhao } from '@/components/clima';
 import { Icone, IconeTempo } from '@/components/icone';
+import { SemTalhao } from '@/components/sem-talhao';
 import { Aviso, Botao, Campo, Cartao, Chip, Linha, T, Tela } from '@/components/ui';
 import { Raio, Spacing } from '@/constants/theme';
 import { useAgora } from '@/hooks/use-agora';
@@ -37,7 +38,7 @@ export default function ChuvaScreen() {
   const data = dataEscolhida ?? hoje;
   const mes = mesEscolhido ?? hoje.slice(0, 7);
 
-  if (!talhao) return null;
+  if (!talhao) return <SemTalhao titulo="Chuva" ilustracao="sun_behind_cloud" texto="Anote a chuva de cada talhão e acompanhe o acumulado da safra, com o cartão de chuva para mandar a quem precisar." />;
 
   const atalhos = [
     { dia: hoje, rotulo: 'Hoje' },
