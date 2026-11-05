@@ -63,7 +63,7 @@ function lerData(texto: string): string | null {
 async function buscarCepea(): Promise<Indicador[]> {
   // Um indicador por pedido seria lento; num pedido só, cada linha é reconhecida pelo nome (não pela ordem).
   const q = CATALOGO.map((c) => `id_indicador%5B%5D=${c.id}`).join('&');
-  const resposta = await fetch(`${URL_CEPEA}?${q}`, { headers: { 'User-Agent': 'GraoRaiz/1.0 (+https://graoraiz.com.br)' }, cache: 'no-store', signal: AbortSignal.timeout(20_000) });
+  const resposta = await fetch(`${URL_CEPEA}?${q}`, { headers: { 'User-Agent': 'GraoRaiz/1.0 (+https://www.appgraoraiz.com.br)' }, cache: 'no-store', signal: AbortSignal.timeout(20_000) });
   if (!resposta.ok) throw new Error(`Cepea respondeu ${resposta.status}`);
   const html = await resposta.text();
   const corpo = html.slice(html.indexOf('<tbody'));
