@@ -5,7 +5,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { ABAS } from '@/components/abas';
 import { Icone, Ilustracao, type NomeIcone } from '@/components/icone';
 import { T } from '@/components/ui';
-import { MaxContentWidth, Raio, Spacing } from '@/constants/theme';
+import { Raio, Spacing } from '@/constants/theme';
 import { LARGURA_MENU_LATERAL, useLayout } from '@/hooks/use-layout';
 import { useTheme } from '@/hooks/use-theme';
 
@@ -60,9 +60,11 @@ function BotaoAba({ isFocused, ref, icone, rotulo, ...props }: TabTriggerSlotPro
 
 function BarraAbas(props: TabListProps) {
   const tema = useTheme();
+  // No tablet a barra acompanha a largura do conteúdo (no celular é a tela toda).
+  const { larguraConteudo } = useLayout();
   return (
     <View {...props} style={estilos.externo} pointerEvents="box-none">
-      <View style={[estilos.barra, { backgroundColor: tema.backgroundElement, borderColor: tema.borda, boxShadow: `0px -4px 24px ${tema.sombra}` }]}>
+      <View style={[estilos.barra, { maxWidth: larguraConteudo, backgroundColor: tema.backgroundElement, borderColor: tema.borda, boxShadow: `0px -4px 24px ${tema.sombra}` }]}>
         {props.children}
       </View>
     </View>
@@ -118,7 +120,6 @@ const estilos = StyleSheet.create({
   externo: { position: 'absolute', left: 0, right: 0, bottom: 0, alignItems: 'center' },
   barra: {
     width: '100%',
-    maxWidth: MaxContentWidth,
     flexDirection: 'row',
     justifyContent: 'space-around',
     paddingTop: 8,

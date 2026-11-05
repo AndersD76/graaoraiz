@@ -13,7 +13,8 @@ import { MaxContentWidth, Raio, Spacing } from '@/constants/theme';
 import { useAgora } from '@/hooks/use-agora';
 import { usePrevisao } from '@/hooks/use-previsao';
 import { useVigia } from '@/hooks/use-vigia';
-import { talhaoAtual, useEstado, usePro } from '@/lib/estado';
+import { useEstado, usePro } from '@/lib/estado';
+import { useTalhaoDoTempo } from '@/lib/local-consulta';
 
 const COR_STATUS = { bom: '#7BE0A0', atencao: '#FFC965', ruim: '#FF8A80' } as const;
 
@@ -24,7 +25,7 @@ export default function BoletimScreen() {
   const estado = useEstado();
   const pro = usePro();
   const agora = useAgora();
-  const talhao = talhaoAtual(estado);
+  const { talhao } = useTalhaoDoTempo();
   const { resultado } = usePrevisao(talhao?.lat, talhao?.lon);
   const itens = useVigia(talhao, resultado, agora);
   const [falando, setFalando] = useState(false);

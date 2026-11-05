@@ -13,7 +13,7 @@ import {
   type Status,
 } from '@graoraiz/clima';
 import { LinearGradient } from 'expo-linear-gradient';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 import Svg, { Circle, Defs, Line, LinearGradient as GradienteSvg, Path, Rect, Stop, Text as TextoSvg } from 'react-native-svg';
 
 import { ehDia } from '@/components/capa-tempo';
@@ -28,7 +28,8 @@ export function FaixaHoras({ horas, avaliacoes, dias }: { horas: Hora[]; avaliac
   const status = new Map(avaliacoes.map((a) => [a.hora, a.status]));
   const cor: Record<Status, string> = { bom: tema.bom, atencao: tema.atencao, ruim: tema.ruim };
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={estilos.faixa} testID="faixa-horas">
+    // No navegador a barra de rolagem aparece: com o mouse não dá para rolar de lado sem ela.
+    <ScrollView horizontal showsHorizontalScrollIndicator={Platform.OS === 'web'} contentContainerStyle={estilos.faixa} testID="faixa-horas">
       {horas.map((h, i) => {
         const dia = dias.find((d) => d.data === h.hora.slice(0, 10));
         const s = status.get(h.hora);

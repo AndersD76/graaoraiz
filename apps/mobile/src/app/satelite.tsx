@@ -2,7 +2,7 @@ import { CULTURAS, dataDe, diasEntre, formatarData, formatarNumero, isoLocal, qu
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, ScrollView, StyleSheet, View } from 'react-native';
 
 import { GraficoVigor } from '@/components/graficos';
 import { Icone } from '@/components/icone';
@@ -127,7 +127,7 @@ export default function SateliteScreen() {
       ) : null}
 
       {limpas.length > 0 && modoEfetivo !== 'foto' ? (
-        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={estilos.datas}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={Platform.OS === 'web'} contentContainerStyle={estilos.datas}>
           {limpas.map((c) => (
             <Chip key={c.id} rotulo={formatarData(c.data)} ativo={c.id === cena?.id} aoTocar={() => setEscolhida(c.id)} testID={`cena-${c.data}`} />
           ))}

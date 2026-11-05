@@ -262,6 +262,26 @@ export function Botao({
   );
 }
 
+/**
+ * Fileira de chips (filtros, categorias): no celular rola de lado; no tablet e no computador quebra
+ * em linhas, porque com o mouse não dá para rolar de lado e os últimos ficariam escondidos.
+ */
+export function FaixaChips({ children, accessibilityLabel }: { children: ReactNode; accessibilityLabel?: string }) {
+  const { formato } = useLayout();
+  if (formato !== 'celular') {
+    return (
+      <View style={[estilos.faixaChips, estilos.faixaChipsQuebra]} accessibilityLabel={accessibilityLabel}>
+        {children}
+      </View>
+    );
+  }
+  return (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={estilos.faixaChips} accessibilityLabel={accessibilityLabel}>
+      {children}
+    </ScrollView>
+  );
+}
+
 export function Chip({ rotulo, ativo, aoTocar, icone, testID }: { rotulo: string; ativo: boolean; aoTocar: () => void; icone?: NomeIcone; testID?: string }) {
   const tema = useTheme();
   const cor = ativo ? '#ffffff' : tema.text;
@@ -397,6 +417,8 @@ export function Carregando({ texto }: { texto: string }) {
 }
 
 const estilos = StyleSheet.create({
+  faixaChips: { gap: Spacing.two, paddingRight: Spacing.three },
+  faixaChipsQuebra: { flexDirection: 'row', flexWrap: 'wrap', paddingRight: 0 },
   display: { fontFamily: Fontes.extra, fontSize: 68, lineHeight: 74, letterSpacing: -2.5 },
   numero: { fontFamily: Fontes.extra, fontSize: 40, lineHeight: 46, letterSpacing: -1 },
   titulo: { fontFamily: Fontes.extra, fontSize: 28, lineHeight: 34, letterSpacing: -0.6 },

@@ -6,7 +6,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { CapaTempo } from '@/components/capa-tempo';
 import { CartaoMercado } from '@/components/cartao-mercado';
 import { RodapeFonte, SeletorTalhao } from '@/components/clima';
-import { SemTalhao } from '@/components/sem-talhao';
+import { ConviteTalhao, SemTalhao } from '@/components/sem-talhao';
 import { FaixaHoras, ListaDias } from '@/components/graficos';
 import { Icone, Ilustracao, type NomeIcone } from '@/components/icone';
 import { Aviso, Botao, Cartao, Carregando, Colunas, Secao, T, Tela } from '@/components/ui';
@@ -18,7 +18,8 @@ import { usePrevisao } from '@/hooks/use-previsao';
 import { useTheme } from '@/hooks/use-theme';
 import { useVigia } from '@/hooks/use-vigia';
 import { reagendarAvisos } from '@/lib/avisos';
-import { talhaoAtual, useEstado, usePro } from '@/lib/estado';
+import { useEstado, usePro } from '@/lib/estado';
+import { buscarLocalConsulta, useTalhaoDoTempo } from '@/lib/local-consulta';
 import { useMunicipio } from '@/lib/municipio';
 
 const DIAS_GRATIS = 7;
@@ -48,7 +49,8 @@ export default function HojeScreen() {
   const estado = useEstado();
   const pro = usePro();
   const agora = useAgora();
-  const talhao = talhaoAtual(estado);
+  // Sem talhão cadastrado, o tempo é o de onde a pessoa está (pede a localização).
+  const { talhao, consulta, busca } = useTalhaoDoTempo();
   const { resultado, carregando, erro, atualizar } = usePrevisao(talhao?.lat, talhao?.lon);
   const itens = useVigia(talhao, resultado, agora);
   const municipio = useMunicipio(talhao?.lat, talhao?.lon);
@@ -76,8 +78,16 @@ export default function HojeScreen() {
         titulo="Grão Raiz"
         subtitulo="O vigia da sua lavoura"
         ilustracao="man_farmer"
-        texto="Marque o seu talhão no mapa e o app diz a hora certa de pulverizar, avisa geada e temporal e mostra o satélite, a chuva e o preço do dia."
-      />
+        texto="Marque o seu talhão no mapa e o app diz a hora certa de pulverizar, avisa geada e temporal e mostra o satélite, a chuva e o preço do dia.">
+        {busca === 'negado' ? (
+          <Aviso tipo="atencao" titulo="Sem a sua localização">
+            Permita a localização para ver agora o tempo onde você está: hora de pulverizar, geada, temporal e chuva.
+          </Aviso>
+        ) : (
+          <Carregando texto="Pegando a sua localização para mostrar o tempo…" />
+        )}
+        {busca === 'negado' ? <Botao titulo="Usar minha localização" icone="pino" aoTocar={() => void buscarLocalConsulta()} testID="usar-localizacao" /> : null}
+      </SemTalhao>
     );
   }
 
@@ -140,12 +150,16 @@ export default function HojeScreen() {
         </>
       ) : null}
 
-      <View style={estilos.acoes}>
-        <AcaoRapida icone="pulverizador" rotulo="Apliquei agora" aoTocar={() => router.push('/aplicacao')} testID="acao-aplicacao" />
-        <AcaoRapida icone="gota" rotulo="Choveu" aoTocar={() => router.push('/chuva')} testID="acao-chuva" />
-        <AcaoRapida icone="camera" rotulo="Ocorrência" aoTocar={() => router.push('/ocorrencia')} testID="acao-ocorrencia" />
-        <AcaoRapida icone="satelite" rotulo="Satélite" aoTocar={() => router.push('/satelite')} testID="acao-satelite" />
-      </View>
+      {consulta ? (
+        <ConviteTalhao texto="Este é o tempo onde você está agora. Cadastre o seu talhão para receber no celular os avisos de geada, temporal e chuva, anotar as aplicações e ver o satélite da lavoura." />
+      ) : (
+        <View style={estilos.acoes}>
+          <AcaoRapida icone="pulverizador" rotulo="Apliquei agora" aoTocar={() => router.push('/aplicacao')} testID="acao-aplicacao" />
+          <AcaoRapida icone="gota" rotulo="Choveu" aoTocar={() => router.push('/chuva')} testID="acao-chuva" />
+          <AcaoRapida icone="camera" rotulo="Ocorrência" aoTocar={() => router.push('/ocorrencia')} testID="acao-ocorrencia" />
+          <AcaoRapida icone="satelite" rotulo="Satélite" aoTocar={() => router.push('/satelite')} testID="acao-satelite" />
+        </View>
+      )}
 
       {resultado ? (
         <>

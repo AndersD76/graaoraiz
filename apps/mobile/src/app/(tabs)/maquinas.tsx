@@ -1,12 +1,11 @@
 import { CATEGORIAS_MAQUINA, ORDENS_ANUNCIO, UFS_BRASIL } from '@graoraiz/clima';
 import { useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { CartaoAnuncio } from '@/components/cartao-anuncio';
 import { Ilustracao } from '@/components/icone';
-import { Aviso, Botao, Campo, Cartao, Carregando, Chip, Grade, Linha, T, Tela } from '@/components/ui';
-import { Spacing } from '@/constants/theme';
+import { Aviso, Botao, Campo, Cartao, Carregando, Chip, FaixaChips, Grade, Linha, T, Tela } from '@/components/ui';
 import { useTheme } from '@/hooks/use-theme';
 import { useConta } from '@/lib/conta';
 import { FILTROS_INICIAIS, type Filtros, useAnuncios } from '@/lib/maquinas';
@@ -63,23 +62,23 @@ export default function MaquinasScreen() {
         testID="busca-maquinas"
       />
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={estilos.chips} accessibilityLabel="Categoria">
+      <FaixaChips accessibilityLabel="Categoria">
         <Chip rotulo="Todas" ativo={filtros.categoria === null} aoTocar={() => mudar({ categoria: null })} testID="categoria-todas" />
         {CATEGORIAS_MAQUINA.map((c) => (
           <Chip key={c.valor} rotulo={c.rotulo} ativo={filtros.categoria === c.valor} aoTocar={() => mudar({ categoria: c.valor })} testID={`categoria-${c.valor}`} />
         ))}
-      </ScrollView>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={estilos.chips} accessibilityLabel="Estado">
+      </FaixaChips>
+      <FaixaChips accessibilityLabel="Estado">
         <Chip rotulo="Todo o Brasil" ativo={filtros.uf === null} aoTocar={() => mudar({ uf: null })} testID="uf-todas" />
         {UFS_BRASIL.map((uf) => (
           <Chip key={uf} rotulo={uf} ativo={filtros.uf === uf} aoTocar={() => mudar({ uf })} testID={`uf-${uf}`} />
         ))}
-      </ScrollView>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={estilos.chips} accessibilityLabel="Ordem">
+      </FaixaChips>
+      <FaixaChips accessibilityLabel="Ordem">
         {ORDENS_ANUNCIO.map((o) => (
           <Chip key={o.valor} rotulo={o.rotulo} ativo={filtros.ordem === o.valor} aoTocar={() => mudar({ ordem: o.valor })} />
         ))}
-      </ScrollView>
+      </FaixaChips>
 
       {erro ? (
         <Aviso tipo="atencao" titulo="Sem anúncios agora">
@@ -126,6 +125,5 @@ export default function MaquinasScreen() {
 const estilos = StyleSheet.create({
   chamada: { alignItems: 'center', flexWrap: 'nowrap' },
   flex: { flex: 1, minWidth: 150 },
-  chips: { gap: Spacing.two, paddingRight: Spacing.three },
   centro: { textAlign: 'center' },
 });

@@ -7,13 +7,14 @@ import { FaixaHora, RodapeFonte } from '@/components/clima';
 import { Aviso, Botao, Carregando, Cartao, T, Tela } from '@/components/ui';
 import { useAgora } from '@/hooks/use-agora';
 import { usePrevisao } from '@/hooks/use-previsao';
-import { talhaoAtual, useEstado, usePro } from '@/lib/estado';
+import { useEstado, usePro } from '@/lib/estado';
+import { useTalhaoDoTempo } from '@/lib/local-consulta';
 
 export default function PulverizacaoScreen() {
   const router = useRouter();
   const estado = useEstado();
   const pro = usePro();
-  const talhao = talhaoAtual(estado);
+  const { talhao } = useTalhaoDoTempo();
   const { resultado, carregando } = usePrevisao(talhao?.lat, talhao?.lon);
   const agora = useAgora();
   const hoje = dataDe(agora);

@@ -1,9 +1,9 @@
 import { ATRIBUICAO_OPEN_METEO, type AvaliacaoHora, dataDe, formatarData, formatarHora, formatarNumero, isoLocal } from '@graoraiz/clima';
 import { useRouter } from 'expo-router';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { Icone } from '@/components/icone';
-import { Chip, Selo, T, useCorStatus } from '@/components/ui';
+import { Chip, FaixaChips, Selo, T, useCorStatus } from '@/components/ui';
 import { Raio, Spacing } from '@/constants/theme';
 import { useAgora } from '@/hooks/use-agora';
 import { useTheme } from '@/hooks/use-theme';
@@ -17,14 +17,14 @@ export function SeletorTalhao({ selecionado }: { selecionado: Talhao | null }) {
   const bloqueados = estado.talhoes.filter((t) => !liberados.includes(t));
   if (estado.talhoes.length <= 1) return null;
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={estilos.seletor} accessibilityLabel="Escolher talhão">
+    <FaixaChips accessibilityLabel="Escolher talhão">
       {liberados.map((t) => (
         <Chip key={t.id} rotulo={t.nome} icone="pino" ativo={t.id === selecionado?.id} aoTocar={() => selecionarTalhao(t.id)} />
       ))}
       {bloqueados.map((t) => (
         <Chip key={t.id} rotulo={t.nome} icone="cadeado" ativo={false} aoTocar={() => router.push('/assinatura')} />
       ))}
-    </ScrollView>
+    </FaixaChips>
   );
 }
 
@@ -88,7 +88,6 @@ export function RodapeFonte({ em, desatualizado }: { em?: number; desatualizado?
 }
 
 const estilos = StyleSheet.create({
-  seletor: { gap: Spacing.two },
   hora: { flexDirection: 'row', borderRadius: Raio.medio, borderWidth: StyleSheet.hairlineWidth, overflow: 'hidden' },
   barra: { width: 6 },
   conteudoHora: { flex: 1, padding: 12, gap: 6 },
