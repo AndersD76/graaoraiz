@@ -14,7 +14,7 @@ export const API_URL = process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, '') || nu
 export const SERVIDOR_URL = process.env.EXPO_PUBLIC_SERVIDOR_URL?.replace(/\/$/, '') || API_URL;
 
 /** Site com política de privacidade, termos e página de download. */
-export const SITE_URL = process.env.EXPO_PUBLIC_SITE_URL?.replace(/\/$/, '') || 'https://graoraiz.com.br';
+export const SITE_URL = process.env.EXPO_PUBLIC_SITE_URL?.replace(/\/$/, '') || 'https://www.appgraoraiz.com.br';
 
 export const REVENUECAT_ANDROID = process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY || null;
 export const REVENUECAT_IOS = process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY || null;

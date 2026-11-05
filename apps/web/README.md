@@ -39,7 +39,7 @@ gere o build de novo.
 
 | Variável                    | Obrigatória       | Para quê                                                                                     |
 | --------------------------- | ----------------- | -------------------------------------------------------------------------------------------- |
-| `NEXT_PUBLIC_SITE_URL`      | Sim, em produção  | Endereço público (ex.: `https://graoraiz.com.br`). Padrão: `http://localhost:3000`.           |
+| `NEXT_PUBLIC_SITE_URL`      | Sim, em produção  | Endereço público (ex.: `https://www.appgraoraiz.com.br`). Padrão: `http://localhost:3000`.           |
 | `NEXT_PUBLIC_CONTATO_EMAIL` | Recomendado       | E-mail exibido no site e nos textos legais. Padrão: `contato@graoraiz.com.br`.                |
 | `NEXT_PUBLIC_PLAY_URL`      | Não               | Link da Google Play. Vazio = "Em breve".                                                     |
 | `NEXT_PUBLIC_APP_STORE_URL` | Não               | Link da App Store. Vazio = "Em breve".                                                       |
