@@ -11,7 +11,8 @@ import { useLayout } from '@/hooks/use-layout';
 import { usePanorama } from '@/hooks/use-panorama';
 import { useTheme } from '@/hooks/use-theme';
 import { useVigor } from '@/hooks/use-vigor';
-import { talhaoAtual, useEstado, usePro } from '@/lib/estado';
+import { usePro } from '@/lib/estado';
+import { useTalhaoDoTempo } from '@/lib/local-consulta';
 import { eventosDoTalhao } from '@/lib/eventos-talhao';
 import { ATRIBUICAO_SATELITE } from '@/lib/satelite';
 
@@ -35,13 +36,13 @@ function grau(n: number): string {
 export default function PanoramaScreen() {
   const router = useRouter();
   const tema = useTheme();
-  const estado = useEstado();
   const pro = usePro();
-  const talhao = talhaoAtual(estado);
+  const { talhao, consulta } = useTalhaoDoTempo();
   const hoje = dataDe(useAgora());
   const { larguraUtil } = useLayout();
   const p = usePanorama(talhao, hoje);
-  const { serie, carregando: carregandoVigor } = useVigor(pro ? talhao : null, 16);
+  // Satélite só de talhão cadastrado: no ponto de consulta não há lavoura para medir o vigor.
+  const { serie, carregando: carregandoVigor } = useVigor(pro && !consulta ? talhao : null, 16);
 
   if (!talhao) return null;
 

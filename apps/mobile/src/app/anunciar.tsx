@@ -3,10 +3,10 @@ import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useEffect, useState } from 'react';
-import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, View } from 'react-native';
 
 import { Icone } from '@/components/icone';
-import { Aviso, Botao, Campo, Cartao, Carregando, Chip, Interruptor, Linha, T, Tela } from '@/components/ui';
+import { Aviso, Botao, Campo, Cartao, Carregando, Chip, FaixaChips, Interruptor, Linha, T, Tela } from '@/components/ui';
 import { Raio, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { SITE_URL } from '@/lib/config';
@@ -179,11 +179,11 @@ export default function AnunciarScreen() {
       </T>
 
       <T variante="rotulo">Categoria</T>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={estilos.chips}>
+      <FaixaChips accessibilityLabel="Categoria">
         {CATEGORIAS_MAQUINA.map((c) => (
           <Chip key={c.valor} rotulo={c.rotulo} ativo={categoria === c.valor} aoTocar={() => setCategoria(c.valor)} testID={`anuncio-categoria-${c.valor}`} />
         ))}
-      </ScrollView>
+      </FaixaChips>
 
       <Campo rotulo="Título" value={titulo} onChangeText={setTitulo} maxLength={80} placeholder="Ex.: Trator John Deere 6110J" testID="anuncio-titulo" />
       <Linha style={estilos.dupla}>
@@ -293,7 +293,6 @@ export default function AnunciarScreen() {
 }
 
 const estilos = StyleSheet.create({
-  chips: { gap: Spacing.two, paddingRight: Spacing.three },
   dupla: { flexWrap: 'nowrap', alignItems: 'flex-start' },
   flex: { flex: 1, minWidth: 0 },
   cidade: { flex: 3, minWidth: 0 },
