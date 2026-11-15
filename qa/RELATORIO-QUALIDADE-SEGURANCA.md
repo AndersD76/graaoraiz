@@ -48,7 +48,7 @@ Os problemas eram de borda: endereço inventado respondendo 200, cache de anúnc
 | Regras de clima (`packages/clima`, Vitest) | 93 | 93 | 93 de 93 |
 | Servidor (`apps/web`, Vitest) | 0 | 19: limite por IP, JSON-LD seguro, crawlers, atribuição, chave do painel, sessão do painel (vencida, adulterada, token do app recusado), origem, rotas do app | 19 de 19 |
 | Autorização e segurança da API contra servidor real ([`testes/autorizacao.mjs`](testes/autorizacao.mjs)) | 0 | 66 verificações (as do painel passaram para o teste do painel) | 66 de 66 |
-| Painel administrativo no navegador ([`testes/admin.mjs`](testes/admin.mjs)): primeiro acesso, login, todas as telas, ações, planilha, tema, celular, conta comum barrada, saída | 0 | 43 verificações | 43 de 43 |
+| Painel administrativo no navegador ([`testes/admin.mjs`](testes/admin.mjs)): primeiro acesso, login (confere que o Dashboard aparece, não só o endereço), todas as telas, ações, planilha, tema, celular, conta comum barrada, saída (só a tela de entrar fica) | 0 | 43 verificações sem administrador no banco; 40 com (o primeiro acesso não roda) | 40 de 40 em 15/11/2026 |
 | SEO e vitrine ponta a ponta (servidor real) | 0 | 24 verificações | 24 de 24 |
 | App (Playwright, web) | 11 | 11 | 11 de 11 |
 | Tipos e lint (app e servidor) | sim | sim | sem erro |

@@ -1,9 +1,9 @@
-import { Bell, ExternalLink, LogOut, Search } from 'lucide-react';
+import { Bell, ExternalLink, Search } from 'lucide-react';
 import Link from 'next/link';
 import { Suspense } from 'react';
-import { sair } from '@/app/admin/acoes';
 import { adminAtual } from '@/lib/admin/auth';
 import { pendencias } from '@/lib/admin/consultas';
+import { BotaoSair } from './botao-sair';
 import { MenuMovel } from './menu';
 import { BotaoTema } from './tema';
 import { fmtNumero } from './ui';
@@ -69,11 +69,7 @@ async function Usuario() {
         <a href="/" className="mt-1 flex items-center gap-2 rounded-lg px-2 py-2 text-sm hover:bg-adm-fundo" target="_blank" rel="noopener">
           <ExternalLink className="size-4" aria-hidden /> Abrir o app
         </a>
-        <form action={sair}>
-          <button type="submit" className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm text-adm-ruim hover:bg-adm-ruim-suave">
-            <LogOut className="size-4" aria-hidden /> Sair
-          </button>
-        </form>
+        <BotaoSair />
       </div>
     </details>
   );

@@ -33,6 +33,8 @@ function Enviar({ rotulo, icone, variante }: { rotulo: string; icone?: IconeAcao
 
 /**
  * Botão que chama uma ação do servidor. Ações que apagam ou tiram do ar pedem confirmação antes.
+ * Com `depois`, abre essa página com navegação completa quando a ação termina (em vez de redirect()
+ * na ação, que em produção monta a página de destino errada).
  */
 export function BotaoAcao({
   acao,
@@ -41,6 +43,7 @@ export function BotaoAcao({
   icone,
   variante = 'secundario',
   confirmar,
+  depois,
 }: {
   acao: (dados: FormData) => Promise<void>;
   campos: Record<string, string>;
@@ -48,10 +51,18 @@ export function BotaoAcao({
   icone?: IconeAcao;
   variante?: Variante;
   confirmar?: string;
+  depois?: `/admin${string}`;
 }) {
   return (
     <form
-      action={acao}
+      action={
+        depois
+          ? async (dados: FormData) => {
+              await acao(dados);
+              window.location.assign(depois);
+            }
+          : acao
+      }
       onSubmit={(e) => {
         if (confirmar && !window.confirm(confirmar)) e.preventDefault();
       }}

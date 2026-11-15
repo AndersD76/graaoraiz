@@ -1,6 +1,7 @@
 import 'server-only';
 import { cookies, headers } from 'next/headers';
 import { redirect } from 'next/navigation';
+import { connection } from 'next/server';
 import { cache } from 'react';
 import { banco } from '@/lib/contas';
 import { COOKIE_ADMIN, emitirSessao, impressaoSenha, lerSessao, VALIDADE_ADMIN_S } from './sessao';
@@ -17,7 +18,10 @@ export interface Admin {
  * não é a de demonstração e a senha é a mesma da hora do login. Tirar o acesso vale na hora.
  */
 export const adminAtual = cache(async (): Promise<Admin | null> => {
-  const sessao = lerSessao((await cookies()).get(COOKIE_ADMIN)?.value);
+  const valor = (await cookies()).get(COOKIE_ADMIN)?.value;
+  // A validade da sessão depende da hora (Date.now): só no pedido de verdade, nunca num pré-render.
+  await connection();
+  const sessao = lerSessao(valor);
   if (!sessao) return null;
   const r = await banco().query<Admin & { senha_hash: string }>(
     'select id, nome, email, senha_hash from app.conta where id = $1 and admin and not demo',

@@ -1,8 +1,16 @@
 'use client';
 
 import { CircleAlert, CircleCheck, KeyRound, LoaderCircle, Lock, Mail, User } from 'lucide-react';
-import { type ComponentType, type InputHTMLAttributes, useActionState } from 'react';
+import { type ComponentType, type InputHTMLAttributes, useActionState, useEffect } from 'react';
 import { adicionarAdmin, entrar, type EstadoForm, primeiroAcesso } from '@/app/admin/acoes';
+
+/** Login aceito: abre o painel com navegação completa, já com o cookie novo (ver EstadoForm.destino). */
+function useIrAoDestino(estado: EstadoForm): boolean {
+  useEffect(() => {
+    if (estado.destino === '/admin') window.location.replace('/admin');
+  }, [estado.destino]);
+  return Boolean(estado.destino);
+}
 
 function Mensagem({ estado }: { estado: EstadoForm }) {
   if (estado.erro)
@@ -56,26 +64,30 @@ function Botao({ pendente, rotulo }: { pendente: boolean; rotulo: string }) {
 
 export function FormEntrar() {
   const [estado, acao, pendente] = useActionState(entrar, {});
+  const indo = useIrAoDestino(estado);
+  const ocupado = pendente || indo;
   return (
     <form action={acao} className="flex flex-col gap-4">
       <Mensagem estado={estado} />
-      <Campo id="email" rotulo="E-mail" icone={Mail} type="email" autoComplete="username" placeholder="voce@exemplo.com" defaultValue={estado.valores?.email} disabled={pendente} />
-      <Campo id="senha" rotulo="Senha" icone={Lock} type="password" autoComplete="current-password" placeholder="••••••••" disabled={pendente} />
-      <Botao pendente={pendente} rotulo="Entrar" />
+      <Campo id="email" rotulo="E-mail" icone={Mail} type="email" autoComplete="username" placeholder="voce@exemplo.com" defaultValue={estado.valores?.email} disabled={ocupado} />
+      <Campo id="senha" rotulo="Senha" icone={Lock} type="password" autoComplete="current-password" placeholder="••••••••" disabled={ocupado} />
+      <Botao pendente={ocupado} rotulo={indo ? 'Abrindo o painel…' : 'Entrar'} />
     </form>
   );
 }
 
 export function FormPrimeiroAcesso() {
   const [estado, acao, pendente] = useActionState(primeiroAcesso, {});
+  const indo = useIrAoDestino(estado);
+  const ocupado = pendente || indo;
   return (
     <form action={acao} className="flex flex-col gap-4">
       <Mensagem estado={estado} />
-      <Campo id="chave" rotulo="Chave do painel (variável AVALIACOES_CHAVE no Railway)" icone={KeyRound} type="password" autoComplete="off" disabled={pendente} />
-      <Campo id="nome" rotulo="Seu nome" icone={User} autoComplete="name" defaultValue={estado.valores?.nome} disabled={pendente} />
-      <Campo id="email" rotulo="E-mail (o da sua conta do app, se já tiver)" icone={Mail} type="email" autoComplete="username" defaultValue={estado.valores?.email} disabled={pendente} />
-      <Campo id="senha" rotulo="Senha (a da sua conta do app, se já tiver; conta nova: 10 caracteres ou mais)" icone={Lock} type="password" autoComplete="current-password" disabled={pendente} />
-      <Botao pendente={pendente} rotulo="Criar acesso de administrador" />
+      <Campo id="chave" rotulo="Chave do painel (variável AVALIACOES_CHAVE no Railway)" icone={KeyRound} type="password" autoComplete="off" disabled={ocupado} />
+      <Campo id="nome" rotulo="Seu nome" icone={User} autoComplete="name" defaultValue={estado.valores?.nome} disabled={ocupado} />
+      <Campo id="email" rotulo="E-mail (o da sua conta do app, se já tiver)" icone={Mail} type="email" autoComplete="username" defaultValue={estado.valores?.email} disabled={ocupado} />
+      <Campo id="senha" rotulo="Senha (a da sua conta do app, se já tiver; conta nova: 10 caracteres ou mais)" icone={Lock} type="password" autoComplete="current-password" disabled={ocupado} />
+      <Botao pendente={ocupado} rotulo={indo ? 'Abrindo o painel…' : 'Criar acesso de administrador'} />
     </form>
   );
 }

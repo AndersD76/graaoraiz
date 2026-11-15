@@ -84,13 +84,14 @@ try {
   await p.waitForURL('**/admin/entrar');
   ok(true, 'sem sessão, o painel manda para /admin/entrar');
   const semSessao = await fetch(`${base}/admin/usuarios`).then((r) => r.text());
-  ok(!semSessao.includes('@exemplo.com'), 'HTML do painel sem sessão não traz dados de contas');
+  // Procura os e-mails das contas de teste: a tela de entrar tem o exemplo "voce@exemplo.com" no campo.
+  ok(!semSessao.includes(vendedor.email) && !semSessao.includes(admin.email), 'HTML do painel sem sessão não traz dados de contas');
   const planilhaSem = await fetch(`${base}/admin/vendas/planilha`, { redirect: 'manual' });
   ok([401, 307].includes(planilhaSem.status), `planilha sem sessão é recusada (${planilhaSem.status})`);
   const semCookie = await fetch(`${base}/admin`, { redirect: 'manual' });
   ok(semCookie.status === 307 && (semCookie.headers.get('location') ?? '').endsWith('/admin/entrar'), `sem cookie, o servidor redireciona direto para a entrada (${semCookie.status})`);
   const cookieFalso = await fetch(`${base}/admin/usuarios`, { headers: { cookie: 'graoraiz_admin=falso.falso' } }).then((r) => r.text());
-  ok(!cookieFalso.includes('@exemplo.com'), 'cookie falso não mostra dados');
+  ok(!cookieFalso.includes(vendedor.email) && !cookieFalso.includes(admin.email), 'cookie falso não mostra dados');
 
   // ---------- primeiro acesso (se ainda não há administrador) ou promoção pelo banco ----------
   const haAdmin = (await db.query('select 1 from app.conta where admin limit 1')).rowCount > 0;
@@ -114,6 +115,7 @@ try {
     await p.fill('#senha', admin.senha);
     await p.getByRole('button', { name: 'Criar acesso de administrador' }).click();
     await p.waitForURL(`${base}/admin`);
+    await p.getByRole('heading', { name: 'Dashboard', exact: true }).waitFor();
     ids.admin = (await db.query('select id from app.conta where email = $1 and admin', [admin.email])).rows[0]?.id;
     ok(Boolean(ids.admin), 'primeiro acesso cria a conta de administrador e entra');
   } else {
@@ -124,7 +126,9 @@ try {
     await p.fill('#senha', admin.senha);
     await p.getByRole('button', { name: 'Entrar' }).click();
     await p.waitForURL(`${base}/admin`);
-    ok(Boolean(ids.admin), 'já havia administrador: conta de teste promovida e login por e-mail e senha');
+    // O endereço muda antes da tela: confere que o Dashboard apareceu de fato (em produção chegou a não aparecer).
+    await p.getByRole('heading', { name: 'Dashboard', exact: true }).waitFor();
+    ok(Boolean(ids.admin), 'já havia administrador: conta de teste promovida, login por e-mail e senha abre o Dashboard');
   }
 
   const cookie = (await ctx.cookies()).find((c) => c.name === 'graoraiz_admin');
@@ -228,6 +232,8 @@ try {
   await db.query('delete from app.evento where conta_id = $1', [ids.vendedor]);
   await p.getByRole('button', { name: 'Excluir conta' }).click();
   await p.waitForURL('**/admin/usuarios');
+  await p.getByRole('heading', { name: 'Usuários', exact: true }).waitFor();
+  ok((await p.locator('h1').allInnerTexts()).join('|') === 'Usuários', 'depois de excluir, abre só a lista de usuários (sem restos da ficha)');
   ok((await db.query('select 1 from app.conta where id = $1', [ids.vendedor])).rowCount === 0, 'Excluir conta (com confirmação): conta apagada');
   ok((await db.query('select 1 from app.venda where anuncio_id = $1', [B])).rowCount === 1, 'a venda continua registrada depois da exclusão');
   ids.vendedor = null;
@@ -244,6 +250,9 @@ try {
   await p.locator('summary[aria-label^="Conta:"]').click();
   await p.getByRole('button', { name: 'Sair' }).click();
   await p.waitForURL('**/admin/entrar');
+  await p.getByRole('button', { name: 'Entrar' }).waitFor();
+  // Em produção, o Sair antigo deixava o título da página anterior junto com o da tela de entrar.
+  ok((await p.locator('h1').allInnerTexts()).join('|') === 'Painel do Grão Raiz', 'depois de sair, só a tela de entrar aparece');
   await p.goto(`${base}/admin`);
   await p.waitForURL('**/admin/entrar');
   ok(true, 'Sair encerra a sessão');

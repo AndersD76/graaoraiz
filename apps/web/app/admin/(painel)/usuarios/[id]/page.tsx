@@ -74,6 +74,7 @@ async function Conteudo({ params }: Props) {
             />
             <BotaoAcao
               acao={excluirConta}
+              depois="/admin/usuarios"
               campos={{ id: conta.id }}
               rotulo="Excluir conta"
               icone="remover"

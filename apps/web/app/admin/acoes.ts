@@ -1,7 +1,6 @@
 'use server';
 
 import { refresh } from 'next/cache';
-import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { abrirSessao, exigirAdmin, existeAdmin, fecharSessao, ipAtual, registrarAcao } from '@/lib/admin/auth';
 import { banco, bloqueadoPorTentativas, conferirSenha, gerarHashSenha, limparFalhas, registrarFalha } from '@/lib/contas';
@@ -17,6 +16,12 @@ export interface EstadoForm {
   ok?: string;
   /** Campos não secretos devolvidos para o formulário não perder o que a pessoa digitou. */
   valores?: { nome?: string; email?: string };
+  /**
+   * Depois de entrar, o navegador abre esta página com navegação completa. Não usamos redirect() aqui:
+   * em produção (next start atrás do proxy do Railway), o redirect de uma ação que acabou de gravar o
+   * cookie monta a página de destino errada, e a pessoa fica na tela de entrar.
+   */
+  destino?: '/admin';
 }
 
 function devolver(dados: FormData): EstadoForm['valores'] {
@@ -62,7 +67,7 @@ export async function entrar(_anterior: EstadoForm, dados: FormData): Promise<Es
   limparFalhas(chave);
   await abrirSessao(c.id, c.senha_hash);
   await registrarAcao({ id: c.id, nome: c.nome, email: c.email }, 'entrou', null);
-  redirect('/admin');
+  return { destino: '/admin' };
 }
 
 /**
@@ -105,12 +110,12 @@ export async function primeiroAcesso(_anterior: EstadoForm, dados: FormData): Pr
   if (!conta) return { valores: devolver(dados), erro: 'O painel já tem administrador. Entre com e-mail e senha.' };
   await abrirSessao(conta.id, conta.senha_hash);
   await registrarAcao({ id: conta.id, nome: conta.nome, email: v.data.email }, 'primeiro_acesso', conta.id);
-  redirect('/admin');
+  return { destino: '/admin' };
 }
 
+/** Apaga o cookie. Quem chamou abre a tela de entrar com navegação completa (ver EstadoForm.destino). */
 export async function sair(): Promise<void> {
   await fecharSessao();
-  redirect('/admin/entrar');
 }
 
 function texto(dados: FormData, campo: string): string {
@@ -182,7 +187,7 @@ export async function excluirConta(dados: FormData): Promise<void> {
     for (const a of anuncios.rows) vitrineMudou(a.id, a.categoria);
     await registrarAcao(admin, 'conta_excluida', id, { nome: r.rows[0].nome, anuncios: anuncios.rows.length });
   }
-  redirect('/admin/usuarios');
+  // O botão leva para a lista de usuários com navegação completa (a ficha desta conta deixou de existir).
 }
 
 export async function mudarAdmin(dados: FormData): Promise<void> {
