@@ -1,0 +1,25 @@
+recurso;acao;visitante;conta;conta_demo;dono_do_recurso;painel_chave;como_e_garantido;teste
+conta;criar;sim;-;-;-;-;rota aberta com limite por IP;qa/testes/autorizacao.mjs
+conta;ler propria;nao;sim;sim;sim;-;token HMAC -> conta_id;qa/testes/autorizacao.mjs
+conta;excluir;nao;sim (propria);nao;sim;-;token; demo bloqueada no app;qa/testes/autorizacao.mjs
+dados_conta;ler;nao;propria;propria;sim;-;where conta_id = token;qa/testes/autorizacao.mjs
+dados_conta;gravar;nao;propria;nao;sim;-;demo -> 403;qa/testes/autorizacao.mjs
+anuncio;listar ativos;sim;sim;sim;-;-;situacao = 'ativo';qa/testes/autorizacao.mjs + vitrine
+anuncio;ver detalhe;sim (ativo/vendido);sim;sim;sim (pausado tambem);-;pausado so para o dono;qa/testes/autorizacao.mjs
+anuncio;criar;nao;sim;nao;-;-;token; demo -> 403; aceite obrigatorio;qa/testes/autorizacao.mjs
+anuncio;editar;nao;so o dono;nao;sim;-;update ... where conta_id = token;qa/testes/autorizacao.mjs
+anuncio;pausar/reativar;nao;so o dono;nao;sim;-;where conta_id = token;qa/testes/autorizacao.mjs
+anuncio;marcar vendido;nao;so o dono;nao;sim;-;where conta_id = token;qa/testes/autorizacao.mjs
+anuncio;tirar do ar;nao;so o dono;nao;sim;sim;dono via token; painel via chave;qa/testes/autorizacao.mjs
+anuncio;definir situacao/comissao/conta pelo corpo;nao;nao;nao;nao;-;esquema zod descarta campos extras (mass assignment);qa/testes/autorizacao.mjs + vitest
+whatsapp do vendedor;ver;nao;sim (registra contato);nao;sim;sim;token nao-demo; 30/h por conta;qa/testes/autorizacao.mjs
+foto;enviar;nao;sim;nao;-;-;token nao-demo; bytes JPEG/WebP; 900 KB;qa/testes/autorizacao.mjs
+foto;usar em anuncio;nao;so fotos proprias;nao;sim;-;fotosDaConta(conta_id);qa/testes/autorizacao.mjs
+foto;ver;sim;sim;sim;sim;-;id uuid aleatorio;qa/testes/autorizacao.mjs
+venda/comissao;ver;nao;propria (meus anuncios);nao;sim;sim;where conta_id / chave;qa/testes/autorizacao.mjs
+venda/comissao;marcar paga;nao;nao;nao;nao;sim;chave do painel (timingSafeEqual);qa/testes/autorizacao.mjs
+avaliacao;enviar;sim;sim;sim;-;-;limite por IP; honeypot;ponta a ponta (script)
+avaliacao;ler;nao;nao;nao;-;sim;chave do painel;vitest
+eventos;enviar;sim (lista fechada);sim;sim;-;-;zod enum; limite por IP;vitrine (ponta a ponta)
+eventos/funil;ler;nao;nao;nao;-;sim;chave do painel;vitest
+api;chamar de outro site (navegador);nao;nao;nao;nao;nao;proxy recusa Origin desconhecida;vitest

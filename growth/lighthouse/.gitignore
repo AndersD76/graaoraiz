@@ -1,0 +1,2 @@
+# Relatórios brutos do Lighthouse (pesados): ficam só na máquina. O resumo está no README.md.
+*.json
