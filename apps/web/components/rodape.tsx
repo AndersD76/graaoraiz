@@ -28,6 +28,11 @@ export async function Rodape() {
           <nav aria-label="Links do rodapé">
             <ul className="grid gap-x-8 text-sm sm:grid-cols-2">
               <li>
+                <Link href="/maquinas-usadas" className={classeLink}>
+                  Máquinas usadas à venda
+                </Link>
+              </li>
+              <li>
                 <Link href="/privacidade" className={classeLink}>
                   Privacidade
                 </Link>

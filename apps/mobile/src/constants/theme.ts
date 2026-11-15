@@ -19,6 +19,9 @@ export const Colors = {
     marca: '#17663A',
     marcaForte: '#0E4F2B',
     marcaSuave: '#E1F1E5',
+    /** Texto sobre a cor da marca e sobre o vermelho (botões): 4,5:1 ou mais. */
+    sobreMarca: '#FFFFFF',
+    sobreRuim: '#FFFFFF',
     destaque: '#B87D0E',
     destaqueSuave: '#FBF0D9',
     chuva: '#2B78DE',
@@ -42,6 +45,9 @@ export const Colors = {
     marca: '#4CC27A',
     marcaForte: '#7AD89E',
     marcaSuave: '#15301F',
+    // No escuro a marca e o vermelho são claros: texto branco ficaria com 2,3:1. Texto quase preto passa de 7:1.
+    sobreMarca: '#0A0F0B',
+    sobreRuim: '#0A0F0B',
     destaque: '#F0B547',
     destaqueSuave: '#33270F',
     chuva: '#5AA2FF',

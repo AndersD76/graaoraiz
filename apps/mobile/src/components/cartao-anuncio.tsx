@@ -24,7 +24,7 @@ export function CartaoAnuncio({ anuncio, aoTocar }: { anuncio: AnuncioResumo; ao
       ]}>
       <View style={[estilos.foto, { backgroundColor: tema.backgroundSelected }]}>
         {anuncio.foto ? (
-          <Image source={{ uri: urlFoto(anuncio.foto) }} style={StyleSheet.absoluteFill} contentFit="cover" transition={150} accessibilityIgnoresInvertColors />
+          <Image source={{ uri: urlFoto(anuncio.foto) }} style={StyleSheet.absoluteFill} contentFit="cover" transition={150} accessibilityIgnoresInvertColors accessibilityLabel={`Foto de ${anuncio.titulo}`} />
         ) : (
           <Icone nome="trator" tamanho={40} cor={tema.textSecondary} />
         )}

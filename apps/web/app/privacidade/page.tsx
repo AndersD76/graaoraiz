@@ -7,7 +7,7 @@ import { metadadosPagina } from '@/lib/metadados';
 export const metadata: Metadata = metadadosPagina({
   titulo: 'Política de Privacidade',
   descricao:
-    'Como o Grão Raiz (app e site) trata dados pessoais, de acordo com a LGPD: conta, dados da lavoura na nuvem, consultas de clima, satélite, PRODES e CAR, e classificados de máquinas.',
+    'Como o Grão Raiz trata seus dados pela LGPD: conta, dados da lavoura na nuvem, clima, satélite, PRODES, CAR e classificados de máquinas.',
   caminho: '/privacidade',
 });
 
@@ -33,6 +33,7 @@ export default function Privacidade() {
         <li>Seus talhões, chuvas, caderno e preferências ficam guardados na sua conta, num banco de dados na nuvem, para você trocar de aparelho sem perder nada.</li>
         <li>Para buscar previsão, satélite, município e a checagem de EUDR e crédito rural, o app envia a localização ou o contorno do talhão aos serviços citados abaixo, sem o seu nome.</li>
         <li>Nos classificados de máquinas, o anúncio é público; o seu WhatsApp aparece só para quem tem conta e pede o contato, e registramos quem pediu.</li>
+        <li>Medimos o uso do app no nosso próprio banco, sem nome, e-mail ou WhatsApp e sem empresas de fora.</li>
         <li>Não vendemos dados e não usamos publicidade nem cookies de rastreamento.</li>
       </ul>
 
@@ -139,9 +140,23 @@ export default function Privacidade() {
         12.965/2014).
       </p>
 
+      <h3>2.9 Uso do app e origem do cadastro</h3>
+      <p>
+        Para saber o que funciona e o que atrapalha, registramos no nosso próprio banco alguns passos de uso: abriu o
+        app, criou o talhão, viu a previsão do talhão, ligou os avisos, viu, criou ou vendeu um anúncio, pediu contato.
+        Esses registros não levam nome, e-mail nem WhatsApp, e não vão para empresas de fora. Também guardamos de onde
+        veio o seu primeiro acesso (o link ou site de origem e a campanha, quando o link tiver) e o último. Essa informação
+        fica no navegador e só chega até nós se você criar uma conta.
+      </p>
+      <p>
+        <strong>Base legal:</strong> legítimo interesse em melhorar o serviço (art. 7º, IX, da LGPD). Você pode pedir a
+        exclusão pelo contato abaixo.
+      </p>
+
       <h2>3. Por quanto tempo guardamos</h2>
       <ul>
         <li>Conta, dados da lavoura, anúncios e registros de contato: enquanto a conta existir. Ao excluir a conta, eles são apagados.</li>
+        <li>Registros de uso do app: até 24 meses. Ao excluir a conta, eles deixam de ser ligados a ela.</li>
         <li>Registros de venda e comissão: pelo prazo exigido pela legislação fiscal e civil (em geral, 5 anos).</li>
         <li>Avaliações: até 12 meses ou até você pedir a remoção.</li>
         <li>Registros de acesso: 6 meses, como pede o Marco Civil da Internet.</li>

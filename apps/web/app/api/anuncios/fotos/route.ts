@@ -1,22 +1,10 @@
 import { banco, contaDaRequisicao, erro, json, lerCorpo, preflight } from '@/lib/contas';
+import { criarLimite } from '@/lib/limite';
 
 export const OPTIONS = preflight;
 
 // Freio contra abuso: até 60 fotos por hora por conta (por instância do servidor).
-const envios = new Map<string, { n: number; desde: number }>();
-const JANELA_MS = 60 * 60 * 1000;
-const MAX_POR_JANELA = 60;
-
-function podeEnviar(contaId: string): boolean {
-  const agora = Date.now();
-  const e = envios.get(contaId);
-  if (!e || agora - e.desde > JANELA_MS) {
-    envios.set(contaId, { n: 1, desde: agora });
-    return true;
-  }
-  e.n += 1;
-  return e.n <= MAX_POR_JANELA;
-}
+const podeEnviar = criarLimite({ max: 60, janelaMs: 60 * 60 * 1000 });
 
 /** A foto chega reduzida pelo app (lado maior ~1600 px, JPEG): 900 KB já é folga. */
 const MAX_BYTES = 900_000;

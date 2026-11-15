@@ -2,6 +2,7 @@ import type { AnuncioDetalhe } from '@graoraiz/clima';
 import { banco, contaDaRequisicao, erro, json, lerCorpo, preflight } from '@/lib/contas';
 import { esquemaAnuncio, fotosDaConta, idValido, type LinhaAnuncio, resumo } from '@/lib/maquinas';
 import { primeiraMensagem } from '@/lib/validacao';
+import { vitrineMudou } from '@/lib/vitrine';
 
 export const OPTIONS = preflight;
 
@@ -55,6 +56,7 @@ export async function PUT(request: Request, { params }: Contexto) {
       [id, auth.conta.id, a.categoria, a.titulo, a.marca, a.modelo, a.ano, a.horas, a.preco, a.municipio, a.uf, a.descricao, a.whatsapp, a.fotos],
     );
     if (!r.rowCount) return erro(404, 'Anúncio não encontrado ou já vendido.');
+    vitrineMudou(id, a.categoria);
     return json({ ok: true });
   } catch (e) {
     console.error('[anuncios] falha ao editar:', e instanceof Error ? e.message : e);
@@ -74,6 +76,7 @@ export async function DELETE(request: Request, { params }: Contexto) {
       [id, auth.conta.id],
     );
     if (!r.rowCount) return erro(404, 'Anúncio não encontrado.');
+    vitrineMudou(id);
     return json({ ok: true });
   } catch (e) {
     console.error('[anuncios] falha ao remover:', e instanceof Error ? e.message : e);

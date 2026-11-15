@@ -1,0 +1,54 @@
+# Verificação automática a cada push e pull request: tipos, lint e testes do pacote de clima,
+# do servidor (apps/web) e do app (apps/mobile, com os testes ponta a ponta no navegador).
+# Não usa segredos nem banco: os testes com banco real (qa/testes/autorizacao.mjs) rodam à mão, no servidor local.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verificar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+
+      - name: Clima (regras) — tipos e testes
+        run: |
+          npm run typecheck -w @graoraiz/clima
+          npm test -w @graoraiz/clima
+
+      - name: Servidor — tipos, lint e testes
+        working-directory: apps/web
+        run: |
+          npx next typegen
+          npm run typecheck
+          npm run lint
+          npm test
+
+      - name: App — lint
+        run: npm run lint -w @graoraiz/mobile
+
+      - name: App — exportação web (gera os tipos das rotas) e testes ponta a ponta
+        run: |
+          npm run e2e:build -w @graoraiz/mobile
+          npm run typecheck -w @graoraiz/mobile
+          cd apps/mobile
+          npx playwright install --with-deps chromium
+          npx playwright test -c e2e
+
+      - name: Dependências de produção com falha grave
+        run: npm audit --omit=dev --audit-level=critical

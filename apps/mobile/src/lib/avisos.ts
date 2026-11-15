@@ -4,6 +4,7 @@ import { Platform } from 'react-native';
 
 import { buscarChuvaEstimada, buscarPrevisao, type Previsao, previsaoEmCache, type Resultado } from '@/lib/dados-clima';
 import { atualizar, type Estado, obterEstado, talhoesLiberados, temPro } from '@/lib/estado';
+import { registrar } from '@/lib/eventos';
 import { avisosDePreco, precosParaAvisos } from '@/lib/precos';
 
 const CANAL = 'avisos';
@@ -69,6 +70,7 @@ export async function pedirPermissaoNotificacoes(): Promise<boolean> {
   const atual = await Notifications.getPermissionsAsync();
   if (atual.status === 'granted') return true;
   const { status } = await Notifications.requestPermissionsAsync();
+  if (status === 'granted') registrar('alerts_enabled');
   return status === 'granted';
 }
 

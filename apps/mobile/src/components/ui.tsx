@@ -231,7 +231,7 @@ export function Botao({
 }) {
   const tema = useTheme();
   const fundo = { primario: tema.marca, secundario: tema.backgroundSelected, perigo: tema.ruim, texto: 'transparent', claro: 'rgba(255,255,255,0.94)' }[tipo];
-  const corTexto = { primario: '#ffffff', perigo: '#ffffff', texto: tema.marca, secundario: tema.text, claro: '#0F1A12' }[tipo];
+  const corTexto = { primario: tema.sobreMarca, perigo: tema.sobreRuim, texto: tema.marca, secundario: tema.text, claro: '#0F1A12' }[tipo];
   const inativo = desabilitado || carregando;
   return (
     <Pressable

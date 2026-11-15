@@ -1,7 +1,7 @@
 import { formatarReais, rotuloCategoria } from '@graoraiz/clima';
 import { Image } from 'expo-image';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { Aviso, Botao, Cartao, Carregando, Colunas, Divisor, LinhaInfo, T, Tela } from '@/components/ui';
@@ -9,6 +9,7 @@ import { Raio, Spacing } from '@/constants/theme';
 import { useTheme } from '@/hooks/use-theme';
 import { ErroConta, useConta } from '@/lib/conta';
 import { informar } from '@/lib/dialogo';
+import { registrar } from '@/lib/eventos';
 import { chamarVendedor, compartilharAnuncio, urlFoto, useAnuncio } from '@/lib/maquinas';
 
 /** Um anúncio de máquina: fotos, dados, contato com o vendedor pelo WhatsApp. */
@@ -18,6 +19,10 @@ export default function MaquinaScreen() {
   const tema = useTheme();
   const conta = useConta();
   const { anuncio, erro, carregando } = useAnuncio(id);
+  const visto = anuncio?.id;
+  useEffect(() => {
+    if (visto) registrar('listing_viewed', { anuncio: visto });
+  }, [visto]);
   const [foto, setFoto] = useState(0);
   const [chamando, setChamando] = useState(false);
 
@@ -68,7 +73,7 @@ export default function MaquinaScreen() {
               accessibilityRole="button"
               accessibilityLabel={`Ver foto ${i + 1}`}
               style={[estilos.miniatura, { borderColor: i === foto ? tema.marca : 'transparent' }]}>
-              <Image source={{ uri: urlFoto(f) }} style={StyleSheet.absoluteFill} contentFit="cover" />
+              <Image source={{ uri: urlFoto(f) }} style={StyleSheet.absoluteFill} contentFit="cover" accessibilityLabel="" />
             </Pressable>
           ))}
         </ScrollView>

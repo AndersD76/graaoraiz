@@ -119,3 +119,23 @@ create table if not exists app.venda (
 );
 
 comment on table app.venda is 'Vendas marcadas nos classificados e a comissão devida. Sem ligação com a conta: sobrevive à exclusão dela.';
+
+-- Telemetria local do funil (padrão do portfólio): migrável depois para um serviço central com INSERT ... SELECT.
+create table if not exists app.evento (
+  id            bigserial   primary key,
+  nome          text        not null check (nome ~ '^[a-z]+(_[a-z]+)*$' and char_length(nome) <= 60),
+  origem        text        not null check (origem in ('servidor', 'app', 'site')),
+  conta_id      uuid        references app.conta (id) on delete set null,
+  sessao        text        check (char_length(sessao) <= 64),
+  pagina        text        check (char_length(pagina) <= 300),
+  propriedades  jsonb       not null default '{}',
+  criado_em     timestamptz not null default now()
+);
+
+create index if not exists evento_nome_data on app.evento (nome, criado_em desc);
+create index if not exists evento_conta on app.evento (conta_id) where conta_id is not null;
+
+comment on table app.evento is 'Eventos do funil (objeto_ação). Sem e-mail, senha ou WhatsApp nas propriedades.';
+
+-- Atribuição do cadastro: primeiro e último toque (UTM, referrer, página de entrada).
+alter table app.conta add column if not exists origem jsonb;

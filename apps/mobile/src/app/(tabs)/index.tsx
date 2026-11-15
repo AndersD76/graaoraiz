@@ -1,6 +1,6 @@
 import { avaliarSerie, dataDe, diaDaSemana, formatarData } from '@graoraiz/clima';
 import { useRouter } from 'expo-router';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { CapaTempo } from '@/components/capa-tempo';
@@ -19,6 +19,7 @@ import { useTheme } from '@/hooks/use-theme';
 import { useVigia } from '@/hooks/use-vigia';
 import { reagendarAvisos } from '@/lib/avisos';
 import { useEstado, usePro } from '@/lib/estado';
+import { registrarUmaVez } from '@/lib/eventos';
 import { buscarLocalConsulta, useTalhaoDoTempo } from '@/lib/local-consulta';
 import { useMunicipio } from '@/lib/municipio';
 
@@ -53,6 +54,11 @@ export default function HojeScreen() {
   const { talhao, consulta, busca } = useTalhaoDoTempo();
   const { resultado, carregando, erro, atualizar } = usePrevisao(talhao?.lat, talhao?.lon);
   const itens = useVigia(talhao, resultado, agora);
+  // Momento aha: a primeira previsão do próprio talhão na tela.
+  const temPrevisao = Boolean(talhao && resultado);
+  useEffect(() => {
+    if (temPrevisao) registrarUmaVez('aha_reached');
+  }, [temPrevisao]);
   const municipio = useMunicipio(talhao?.lat, talhao?.lon);
   const { menuLateral } = useLayout();
 

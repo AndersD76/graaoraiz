@@ -236,7 +236,7 @@ export default function AnunciarScreen() {
       <View style={estilos.fotos}>
         {fotos.map((f, i) => (
           <View key={f.chave} style={[estilos.foto, { backgroundColor: tema.backgroundSelected }]}>
-            <Image source={{ uri: f.uri }} style={StyleSheet.absoluteFill} contentFit="cover" />
+            <Image source={{ uri: f.uri }} style={StyleSheet.absoluteFill} contentFit="cover" accessibilityLabel={`Foto ${i + 1} do anúncio`} />
             {!f.id ? (
               <View style={[estilos.sobreFoto, { backgroundColor: f.erro ? 'rgba(198,40,40,0.7)' : 'rgba(0,0,0,0.35)' }]}>
                 <T variante="pequeno" cor="#ffffff">

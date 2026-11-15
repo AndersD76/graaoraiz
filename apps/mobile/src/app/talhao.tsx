@@ -6,6 +6,7 @@ import { Botao, Tela } from '@/components/ui';
 import { reagendarAvisos } from '@/lib/avisos';
 import { confirmar } from '@/lib/dialogo';
 import { LIMITE_TALHOES_GRATIS, removerTalhao, salvarTalhao, temPro, useEstado } from '@/lib/estado';
+import { registrar } from '@/lib/eventos';
 
 export default function TalhaoScreen() {
   const router = useRouter();
@@ -36,6 +37,7 @@ export default function TalhaoScreen() {
       zarc: dados.zarc,
       baixada: dados.baixada,
     });
+    if (!existente) registrar('field_created', { primeiro: false, cultura: dados.cultura });
     void reagendarAvisos({ buscar: true });
     router.back();
   };

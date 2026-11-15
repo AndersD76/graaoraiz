@@ -11,7 +11,7 @@ import {
   registrarFalha,
   VALIDADE_CODIGO_MIN,
 } from '@/lib/contas';
-import { EmailIndisponivel, enviarEmail } from '@/lib/email';
+import { EmailIndisponivel, emailDisponivel, enviarEmail } from '@/lib/email';
 import { primeiraMensagem } from '@/lib/validacao';
 
 export const OPTIONS = preflight;
@@ -25,6 +25,8 @@ export async function POST(request: Request) {
   const validacao = esquemaRecuperar.safeParse(lido.corpo);
   if (!validacao.success) return erro(400, primeiraMensagem(validacao.error));
   const { email } = validacao.data;
+  // Sem serviço de e-mail, a resposta é a mesma para quem tem e quem não tem conta (não revela cadastros).
+  if (!emailDisponivel()) return erro(503, 'A recuperação de senha por e-mail ainda não está disponível. Fale com o suporte do Grão Raiz.');
 
   const chave = `recuperar:${email}`;
   if (bloqueadoPorTentativas(chave)) return erro(429, 'Muitos pedidos de código. Espere 15 minutos e tente de novo.');

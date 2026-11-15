@@ -6,10 +6,15 @@
 
 export class EmailIndisponivel extends Error {}
 
+/** Dá para mandar e-mail? (Em produção, só com a chave da Resend; em desenvolvimento sai no console.) */
+export function emailDisponivel(): boolean {
+  return Boolean(process.env.RESEND_API_KEY) || process.env.NODE_ENV !== 'production';
+}
+
 export async function enviarEmail({ para, assunto, texto }: { para: string; assunto: string; texto: string }): Promise<void> {
   const chave = process.env.RESEND_API_KEY;
   if (!chave) {
-    if (process.env.NODE_ENV === 'production') throw new EmailIndisponivel('RESEND_API_KEY não configurada');
+    if (!emailDisponivel()) throw new EmailIndisponivel('RESEND_API_KEY não configurada');
     console.info(`[email] (desenvolvimento, não enviado) para ${para} — ${assunto}\n${texto}`);
     return;
   }

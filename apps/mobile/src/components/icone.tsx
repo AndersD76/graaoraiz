@@ -23,12 +23,13 @@ export function Icone({ nome, tamanho = 22, cor, corFundo }: { nome: NomeIcone; 
 
 /** Ilustração 3D (Fluent Emoji) para capas, telas vazias e destaque. */
 export function Ilustracao({ nome, tamanho = 96 }: { nome: NomeIlustracao; tamanho?: number }) {
-  return <Image source={ILUSTRACOES[nome]} style={{ width: tamanho, height: tamanho }} contentFit="contain" accessible={false} />;
+  // Decorativa: alt vazio na web (leitor de tela pula) e fora da acessibilidade no celular.
+  return <Image source={ILUSTRACOES[nome]} style={{ width: tamanho, height: tamanho }} contentFit="contain" accessible={false} accessibilityLabel="" />;
 }
 
 /** Ícone ilustrado de tempo (Meteocons): animado na web, estático no celular. */
 export function IconeTempo({ nome, tamanho = 48 }: { nome: NomeTempo; tamanho?: number }) {
-  return <Image source={FONTES_TEMPO[nome]} style={{ width: tamanho, height: tamanho }} contentFit="contain" accessible={false} />;
+  return <Image source={FONTES_TEMPO[nome]} style={{ width: tamanho, height: tamanho }} contentFit="contain" accessible={false} accessibilityLabel="" />;
 }
 
 /** Ícone de tempo para um código da OMM, de dia ou de noite. */

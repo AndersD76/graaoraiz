@@ -1,7 +1,9 @@
 import { ORDENS_ANUNCIO, UFS_BRASIL } from '@graoraiz/clima';
 import { banco, contaDaRequisicao, CORS, erro, json, lerCorpo, preflight } from '@/lib/contas';
 import { comissaoPercentual, esquemaAnuncio, fotosDaConta, type LinhaAnuncio, resumo } from '@/lib/maquinas';
+import { registrarEvento } from '@/lib/telemetria';
 import { primeiraMensagem } from '@/lib/validacao';
+import { vitrineMudou } from '@/lib/vitrine';
 
 export const OPTIONS = preflight;
 
@@ -68,6 +70,8 @@ export async function POST(request: Request) {
        values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, now()) returning id`,
       [auth.conta.id, a.categoria, a.titulo, a.marca, a.modelo, a.ano, a.horas, a.preco, a.municipio, a.uf, a.descricao, a.whatsapp, a.fotos, comissaoPercentual()],
     );
+    vitrineMudou(r.rows[0].id, a.categoria);
+    registrarEvento({ nome: 'listing_created', origem: 'servidor', contaId: auth.conta.id, propriedades: { anuncio: r.rows[0].id, categoria: a.categoria, preco: a.preco, uf: a.uf } });
     return json({ id: r.rows[0].id }, 201);
   } catch (e) {
     console.error('[anuncios] falha ao criar:', e instanceof Error ? e.message : e);

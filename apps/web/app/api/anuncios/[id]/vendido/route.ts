@@ -1,5 +1,7 @@
 import { banco, contaDaRequisicao, erro, json, lerCorpo, preflight } from '@/lib/contas';
 import { idValido } from '@/lib/maquinas';
+import { registrarEvento } from '@/lib/telemetria';
+import { vitrineMudou } from '@/lib/vitrine';
 
 export const OPTIONS = preflight;
 
@@ -34,6 +36,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     );
     const l = r.rows[0];
     if (!l) return erro(404, 'Anúncio não encontrado ou já vendido.');
+    vitrineMudou(id);
+    registrarEvento({ nome: 'listing_sold', origem: 'servidor', contaId: auth.conta.id, propriedades: { anuncio: id, valor, comissao: Number(l.comissao_valor) } });
     return json({ comissaoPercentual: Number(l.comissao_percentual), comissaoValor: Number(l.comissao_valor) });
   } catch (e) {
     console.error('[anuncios] falha ao marcar vendido:', e instanceof Error ? e.message : e);

@@ -55,7 +55,7 @@ function ItemMeuAnuncio({ anuncio, aoMudar }: { anuncio: MeuAnuncio; aoMudar: ()
     <Cartao testID={`meu-anuncio-${anuncio.id}`}>
       <Linha style={estilos.topo}>
         <View style={[estilos.foto, { backgroundColor: tema.backgroundSelected }]}>
-          {anuncio.foto ? <Image source={{ uri: urlFoto(anuncio.foto) }} style={StyleSheet.absoluteFill} contentFit="cover" /> : null}
+          {anuncio.foto ? <Image source={{ uri: urlFoto(anuncio.foto) }} style={StyleSheet.absoluteFill} contentFit="cover" accessibilityLabel={`Foto de ${anuncio.titulo}`} /> : null}
         </View>
         <View style={estilos.flex}>
           <T variante="forte" numberOfLines={2}>

@@ -27,7 +27,8 @@ export function urlFoto(id: string): string {
 }
 
 export function linkAnuncio(id: string): string {
-  return `${SITE_URL}/maquina/${id}`;
+  // Página pública do anúncio (lida pelo Google e com foto e preço na prévia do WhatsApp).
+  return `${SITE_URL}/maquinas-usadas/${id}`;
 }
 
 function mensagem(e: unknown, padrao: string): string {

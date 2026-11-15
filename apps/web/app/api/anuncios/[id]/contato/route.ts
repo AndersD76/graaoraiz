@@ -1,5 +1,10 @@
 import { banco, contaDaRequisicao, erro, json, preflight } from '@/lib/contas';
+import { criarLimite } from '@/lib/limite';
 import { idValido } from '@/lib/maquinas';
+import { registrarEvento } from '@/lib/telemetria';
+
+// Freio contra quem tenta colher os WhatsApps de todos os anúncios: 30 contatos por hora por conta.
+const permitido = criarLimite({ max: 30, janelaMs: 60 * 60 * 1000 });
 
 export const OPTIONS = preflight;
 
@@ -14,6 +19,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const auth = await contaDaRequisicao(request);
     if ('falha' in auth) return auth.falha;
     if (auth.conta.demo) return erro(403, 'Crie sua conta para falar com o vendedor.');
+    if (!permitido(auth.conta.id)) return erro(429, 'Muitos contatos seguidos. Espere um pouco e tente de novo.');
     const r = await banco().query<{ whatsapp: string; conta_id: string; vendedor: string }>(
       `select a.whatsapp, a.conta_id, split_part(c.nome, ' ', 1) as vendedor from app.anuncio a join app.conta c on c.id = a.conta_id
         where a.id = $1 and a.situacao = 'ativo'`,
@@ -23,6 +29,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     if (!l) return erro(404, 'Este anúncio saiu do ar.');
     if (l.conta_id !== auth.conta.id) {
       await banco().query('insert into app.contato_anuncio (anuncio_id, conta_id) values ($1, $2) on conflict do nothing', [id, auth.conta.id]);
+      registrarEvento({ nome: 'seller_contacted', origem: 'servidor', contaId: auth.conta.id, propriedades: { anuncio: id } });
     }
     return json({ whatsapp: l.whatsapp, vendedor: l.vendedor });
   } catch (e) {

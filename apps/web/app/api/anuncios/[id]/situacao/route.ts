@@ -1,5 +1,6 @@
 import { banco, contaDaRequisicao, erro, json, lerCorpo, preflight } from '@/lib/contas';
 import { idValido } from '@/lib/maquinas';
+import { vitrineMudou } from '@/lib/vitrine';
 
 export const OPTIONS = preflight;
 
@@ -19,6 +20,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       [id, auth.conta.id, situacao],
     );
     if (!r.rowCount) return erro(404, 'Anúncio não encontrado ou já vendido.');
+    vitrineMudou(id);
     return json({ ok: true });
   } catch (e) {
     console.error('[anuncios] falha ao mudar situação:', e instanceof Error ? e.message : e);

@@ -11,6 +11,7 @@ import {
   preflight,
   registrarFalha,
 } from '@/lib/contas';
+import { registrarEvento } from '@/lib/telemetria';
 import { primeiraMensagem } from '@/lib/validacao';
 
 export const OPTIONS = preflight;
@@ -39,6 +40,7 @@ export async function POST(request: Request) {
     }
     limparFalhas(email);
     const conta = { id: linha.id, nome: linha.nome, email: linha.email, demo: linha.demo };
+    registrarEvento({ nome: 'login_succeeded', origem: 'servidor', contaId: conta.id, propriedades: { demo: conta.demo } });
     return json({ token: emitirToken(conta.id), conta });
   } catch (e) {
     console.error('[conta] falha ao entrar:', e instanceof Error ? e.message : e);

@@ -40,11 +40,48 @@ const meta = [
   '<meta property="og:image:width" content="1200" />',
   '<meta property="og:image:height" content="630" />',
   '<meta name="twitter:card" content="summary_large_image" />',
+  `<link rel="canonical" href="${origem}/" />`,
 ].join('\n    ');
+
+// Dados estruturados da página inicial (o conteúdo visível é o próprio app). Sem nota nem número de
+// usuários: não há avaliação pública verificável ainda. Organização sem CNPJ: o negócio ainda é pessoa física.
+const dados = [
+  { '@context': 'https://schema.org', '@type': 'Organization', name: 'Grão Raiz', url: `${origem}/`, logo: `${origem}/icon.svg` },
+  { '@context': 'https://schema.org', '@type': 'WebSite', name: 'Grão Raiz', url: `${origem}/`, inLanguage: 'pt-BR' },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'SoftwareApplication',
+    name: 'Grão Raiz',
+    applicationCategory: 'BusinessApplication',
+    operatingSystem: 'Web, Android, iOS',
+    description: descricao,
+    url: `${origem}/`,
+    inLanguage: 'pt-BR',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'BRL', description: 'Versão de teste grátis' },
+  },
+];
+const ld = `<script type="application/ld+json">${JSON.stringify(dados).replace(/</g, '\\u003c')}</script>`;
+
+// Conteúdo de reserva para quem chega sem JavaScript (robôs e leitores simples): o mesmo que o app mostra.
+const semJs = `<noscript>
+      <main style="font-family:sans-serif;max-width:720px;margin:40px auto;padding:0 16px;line-height:1.5">
+        <h1>Grão Raiz: o vigia da sua lavoura</h1>
+        <p>App para o produtor de grãos: hora certa de pulverizar, avisos de geada, temporal e doença por talhão, caderno de campo com prova para o seguro e o Proagro, checagem de desmatamento (PRODES e CAR) para a lei europeia e o crédito rural, preço do dia e classificados de máquinas usadas.</p>
+        <p>Para usar o app, ative o JavaScript no navegador.</p>
+        <ul>
+          <li><a href="/maquinas-usadas">Máquinas agrícolas usadas à venda</a></li>
+          <li><a href="/baixar">Baixar o app</a></li>
+          <li><a href="/termos">Termos de uso</a></li>
+          <li><a href="/privacidade">Política de privacidade</a></li>
+        </ul>
+      </main>
+    </noscript>`;
+
 const indice = resolve(web, 'public/index.html');
 const html = readFileSync(indice, 'utf8')
   .replace('<html lang="en">', '<html lang="pt-BR">')
-  .replace('<title>Grão Raiz</title>', `<title>${titulo}</title>\n    ${meta}`);
+  .replace('<title>Grão Raiz</title>', `<title>${titulo}</title>\n    ${meta}\n    ${ld}`)
+  .replace(/<noscript>[\s\S]*?<\/noscript>/, semJs);
 // Sem a prévia o app funciona igual: só avisa, para não travar a publicação.
 if (!html.includes('og:image')) console.warn('Aviso: o index.html do app mudou e ficou sem a prévia do link.');
 writeFileSync(indice, html);

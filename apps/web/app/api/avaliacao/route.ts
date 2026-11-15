@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { AJUDOU, INDICARIA, PERFIS } from '@/lib/avaliacoes';
 import { banco, bloqueadoPorTentativas, erro, json, lerCorpo, preflight, registrarFalha } from '@/lib/contas';
+import { registrarEvento } from '@/lib/telemetria';
 import { primeiraMensagem } from '@/lib/validacao';
 
 export const OPTIONS = preflight;
@@ -47,6 +48,7 @@ export async function POST(request: Request) {
        values ($1, $2, $3, $4, $5, $6, $7, $8)`,
       [a.nota, a.indicaria ?? null, [...new Set(a.ajudou)], a.melhorar, a.perfil ?? null, a.cidade, a.contato, a.origem],
     );
+    registrarEvento({ nome: 'feedback_submitted', origem: 'site', propriedades: { nota: a.nota, origem: a.origem } });
     return json({ ok: true });
   } catch (e) {
     console.error('[avaliacao] falha:', e instanceof Error ? e.message : e);

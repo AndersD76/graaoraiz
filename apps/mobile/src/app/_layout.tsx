@@ -14,6 +14,8 @@ import { AppState } from 'react-native';
 
 import { Fontes } from '@/constants/theme';
 import { useEsquema, useTheme } from '@/hooks/use-theme';
+import { capturarToque } from '@/lib/atribuicao';
+import { registrar } from '@/lib/eventos';
 import { iniciarAssinatura } from '@/lib/assinatura';
 import { configurarNotificacoes, ouvirToqueNosAvisos, reagendarAvisos } from '@/lib/avisos';
 import { sincronizar } from '@/lib/conta';
@@ -46,6 +48,8 @@ export default function RootLayout() {
   }, [pronto]);
 
   useEffect(() => {
+    capturarToque();
+    registrar('app_opened');
     void iniciarAssinatura();
     void registrarTarefaFundo();
     void reagendarAvisos({ buscar: true });

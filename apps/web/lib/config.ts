@@ -27,6 +27,6 @@ export const RESPONSAVEL_PENDENTE = RESPONSAVEL === RESPONSAVEL_PLACEHOLDER;
 export const PRECO = { mensal: 'R$ 29,90', anual: 'R$ 249,90' } as const;
 
 /** Data exibida na Política de Privacidade e nos Termos de Uso. */
-export const ULTIMA_ATUALIZACAO_LEGAL = '3 de novembro de 2026';
+export const ULTIMA_ATUALIZACAO_LEGAL = '14 de novembro de 2026';
 
 export const NOME_APP = 'Grão Raiz';

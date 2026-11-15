@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'react';
 
 import { apagar, gravar, ler } from '@/lib/armazenamento';
+import { atribuicaoAtual } from '@/lib/atribuicao';
 import { reagendarAvisos } from '@/lib/avisos';
 import { SERVIDOR_URL } from '@/lib/config';
 import { apagarTudo, assinar, dadosParaNuvem, type EstadoNuvem, obterEstado, salvarProdutor, substituirEstado } from '@/lib/estado';
@@ -186,7 +187,8 @@ export async function entrar(email: string, senha: string): Promise<Conta> {
 }
 
 export async function criarConta(nome: string, email: string, senha: string): Promise<Conta> {
-  const r = await chamar<{ token: string; conta: Conta }>('/api/conta/cadastro', { metodo: 'POST', corpo: { nome, email, senha } });
+  // A origem do visitante (UTM, site de origem) vai junto: é o que liga o cadastro ao canal que o trouxe.
+  const r = await chamar<{ token: string; conta: Conta }>('/api/conta/cadastro', { metodo: 'POST', corpo: { nome, email, senha, atribuicao: atribuicaoAtual() } });
   await iniciar(r, nome);
   return r.conta;
 }

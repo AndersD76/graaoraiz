@@ -158,6 +158,8 @@ export function preflight(): Response {
 
 /** Lê o corpo JSON com limite de tamanho; devolve a resposta de erro quando não der. */
 export async function lerCorpo(request: Request, limite: number): Promise<{ corpo: unknown } | { falha: Response }> {
+  // Recusa pelo tamanho declarado antes de ler, para não segurar na memória um corpo gigante.
+  if (Number(request.headers.get('content-length') ?? 0) > limite * 4) return { falha: erro(413, 'Dados grandes demais.') };
   const bruto = await request.text().catch(() => '');
   if (bruto.length > limite) return { falha: erro(413, 'Dados grandes demais.') };
   try {

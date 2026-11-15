@@ -11,6 +11,7 @@ import { MaxContentWidth, Raio, Spacing } from '@/constants/theme';
 import { pedirPermissaoNotificacoes, reagendarAvisos } from '@/lib/avisos';
 import { COM_CONTAS, useConta } from '@/lib/conta';
 import { obterEstado, salvarTalhao } from '@/lib/estado';
+import { registrar } from '@/lib/eventos';
 
 const RECURSOS: { ilustracao: NomeIlustracao; titulo: string; texto: string }[] = [
   { ilustracao: 'bell', titulo: 'Vigia 24 horas', texto: 'Chuva chegando, geada, doença e chuva sobre o produto aplicado — por talhão, antes de acontecer.' },
@@ -105,6 +106,7 @@ export default function OnboardingScreen() {
               cultura: dados.cultura,
               dataPlantio: null,
             });
+            registrar('field_created', { primeiro: true, cultura: dados.cultura });
             setPasso('avisos');
           }}
         />

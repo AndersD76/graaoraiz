@@ -35,6 +35,10 @@ export const viewport: Viewport = {
   colorScheme: 'light',
 };
 
+// De onde o visitante veio (UTM, site de origem, página de entrada): grava na mesma chave que o app web lê
+// no cadastro (apps/mobile/src/lib/atribuicao.ts). Só no próprio navegador; vai ao servidor só se a pessoa criar conta.
+const TOQUE = `(function(){try{var p=new URLSearchParams(location.search),t={landing:(location.pathname+location.search).slice(0,300),em:new Date().toISOString()},u=['utm_source','utm_medium','utm_campaign','utm_content','utm_term'],m=false;u.forEach(function(k){var v=p.get(k);if(v){t[k]=v.slice(0,150);m=true}});if(document.referrer&&new URL(document.referrer).host!==location.host){t.referrer=document.referrer.slice(0,300);m=true}if(!localStorage.getItem('graoraiz:primeiro-toque'))localStorage.setItem('graoraiz:primeiro-toque',JSON.stringify(t));if(m)localStorage.setItem('graoraiz:ultimo-toque',JSON.stringify(t))}catch(e){}})();`;
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="pt-BR">
@@ -50,6 +54,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           {children}
         </main>
         <Rodape />
+        <script dangerouslySetInnerHTML={{ __html: TOQUE }} />
       </body>
     </html>
   );

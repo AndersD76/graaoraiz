@@ -1,10 +1,12 @@
 import { banco, erro } from '@/lib/contas';
 import { idValido } from '@/lib/maquinas';
 import { chavePainelConfere } from '@/lib/painel';
+import { vitrineMudou } from '@/lib/vitrine';
 
 /** POST (formulário do painel) acao=comissao-paga|remover, id, chave → faz e volta para o painel. */
 export async function POST(request: Request) {
-  const dados = await request.formData();
+  const dados = await request.formData().catch(() => null);
+  if (!dados) return erro(400, 'Envie o formulário do painel.');
   const chave = dados.get('chave');
   const id = String(dados.get('id') ?? '');
   const acao = dados.get('acao');
@@ -16,6 +18,7 @@ export async function POST(request: Request) {
       await banco().query("update app.anuncio set comissao_paga_em = now() where id = $1 and situacao = 'vendido' and comissao_paga_em is null", [id]);
     } else if (acao === 'remover') {
       await banco().query("update app.anuncio set situacao = 'removido', atualizado_em = now() where id = $1 and situacao in ('ativo', 'pausado')", [id]);
+      vitrineMudou(id);
     } else {
       return erro(400, 'Ação inválida.');
     }

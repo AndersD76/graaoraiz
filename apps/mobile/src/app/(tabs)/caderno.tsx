@@ -202,7 +202,7 @@ export default function CadernoScreen() {
             {o.fotos.length ? (
               <View style={estilos.fotos}>
                 {o.fotos.slice(0, 4).map((f) => (
-                  <Image key={f} source={{ uri: f }} style={estilos.foto} contentFit="cover" />
+                  <Image key={f} source={{ uri: f }} style={estilos.foto} contentFit="cover" accessibilityLabel={`Foto da ocorrência: ${o.tipo}`} />
                 ))}
               </View>
             ) : null}

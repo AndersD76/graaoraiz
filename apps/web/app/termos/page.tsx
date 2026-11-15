@@ -8,7 +8,7 @@ import { metadadosPagina } from '@/lib/metadados';
 export const metadata: Metadata = metadadosPagina({
   titulo: 'Termos de Uso',
   descricao:
-    'Termos de uso do Grão Raiz: as informações são estimativas, a decisão é sua, regras da conta, dos classificados de máquinas (com comissão sobre a venda) e da assinatura Pro.',
+    'Termos do Grão Raiz: as informações são estimativas e a decisão é sua; regras da conta, dos classificados (comissão na venda) e do Pro.',
   caminho: '/termos',
 });
 
