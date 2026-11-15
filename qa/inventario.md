@@ -27,14 +27,13 @@ Data: 14/11/2026 · Front: app Expo (React Native Web, SPA) + páginas Next.js 1
 | GET `/api/precos` | não | — | Cepea + BCB, cache |
 | POST `/api/avaliacao` | não | formulário | 10/15 min por IP, honeypot |
 | POST `/api/eventos` | opcional | evento da lista fechada | **novo**; 120/10 min por IP |
-| POST `/api/painel/maquinas` | chave do painel | ação | |
 | POST `/api/lista-espera` | não | — | legado (formulário removido do site) |
 
 ## Páginas
 
 - **Públicas (servidor):** `/maquinas-usadas`, `/maquinas-usadas/categoria/<c>`, `/maquinas-usadas/<id>`, `/baixar`, `/avaliar`, `/privacidade`, `/termos`, `/excluir-dados`, `/robots.txt`, `/sitemap.xml`, `/llms.txt`, `/llms-full.txt`, `/indexnow.txt`, `/opengraph-image`.
 - **App (SPA):** `/` e todas as telas do app.
-- **Internas (chave):** `/painel/maquinas`, `/painel/funil`, `/avaliacoes`.
+- **Painel administrativo (`/admin`, login de administrador):** Dashboard, Usuários e ficha da conta, Anúncios, Vendas e comissões (com planilha CSV), Pedidos de contato, Funil, Avaliações, Configurações e Busca. Os endereços antigos `/painel/maquinas`, `/painel/funil` e `/avaliacoes` redirecionam para ele.
 
 ## Chamadas externas
 
@@ -64,8 +63,9 @@ Data: 14/11/2026 · Front: app Expo (React Native Web, SPA) + páginas Next.js 1
 | Camada | Antes | Agora |
 |---|---|---|
 | Regras de clima (`packages/clima`) | 93 testes (Vitest) | 93 testes |
-| Servidor (`apps/web`) | **nenhum** | 15 testes (Vitest): limite, JSON-LD, crawler, atribuição, token, painel, origem, rotas do app |
-| Autorização e segurança da API | nenhum | 70 verificações contra servidor real ([`testes/autorizacao.mjs`](testes/autorizacao.mjs)), contas de teste apagadas no fim |
+| Servidor (`apps/web`) | **nenhum** | 19 testes (Vitest): limite, JSON-LD, crawler, atribuição, token, sessão do painel, origem, rotas do app |
+| Autorização e segurança da API | nenhum | 66 verificações contra servidor real ([`testes/autorizacao.mjs`](testes/autorizacao.mjs)), contas de teste apagadas no fim |
+| Painel administrativo | não havia painel | 43 verificações no navegador ([`testes/admin.mjs`](testes/admin.mjs)) |
 | App (`apps/mobile`) | 11 testes ponta a ponta (Playwright, sem servidor) | 11 testes |
 | Lint e tipos | app e servidor | app e servidor |
 | CI | não havia | `.github/workflows/ci.yml` (tudo acima, menos o teste com banco) |

@@ -1,7 +1,7 @@
 // Testes de autorização, validação e segurança da API contra um servidor LOCAL ou de homologação.
 // Nunca rode contra produção: cria contas, anúncios e vendas de teste (tudo apagado no fim).
 //
-// Uso: node qa/testes/autorizacao.mjs <url-base> <chave-do-painel>
+// Uso: node qa/testes/autorizacao.mjs <url-base> <chave-do-painel> (a chave não é mais usada; fica pelo formato do comando)
 //   ex.: node qa/testes/autorizacao.mjs http://localhost:3300 teste-local-123
 // O banco vem de DATABASE_URL (ou de apps/web/.env.local); o valor nunca é impresso.
 import { readFileSync } from 'node:fs';
@@ -186,19 +186,8 @@ try {
   ok(venda.status === 200 && venda.json?.comissaoValor === Math.round(100000 * venda.json?.comissaoPercentual) / 100, `comissão calculada no servidor (${venda.json?.comissaoPercentual}% = R$ ${venda.json?.comissaoValor})`);
   ok((await api(`/api/anuncios/${L}/vendido`, { metodo: 'POST', token: contas.a.token, corpo: { valor: 1 } })).status === 404, 'não dá para vender de novo (valor da comissão não muda)');
   ok((await api(`/api/anuncios/${L}`, { metodo: 'PUT', token: contas.a.token, corpo: anuncio([fotoA]) })).status === 404, 'anúncio vendido não é mais editado');
-  const form = (chave) => {
-    const f = new FormData();
-    if (chave !== null) f.set('chave', chave);
-    f.set('id', L);
-    f.set('acao', 'comissao-paga');
-    return f;
-  };
-  const painel = async (chave) => (await fetch(`${base}/api/painel/maquinas`, { method: 'POST', body: form(chave), redirect: 'manual' })).status;
-  ok((await painel(null)) === 403, 'painel sem chave → 403');
-  ok((await painel('chave-errada')) === 403, 'painel com chave errada → 403');
-  ok((await painel(chavePainel)) === 303, 'painel com a chave marca comissão paga');
-  ok((await db.query('select comissao_paga_em from app.venda where anuncio_id = $1', [L])).rows[0]?.comissao_paga_em, 'banco confirma a comissão paga');
-  ok((await api('/api/painel/maquinas', { metodo: 'POST', bruto: '{}' })).status < 500, 'painel com corpo que não é formulário não derruba o servidor');
+  // A comissão paga e as demais ações do administrador são testadas em qa/testes/admin.mjs (painel com login).
+  ok((await api('/api/painel/maquinas', { metodo: 'POST', bruto: 'acao=comissao-paga' })).status === 404, 'API antiga do painel (chave no formulário) não existe mais');
 
   // ---------- Conta: senha, enumeração e exclusão ----------
   const r1 = await api('/api/conta/recuperar', { metodo: 'POST', corpo: { email: contas.b.email } });

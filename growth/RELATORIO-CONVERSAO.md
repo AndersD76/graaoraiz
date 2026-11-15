@@ -35,7 +35,7 @@ Com esse volume, **não há como fazer teste A/B**: nenhum experimento chega a u
 | 13 eventos `objeto_ação`, com lista fechada. Os de dinheiro e conta nascem no servidor; os de uso, no app via `POST /api/eventos`. | `lib/telemetria.ts`, `app/api/eventos/`, `apps/mobile/src/lib/eventos.ts` |
 | Momento aha medido: a primeira previsão do próprio talhão, uma vez por aparelho | `apps/mobile/src/app/(tabs)/index.tsx` |
 | Atribuição de primeiro e último toque (UTM, referrer e página de entrada), gravada no navegador e salva no cadastro | `app/layout.tsx`, `apps/mobile/src/lib/atribuicao.ts`, `app.conta.origem` |
-| Painel `/painel/funil?chave=…` com:<br>- funil semanal das últimas 8 semanas;<br>- origem dos cadastros;<br>- crawlers de IA;<br>- IndexNow | `app/painel/funil/page.tsx` |
+| Painel `/admin/funil` (com login de administrador) com:<br>- funil semanal das últimas 8 semanas;<br>- origem dos cadastros;<br>- crawlers de IA;<br>- IndexNow | `app/painel/funil/page.tsx` |
 | Link do anúncio compartilhado leva à página pública, com foto, preço e cidade na prévia | `apps/mobile/src/lib/maquinas.ts`, `app/maquinas-usadas/[id]` |
 | Página pública do anúncio com a resposta direta, ficha técnica, dicas de segurança, parecidos e botão "Falar com o vendedor" | `app/maquinas-usadas/[id]/page.tsx` |
 | Política de privacidade passou a explicar a medição de uso e a origem do cadastro, com base legal e prazo | `app/privacidade/page.tsx` |

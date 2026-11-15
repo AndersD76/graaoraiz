@@ -3,7 +3,7 @@ import { SITE_URL } from '@/lib/config';
 import { CRAWLERS_BUSCA, CRAWLERS_TREINO } from '@/lib/seo';
 
 /** Fora do índice: API, painéis internos e telas do app que dependem de conta. */
-const BLOQUEADO = ['/api/', '/painel/', '/avaliacoes', '/entrar', '/ajustes', '/anunciar', '/meus-anuncios', '/onboarding'];
+const BLOQUEADO = ['/api/', '/admin', '/entrar', '/ajustes', '/anunciar', '/meus-anuncios', '/onboarding'];
 
 export default function robots(): MetadataRoute.Robots {
   return {

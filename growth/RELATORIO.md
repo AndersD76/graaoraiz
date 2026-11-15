@@ -64,7 +64,7 @@ Nada foi publicado. Os temas 2 e 3 precisam de revisão técnica (agrônomo) e j
 - **`/llms.txt` e `/llms-full.txt`:** resumo do produto e lista dos anúncios ativos em Markdown.
 - **Robots:** crawlers de busca das IAs (OAI-SearchBot, PerplexityBot, Claude-SearchBot…) liberados com nome. Os de treino também estão liberados; para bloquear, mude o grupo `CRAWLERS_TREINO` em `lib/seo.ts`.
 - **Texto canônico da marca** para repetir em todo perfil: [`entidade.md`](entidade.md).
-- **Visitas de crawlers de IA** passam a ser contadas (`crawler_ai_hit`) e aparecem em `/painel/funil`.
+- **Visitas de crawlers de IA** passam a ser contadas (`crawler_ai_hit`) e aparecem em `/admin/funil`.
 
 ### Fase 4: distribuição
 
@@ -76,7 +76,7 @@ Nada foi publicado. Os temas 2 e 3 precisam de revisão técnica (agrônomo) e j
 ### Fase 5: medição
 
 - **Eventos** em `app.evento`: o rastro dos crawlers de IA, os envios ao IndexNow e o funil completo (ver o relatório de conversão).
-- **Painel** em `/painel/funil?chave=…`:
+- **Painel** em `/admin/funil` (com login de administrador):
   - funil semanal;
   - origem dos cadastros;
   - visitas de crawlers de IA;
@@ -131,7 +131,7 @@ Nada foi publicado. Os temas 2 e 3 precisam de revisão técnica (agrônomo) e j
 | Páginas no índice do Bing (`site:`) | 0 | Todas as páginas públicas e anúncios ativos |
 | Páginas no índice do Google | sem acesso (TODO-VALIDAR no Search Console) | Idem, com o relatório "Páginas" sem erro |
 | Anúncios ativos | 0 | Definir com você (é o que mais pesa no SEO de máquinas) |
-| Contas reais (sem demonstração) | 1 | Medir em `/painel/funil` a partir da publicação |
+| Contas reais (sem demonstração) | 1 | Medir em `/admin` a partir da publicação |
 | Cliques orgânicos | sem dado | Ter 4 semanas de série no Search Console para fixar a meta |
 | Citação nas respostas de IA (10 perguntas de `share-of-voice.csv`) | não medido | Primeira medição na semana da publicação; meta: aparecer em ao menos 1 |
 | LCP da raiz no celular (Lighthouse local) | 6,4 s | < 2,5 s (exige carregar o mapa e o satélite sob demanda) |

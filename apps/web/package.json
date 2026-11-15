@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@graoraiz/clima": "*",
+    "lucide-react": "^1.73.0",
     "next": "16.4.2",
     "pg": "^8.23.1",
     "polygon-clipping": "^0.15.7",

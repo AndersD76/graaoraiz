@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { MolduraSite } from '@/components/moldura-site';
 
 export const metadata: Metadata = {
   title: 'Página não encontrada',
@@ -6,7 +7,9 @@ export const metadata: Metadata = {
 };
 
 export default function NaoEncontrada() {
+  // Fica fora do grupo (site): monta a moldura do site por conta própria.
   return (
+    <MolduraSite>
     <section className="mx-auto max-w-xl px-4 py-20 text-center">
       <p className="text-sm font-semibold uppercase tracking-wide text-marca">Erro 404</p>
       <h1 className="mt-3 text-3xl font-extrabold tracking-tight">Página não encontrada</h1>
@@ -18,5 +21,6 @@ export default function NaoEncontrada() {
         Abrir o app
       </a>
     </section>
+    </MolduraSite>
   );
 }

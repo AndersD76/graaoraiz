@@ -25,7 +25,7 @@ API pública (`/api/*`), páginas públicas, painéis com chave na URL, app web 
 | Páginas públicas | XSS por texto do anúncio | Adulteração | React escapa o texto; JSON-LD com `<` escapado (testado) | — |
 | Consultas externas (PRODES/CAR, IBGE, clima) | Abuso para esgotar cota ou derrubar o servidor | DoS | **Novo:** limites por IP no `proxy.ts`; cache de 12 h na checagem | Sem limite global entre instâncias |
 | API | Chamada de outro site no navegador do usuário | Falsificação | **Novo:** `proxy.ts` recusa Origin desconhecida; token não está em cookie | — |
-| Painéis | Chave vazando pela URL (histórico, referrer) | Vazamento | `timingSafeEqual`; **novo:** `Referrer-Policy: no-referrer`, `noindex`, bloqueio no robots | Chave continua na URL: trocar por login de admin no futuro |
+| Painel `/admin` | Sessão roubada ou forjada; administrador indevido | Falsificação / elevação | **Novo:** login de administrador; cookie assinado de 12 h (`httpOnly`, `SameSite=Strict`, só em `/admin`) preso à senha; conta conferida no banco a cada tela e ação; limite de tentativas; registro de ações; `no-referrer` e `noindex` | Sem segundo fator (2FA): avaliar quando houver mais de um administrador |
 | Site | Clickjacking e sniffing de tipo | Adulteração | **Novo:** `X-Frame-Options`, `frame-ancestors 'self'`, `nosniff`, HSTS | CSP completa (script/style) pendente |
 | Webhooks de pagamento | Webhook falso ou repetido | Falsificação / repúdio | Não existe cobrança na web ainda | Ao criar: assinatura + idempotência obrigatórias |
 | Banco | Senha antiga no histórico do git | Vazamento | — | **Trocar a senha do Neon** |

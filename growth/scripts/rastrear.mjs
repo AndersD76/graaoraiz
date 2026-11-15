@@ -5,7 +5,7 @@ import { writeFileSync } from 'node:fs';
 const base = (process.argv[2] ?? 'http://localhost:3000').replace(/\/+$/, '');
 const saida = process.argv[3];
 const UA = 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)';
-const ROTAS_APP = ['/', '/lavoura', '/maquinas', '/entrar', '/anunciar', '/painel/funil', '/rota-que-nao-existe'];
+const ROTAS_APP = ['/', '/lavoura', '/maquinas', '/entrar', '/anunciar', '/admin', '/rota-que-nao-existe'];
 
 const texto = (html, re) => html.match(re)?.[1]?.trim() ?? '';
 const contar = (html, re) => (html.match(re) ?? []).length;

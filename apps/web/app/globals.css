@@ -15,6 +15,24 @@
   --color-atencao: #9a5b00;
   --color-ruim: #c62828;
 
+  /* Painel administrativo (/admin): tema claro aqui, escuro no bloco .admin abaixo. */
+  --color-adm-fundo: #f4f5f2;
+  --color-adm-cartao: #ffffff;
+  --color-adm-linha: #e2e6df;
+  --color-adm-texto: #0f1a12;
+  --color-adm-texto-2: #56625a;
+  --color-adm-marca: #1f6b2e;
+  --color-adm-marca-forte: #164f21;
+  --color-adm-sobre-marca: #ffffff;
+  --color-adm-marca-suave: #e3efe5;
+  --color-adm-grafico: #1f6b2e;
+  --color-adm-bom: #176c37;
+  --color-adm-bom-suave: #e2f4e8;
+  --color-adm-atencao: #9a5b00;
+  --color-adm-atencao-suave: #fcefd9;
+  --color-adm-ruim: #c62828;
+  --color-adm-ruim-suave: #fce5e3;
+
   --font-sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans",
     "Liberation Sans", sans-serif;
 }
@@ -93,4 +111,59 @@ body {
   font-weight: 600;
   text-decoration: underline;
   text-underline-offset: 2px;
+}
+
+/* ---------- Painel administrativo ---------- */
+
+.admin {
+  color-scheme: light;
+  background: var(--color-adm-fundo);
+  color: var(--color-adm-texto);
+}
+
+.admin :focus-visible {
+  outline-color: var(--color-adm-marca);
+}
+
+/* Escuro: escolhido no botão do topo (data-tema) ou, sem escolha, seguindo o sistema. */
+.admin[data-tema="escuro"] {
+  color-scheme: dark;
+  --color-adm-fundo: #0a0f0b;
+  --color-adm-cartao: #141b16;
+  --color-adm-linha: #27322a;
+  --color-adm-texto: #f1f5f0;
+  --color-adm-texto-2: #a3b0a6;
+  --color-adm-marca: #4cc27a;
+  --color-adm-marca-forte: #7ad89e;
+  --color-adm-sobre-marca: #0a0f0b;
+  --color-adm-marca-suave: #15301f;
+  --color-adm-grafico: #38a565;
+  --color-adm-bom: #47c47a;
+  --color-adm-bom-suave: #13301f;
+  --color-adm-atencao: #f2a93b;
+  --color-adm-atencao-suave: #3a2a10;
+  --color-adm-ruim: #ff6b61;
+  --color-adm-ruim-suave: #3b1815;
+}
+
+@media (prefers-color-scheme: dark) {
+  .admin:not([data-tema="claro"]) {
+    color-scheme: dark;
+    --color-adm-fundo: #0a0f0b;
+    --color-adm-cartao: #141b16;
+    --color-adm-linha: #27322a;
+    --color-adm-texto: #f1f5f0;
+    --color-adm-texto-2: #a3b0a6;
+    --color-adm-marca: #4cc27a;
+    --color-adm-marca-forte: #7ad89e;
+    --color-adm-sobre-marca: #0a0f0b;
+    --color-adm-marca-suave: #15301f;
+    --color-adm-grafico: #38a565;
+    --color-adm-bom: #47c47a;
+    --color-adm-bom-suave: #13301f;
+    --color-adm-atencao: #f2a93b;
+    --color-adm-atencao-suave: #3a2a10;
+    --color-adm-ruim: #ff6b61;
+    --color-adm-ruim-suave: #3b1815;
+  }
 }

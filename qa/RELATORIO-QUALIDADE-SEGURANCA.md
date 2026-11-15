@@ -38,7 +38,7 @@ Os problemas eram de borda: endereço inventado respondendo 200, cache de anúnc
 | 12 | Baixa | Token de sessão vale 180 dias e não é revogado ao sair | **Pendente (decisão de produto):** encurtar para 30 dias com renovação automática e guardar uma "versão de sessão" na conta para revogar |
 | 13 | Baixa | Bloqueio de login por e-mail (10 erros/15 min): alguém pode travar a conta de outro por 15 minutos | Aceito: troca consciente contra força bruta |
 | 14 | Info | Limites ficam na memória de cada instância e zeram no deploy | Aceito com 1 instância; com mais, mover para o banco ou Redis |
-| 15 | Info | Chave do painel vai na URL | Aceito por ora (com `no-referrer`); trocar por login de administrador no futuro |
+| 15 | Média | Chave do painel ia na URL (histórico do navegador, prints, referrer) | **Corrigido:** painel `/admin` com login de administrador. Sessão em cookie `httpOnly`/`SameSite=Strict` de 12 h, presa à senha, conferida no banco a cada tela e ação, e registro de cada ação. A chave do painel só serve para o primeiro acesso, enquanto não há administrador. |
 | 16 | Info | CSP só com `frame-ancestors`, `base-uri`, `object-src` e `form-action` | O app Expo injeta estilos e usa workers; uma CSP completa precisa de teste dedicado |
 
 ## Testes
@@ -46,8 +46,9 @@ Os problemas eram de borda: endereço inventado respondendo 200, cache de anúnc
 | Camada | Antes | Agora | Resultado |
 |---|---|---|---|
 | Regras de clima (`packages/clima`, Vitest) | 93 | 93 | 93 de 93 |
-| Servidor (`apps/web`, Vitest) | 0 | 15: limite por IP, JSON-LD seguro, crawlers, atribuição, chave do painel, origem, rotas do app | 15 de 15 |
-| Autorização e segurança da API contra servidor real ([`testes/autorizacao.mjs`](testes/autorizacao.mjs)) | 0 | 70 verificações | 70 de 70 |
+| Servidor (`apps/web`, Vitest) | 0 | 19: limite por IP, JSON-LD seguro, crawlers, atribuição, chave do painel, sessão do painel (vencida, adulterada, token do app recusado), origem, rotas do app | 19 de 19 |
+| Autorização e segurança da API contra servidor real ([`testes/autorizacao.mjs`](testes/autorizacao.mjs)) | 0 | 66 verificações (as do painel passaram para o teste do painel) | 66 de 66 |
+| Painel administrativo no navegador ([`testes/admin.mjs`](testes/admin.mjs)): primeiro acesso, login, todas as telas, ações, planilha, tema, celular, conta comum barrada, saída | 0 | 43 verificações | 43 de 43 |
 | SEO e vitrine ponta a ponta (servidor real) | 0 | 24 verificações | 24 de 24 |
 | App (Playwright, web) | 11 | 11 | 11 de 11 |
 | Tipos e lint (app e servidor) | sim | sim | sem erro |

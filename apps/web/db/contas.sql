@@ -139,3 +139,17 @@ comment on table app.evento is 'Eventos do funil (objeto_ação). Sem e-mail, se
 
 -- Atribuição do cadastro: primeiro e último toque (UTM, referrer, página de entrada).
 alter table app.conta add column if not exists origem jsonb;
+
+-- Painel administrativo (/admin): quem pode entrar e o registro do que cada administrador fez.
+alter table app.conta add column if not exists admin boolean not null default false;
+
+create table if not exists app.acao_admin (
+  id          bigserial   primary key,
+  admin_id    uuid        references app.conta (id) on delete set null,
+  admin_nome  text        not null,
+  acao        text        not null check (acao ~ '^[a-z]+(_[a-z]+)*$'),
+  alvo        text,
+  detalhes    jsonb       not null default '{}',
+  criado_em   timestamptz not null default now()
+);
+create index if not exists acao_admin_criado on app.acao_admin (criado_em desc);

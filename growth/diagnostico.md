@@ -39,7 +39,7 @@ Data: 14/11/2026 · Produção: https://www.appgraoraiz.com.br · Branch do trab
 | `/baixar`, `/avaliar` | Página do servidor | indexável | indexável |
 | `/privacidade`, `/termos`, `/excluir-dados` | Página do servidor | indexável | indexável |
 | `/maquinas`, `/maquina/<id>`, `/lavoura`, `/chuva`, `/caderno`, `/entrar`, `/ajustes`, `/anunciar`, `/meus-anuncios` e demais telas | App (SPA) | indexável, vazia, duplicada | `noindex, follow` (e bloqueio no robots para as telas de conta) |
-| `/painel/*`, `/avaliacoes` | Painéis internos | indexável por engano | `noindex, nofollow`, bloqueado no robots, sem referrer |
+| `/admin/*` (antes `/painel/*` e `/avaliacoes`) | Painel administrativo com login | indexável por engano | `noindex, nofollow`, bloqueado no robots, sem referrer |
 | `/api/*` | API | bloqueado no robots | igual |
 
 ## Mapa de intenção

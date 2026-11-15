@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
+import { COOKIE_ADMIN } from '@/lib/admin/sessao';
 import { SITE_URL } from '@/lib/config';
 import { criarLimite } from '@/lib/limite';
 import { crawlerDeIa } from '@/lib/seo';
@@ -43,6 +44,16 @@ export function proxy(request: NextRequest) {
   // Monitor de crawlers de IA: quem leu qual página (app.evento, crawler_ai_hit).
   const bot = crawlerDeIa(request.headers.get('user-agent'));
   if (bot) registrarEvento({ nome: 'crawler_ai_hit', origem: 'servidor', pagina: pathname, propriedades: { bot } });
+
+  // Painel sem cookie de sessão: vai direto para a entrada. A sessão em si é conferida em cada tela e ação.
+  // Em produção usa o endereço público (atrás do proxy do Railway o host interno da requisição não é o público).
+  if (pathname.startsWith('/admin') && pathname !== '/admin/entrar' && request.method === 'GET' && !request.cookies.has(COOKIE_ADMIN)) {
+    const destino = new URL('/admin/entrar', SITE_URL.startsWith('https://') ? SITE_URL : request.url);
+    const resposta = NextResponse.redirect(destino, 307);
+    resposta.headers.set('Cache-Control', 'no-store');
+    resposta.headers.set('X-Robots-Tag', 'noindex, nofollow');
+    return resposta;
+  }
 
   if (pathname.startsWith('/api/')) {
     const origem = request.headers.get('origin');

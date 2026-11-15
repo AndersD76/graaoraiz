@@ -16,4 +16,4 @@ Exemplos:
 Regras:
 - Nunca use UTM em link interno (de uma página do site para outra): isso apaga a origem real.
 - As páginas com UTM têm `canonical` sem parâmetros, então não geram página duplicada no Google.
-- A origem aparece no painel `/painel/funil` ("De onde vieram as contas").
+- A origem aparece no painel `/admin/funil` ("De onde vieram as contas") e na ficha de cada conta em `/admin/usuarios`.

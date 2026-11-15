@@ -54,8 +54,15 @@ const nextConfig: NextConfig = {
   // Um endereço só para buscadores: outros hosts (ex.: o do Railway) redirecionam para o www.
   // A API fica de fora, para os apps antigos que ainda chamam o endereço do Railway.
   async redirects() {
-    if (!HOST_CANONICO) return [];
+    // Painéis antigos (chave na URL) foram trocados pelo painel com login em /admin.
+    const paineisAntigos = [
+      { source: "/painel/maquinas", destination: "/admin/vendas", permanent: true },
+      { source: "/painel/funil", destination: "/admin/funil", permanent: true },
+      { source: "/avaliacoes", destination: "/admin/avaliacoes", permanent: true },
+    ];
+    if (!HOST_CANONICO) return paineisAntigos;
     return [
+      ...paineisAntigos,
       {
         source: "/:caminho((?!api/).*)",
         missing: [{ type: "host", value: HOST_CANONICO.replace(/\./g, "\\.") }],
@@ -69,8 +76,8 @@ const nextConfig: NextConfig = {
       { source: "/:caminho*", headers: SEGURANCA },
       // Telas do app dependem de conta ou repetem as páginas públicas: fora do índice.
       ...(TELAS_DO_APP ?? []).map((source) => ({ source, headers: [{ key: "X-Robots-Tag", value: "noindex, follow" }] })),
-      { source: "/painel/:caminho*", headers: PRIVADO },
-      { source: "/avaliacoes", headers: PRIVADO },
+      { source: "/admin", headers: PRIVADO },
+      { source: "/admin/:caminho*", headers: PRIVADO },
     ];
   },
   // O pacote compartilhado é TypeScript puro (sem build próprio).
