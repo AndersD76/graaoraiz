@@ -26,8 +26,8 @@ export default function Baixar() {
         A chuva e o tempo do seu talhão, no celular
       </h1>
       <p className="mt-4 text-lg leading-relaxed text-texto-2">
-        O Grão Raiz é um app gratuito para produtor de grãos, com plano Pro opcional. Crie sua conta e os dados da
-        lavoura ficam guardados na nuvem.
+        O Grão Raiz é um app gratuito para produtor de grãos, com todos os recursos liberados. Crie sua conta e os
+        dados da lavoura ficam guardados na nuvem.
       </p>
       <ul className="mt-6 flex flex-col gap-3">
         {DESTAQUES.map((d) => (

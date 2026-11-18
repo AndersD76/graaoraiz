@@ -1,6 +1,6 @@
 import { CATEGORIAS_MAQUINA, type CategoriaMaquina, formatarReais, resumoUso } from '@graoraiz/clima';
 import Link from 'next/link';
-import { comissaoPercentual } from '@/lib/maquinas';
+import { cobraComissao, comissaoPercentual } from '@/lib/maquinas';
 import { absoluta, jsonLd } from '@/lib/seo';
 import { type AnuncioPublico, PLURAL_CATEGORIA } from '@/lib/vitrine';
 
@@ -55,8 +55,11 @@ export function CategoriasMaquinas({ atual }: { atual: CategoriaMaquina | null }
 /** Perguntas visíveis na página (o FAQPage do JSON-LD repete exatamente estas). */
 export function perguntasVitrine(): { pergunta: string; resposta: string }[] {
   const pct = comissaoPercentual().toLocaleString('pt-BR');
+  const custo = cobraComissao()
+    ? `Anunciar é grátis. Se a máquina for vendida para alguém que pediu o contato pelo Grão Raiz, o vendedor paga ${pct}% do valor da venda, por PIX.`
+    : 'Nada. Anunciar e vender pelo Grão Raiz é grátis, sem taxa e sem comissão sobre a venda.';
   return [
-    { pergunta: 'Quanto custa anunciar uma máquina no Grão Raiz?', resposta: `Anunciar é grátis. Se a máquina for vendida para alguém que pediu o contato pelo Grão Raiz, o vendedor paga ${pct}% do valor da venda, por PIX.` },
+    { pergunta: 'Quanto custa anunciar uma máquina no Grão Raiz?', resposta: custo },
     { pergunta: 'Como falo com o vendedor?', resposta: 'Abra o anúncio no app e toque em “Chamar no WhatsApp”. É preciso ter conta grátis; o pedido de contato fica registrado.' },
     { pergunta: 'O Grão Raiz garante a máquina?', resposta: 'Não. O Grão Raiz aproxima comprador e vendedor; a negociação, o pagamento e a documentação são entre vocês. Veja a máquina funcionando e confira a nota e o documento antes de pagar.' },
     { pergunta: 'Que máquinas posso anunciar?', resposta: 'Tratores, colheitadeiras, plantadeiras, pulverizadores, implementos e caminhões usados no campo, com fotos reais e preço.' },

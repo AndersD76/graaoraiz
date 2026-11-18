@@ -98,14 +98,14 @@ export default function Privacidade() {
       <h3>2.4 Classificados de máquinas e implementos</h3>
       <p>
         Quando você anuncia, guardamos o anúncio (categoria, título, marca, modelo, ano, horas de uso, preço, cidade,
-        descrição e fotos), o seu WhatsApp e a data em que aceitou a comissão. O anúncio, as fotos, a cidade e o seu
-        primeiro nome ficam visíveis para qualquer pessoa. O WhatsApp aparece só para quem tem conta e toca em
+        descrição e fotos), o seu WhatsApp e a data em que aceitou os termos de uso. O anúncio, as fotos, a cidade e o
+        seu primeiro nome ficam visíveis para qualquer pessoa. O WhatsApp aparece só para quem tem conta e toca em
         &quot;Chamar no WhatsApp&quot;; registramos quem pediu cada contato. Quando você marca o anúncio como vendido,
-        guardamos o valor da venda e a comissão, e usamos o seu contato para combinar o pagamento.
+        guardamos o valor informado da venda, para acompanhar como os classificados estão funcionando. Anunciar e vender
+        é grátis: não cobramos comissão.
       </p>
       <p>
-        <strong>Base legal:</strong> execução de contrato (art. 7º, V) e, para os registros de venda e comissão,
-        cumprimento de obrigação legal e exercício regular de direitos (art. 7º, II e VI, da LGPD).
+        <strong>Base legal:</strong> execução de contrato (art. 7º, V, da LGPD).
       </p>
 
       <h3>2.5 Notificações</h3>
@@ -114,14 +114,10 @@ export default function Privacidade() {
         da manhã são calculados e agendados no próprio aparelho. Você pode desligá-los no app ou no sistema.
       </p>
 
-      <h3>2.6 Assinatura Pro</h3>
+      <h3>2.6 Pagamentos</h3>
       <p>
-        No Android e no iPhone, a assinatura é cobrada pela Google Play ou pela App Store. Para saber se ela está ativa,
-        usamos o RevenueCat, que recebe um identificador gerado pelo app e os comprovantes da loja. Não recebemos número
-        de cartão.
-      </p>
-      <p>
-        <strong>Base legal:</strong> execução de contrato (art. 7º, V, da LGPD).
+        Hoje o Grão Raiz é todo grátis: não há assinatura nem compra dentro do app, e não tratamos dados de pagamento. Se
+        um dia houver plano pago, esta política será atualizada antes.
       </p>
 
       <h3>2.7 Avaliação da versão de teste</h3>
@@ -157,7 +153,7 @@ export default function Privacidade() {
       <ul>
         <li>Conta, dados da lavoura, anúncios e registros de contato: enquanto a conta existir. Ao excluir a conta, eles são apagados.</li>
         <li>Registros de uso do app: até 24 meses. Ao excluir a conta, eles deixam de ser ligados a ela.</li>
-        <li>Registros de venda e comissão: pelo prazo exigido pela legislação fiscal e civil (em geral, 5 anos).</li>
+        <li>Registros de venda: enquanto a conta existir. Ao excluir a conta, eles são apagados.</li>
         <li>Avaliações: até 12 meses ou até você pedir a remoção.</li>
         <li>Registros de acesso: 6 meses, como pede o Marco Civil da Internet.</li>
       </ul>
@@ -180,9 +176,6 @@ export default function Privacidade() {
           — recebem a localização ou o contorno do talhão, sem o seu nome, como descrito no item 2.3.
         </li>
         <li>
-          <strong>Google Play, App Store e RevenueCat</strong> — cobrança e situação da assinatura nos aplicativos.
-        </li>
-        <li>
           <strong>Compradores interessados</strong> — veem o seu anúncio e, se pedirem o contato, o seu WhatsApp.
         </li>
       </ul>
@@ -191,7 +184,7 @@ export default function Privacidade() {
       <h2>5. Transferência internacional</h2>
       <p>
         A hospedagem (Railway) e o banco de dados (Neon) ficam em servidores nos Estados Unidos, e outros operadores
-        citados, como o Open-Meteo, o Microsoft Planetary Computer, a Resend e o RevenueCat, também podem processar dados
+        citados, como o Open-Meteo, o Microsoft Planetary Computer e a Resend, também podem processar dados
         fora do Brasil. A transferência é necessária para executar o serviço que você contratou e segue as garantias do
         art. 33 da LGPD.
       </p>

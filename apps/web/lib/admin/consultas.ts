@@ -68,7 +68,7 @@ export async function resumo(dias: Periodo): Promise<Resumo> {
        (select count(*)::int from app.venda, p where vendido_em > p.ini_antes and vendido_em <= p.ini) as vendas_antes,
        (select coalesce(sum(valor_venda), 0)::float from app.venda, p where vendido_em > p.ini) as vendas_valor,
        (select coalesce(sum(comissao_valor), 0)::float from app.venda where comissao_paga_em is null) as comissao_aberta,
-       (select count(*)::int from app.venda where comissao_paga_em is null) as comissao_aberta_n,
+       (select count(*)::int from app.venda where comissao_paga_em is null and comissao_valor > 0) as comissao_aberta_n,
        (select coalesce(sum(comissao_valor), 0)::float from app.venda where comissao_paga_em is not null) as comissao_recebida,
        (select avg(nota)::float from app.avaliacao) as nota_media,
        (select count(*)::int from app.avaliacao) as avaliacoes`,
@@ -128,7 +128,7 @@ export interface Pendencias {
 /** O sino do topo: o que pede atenção agora. */
 export async function pendencias(): Promise<Pendencias> {
   const r = await banco().query<Pendencias>(
-    `select (select count(*)::int from app.venda where comissao_paga_em is null) as comissoes,
+    `select (select count(*)::int from app.venda where comissao_paga_em is null and comissao_valor > 0) as comissoes,
             (select count(*)::int from app.avaliacao where criado_em > now() - interval '7 days') as avaliacoes,
             (select count(*)::int from app.anuncio where criado_em > now() - interval '1 day') as anuncios,
             (select count(*)::int from app.contato_anuncio where criado_em > now() - interval '1 day') as contatos`,
@@ -247,9 +247,10 @@ export async function anunciosAdmin(
 
 export type FiltroVendas = 'aberto' | 'pago' | 'todas';
 
-export function lerFiltroVendas(valor: unknown): FiltroVendas {
+/** Sem comissão (venda grátis), a lista abre em "todas"; com comissão, em "a receber". */
+export function lerFiltroVendas(valor: unknown, padrao: FiltroVendas = 'aberto'): FiltroVendas {
   const v = lerTexto(valor, 10);
-  return v === 'pago' || v === 'todas' ? v : 'aberto';
+  return v === 'pago' || v === 'todas' || v === 'aberto' ? v : padrao;
 }
 
 export interface LinhaVenda {
@@ -268,7 +269,7 @@ export interface LinhaVenda {
 }
 
 export async function vendas(filtro: FiltroVendas, limite = 500): Promise<LinhaVenda[]> {
-  const onde = { aberto: 'comissao_paga_em is null', pago: 'comissao_paga_em is not null', todas: 'true' }[filtro];
+  const onde = { aberto: 'comissao_paga_em is null and comissao_valor > 0', pago: 'comissao_paga_em is not null', todas: 'true' }[filtro];
   const r = await banco().query<LinhaVenda>(`select * from app.venda where ${onde} order by vendido_em desc limit $1`, [limite]);
   return r.rows;
 }

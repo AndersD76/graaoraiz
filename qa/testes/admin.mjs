@@ -71,6 +71,10 @@ try {
   const B = (await api('/api/anuncios', { metodo: 'POST', token: v.json?.token, corpo: anuncio([foto], `QA Painel Vendido ${marca}`) })).json?.id;
   await api(`/api/anuncios/${B}/vendido`, { metodo: 'POST', token: v.json?.token, corpo: { valor: 100000 } });
   ok(ids.vendedor && A && B, 'vendedor de teste com um anúncio no ar e uma venda');
+  // Hoje anunciar e vender é grátis (COMISSAO_PERCENTUAL vazia); com a variável definida, o painel ganha a parte de comissão.
+  const pctVenda = Number((await db.query('select comissao_percentual from app.venda where anuncio_id = $1', [B])).rows[0]?.comissao_percentual ?? 0);
+  const comComissao = pctVenda > 0;
+  console.log(`(modo do servidor: ${comComissao ? `comissão de ${pctVenda}%` : 'grátis, sem comissão'})`);
 
   // ---------- sem sessão ----------
   const ctx = await navegador.newContext({ viewport: { width: 1366, height: 900 }, locale: 'pt-BR' });
@@ -140,7 +144,7 @@ try {
     ['/admin/usuarios', 'Usuários'],
     [`/admin/usuarios/${ids.vendedor}`, vendedor.nome],
     ['/admin/anuncios', 'Anúncios'],
-    ['/admin/vendas', 'Vendas e comissões'],
+    ['/admin/vendas', comComissao ? 'Vendas e comissões' : 'Vendas'],
     ['/admin/contatos', 'Pedidos de contato'],
     ['/admin/funil', 'Funil'],
     ['/admin/avaliacoes', 'Avaliações'],
@@ -153,8 +157,8 @@ try {
     ok(r?.status() === 200 && h1?.includes(titulo), `${caminho.split('?')[0].replace(ids.vendedor, '<id>')} abre (${r?.status()}, “${h1}”)`);
   }
   await p.goto(`${base}/admin`);
-  await p.getByText('Comissão a receber', { exact: true }).waitFor();
-  ok(true, 'dashboard mostra os números');
+  await p.getByText(comComissao ? 'Comissão a receber' : 'Grátis', { exact: true }).waitFor();
+  ok(true, `dashboard mostra os números (${comComissao ? 'com comissão a receber' : 'comissão: Grátis'})`);
   if (pastaCapturas) await p.screenshot({ path: join(pastaCapturas, 'admin-dashboard.png'), fullPage: true });
 
   // ---------- ações em anúncios ----------
@@ -172,17 +176,26 @@ try {
   ok((await situacaoNoBanco(A)) === 'removido', 'Tirar do ar (com confirmação): anúncio removido');
   ok((await api(`/api/anuncios/${A}`)).status === 404, 'anúncio removido some da API pública');
 
-  // ---------- comissão ----------
+  // ---------- comissão (ou venda grátis) ----------
   await p.goto(`${base}/admin/vendas`);
   const linhaB = p.locator('tr', { hasText: `QA Painel Vendido ${marca}` });
-  await linhaB.getByRole('button', { name: 'Marcar paga' }).click();
-  await p.locator('tr', { hasText: `QA Painel Vendido ${marca}` }).waitFor({ state: 'detached' });
-  const paga = async () => (await db.query('select comissao_paga_em from app.venda where anuncio_id = $1', [B])).rows[0]?.comissao_paga_em;
-  ok(Boolean(await paga()), 'Marcar paga: comissão paga no banco (e sai da lista “a receber”)');
-  await p.goto(`${base}/admin/vendas?status=pago`);
-  await p.locator('tr', { hasText: `QA Painel Vendido ${marca}` }).getByRole('button', { name: 'Desfazer' }).click();
-  await p.locator('tr', { hasText: `QA Painel Vendido ${marca}` }).waitFor({ state: 'detached' });
-  ok(!(await paga()), 'Desfazer (com confirmação): comissão volta para “a receber”');
+  if (comComissao) {
+    await linhaB.getByRole('button', { name: 'Marcar paga' }).click();
+    await p.locator('tr', { hasText: `QA Painel Vendido ${marca}` }).waitFor({ state: 'detached' });
+    const paga = async () => (await db.query('select comissao_paga_em from app.venda where anuncio_id = $1', [B])).rows[0]?.comissao_paga_em;
+    ok(Boolean(await paga()), 'Marcar paga: comissão paga no banco (e sai da lista “a receber”)');
+    await p.goto(`${base}/admin/vendas?status=pago`);
+    await p.locator('tr', { hasText: `QA Painel Vendido ${marca}` }).getByRole('button', { name: 'Desfazer' }).click();
+    await p.locator('tr', { hasText: `QA Painel Vendido ${marca}` }).waitFor({ state: 'detached' });
+    ok(!(await paga()), 'Desfazer (com confirmação): comissão volta para “a receber”');
+  } else {
+    await linhaB.waitFor();
+    ok((await linhaB.getByRole('button', { name: 'Marcar paga' }).count()) === 0 && !(await p.content()).includes('A receber'), 'sem comissão: a venda aparece em Vendas, sem “a receber” nem “Marcar paga”');
+    await p.locator('summary[aria-label^="Pendências:"]').click();
+    const noSino = (await p.locator('a', { hasText: /comiss(ão|ões) a receber/ }).locator('span').first().textContent())?.trim();
+    ok(noSino === '0', `sino não conta venda grátis como comissão a receber (${noSino})`);
+    await p.locator('summary[aria-label^="Pendências:"]').click();
+  }
 
   const planilha = await p.request.get(`${base}/admin/vendas/planilha`);
   const csv = await planilha.text();
@@ -191,7 +204,8 @@ try {
   // ---------- registro de ações ----------
   await p.goto(`${base}/admin/configuracoes`);
   const registro = await p.locator('table', { hasText: 'Quem' }).last().textContent();
-  ok(['Pausou anúncio', 'Reativou anúncio', 'Tirou anúncio do ar', 'Marcou comissão paga', 'Reabriu comissão', 'Baixou a planilha de vendas'].every((t) => registro?.includes(t)), 'registro de ações guarda cada ação do painel');
+  const esperadas = ['Pausou anúncio', 'Reativou anúncio', 'Tirou anúncio do ar', 'Baixou a planilha de vendas', ...(comComissao ? ['Marcou comissão paga', 'Reabriu comissão'] : [])];
+  ok(esperadas.every((t) => registro?.includes(t)), 'registro de ações guarda cada ação do painel');
 
   // ---------- tema escuro ----------
   await p.getByRole('button', { name: 'Alternar tema claro e escuro' }).click();
@@ -235,7 +249,11 @@ try {
   await p.getByRole('heading', { name: 'Usuários', exact: true }).waitFor();
   ok((await p.locator('h1').allInnerTexts()).join('|') === 'Usuários', 'depois de excluir, abre só a lista de usuários (sem restos da ficha)');
   ok((await db.query('select 1 from app.conta where id = $1', [ids.vendedor])).rowCount === 0, 'Excluir conta (com confirmação): conta apagada');
-  ok((await db.query('select 1 from app.venda where anuncio_id = $1', [B])).rowCount === 1, 'a venda continua registrada depois da exclusão');
+  const vendaFicou = (await db.query('select 1 from app.venda where anuncio_id = $1', [B])).rowCount === 1;
+  ok(
+    comComissao ? vendaFicou : !vendaFicou,
+    comComissao ? 'a venda com comissão continua registrada depois da exclusão (prazo legal)' : 'sem comissão, a venda sai junto com a conta (LGPD)',
+  );
   ids.vendedor = null;
 
   // ---------- endereços antigos ----------

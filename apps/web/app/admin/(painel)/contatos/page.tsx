@@ -18,7 +18,7 @@ async function Conteudo({ searchParams }: Props) {
     <>
       <CabecalhoPagina
         titulo="Pedidos de contato"
-        descricao={`${fmtNumero.format(total)} ${total === 1 ? 'vez' : 'vezes'} que um comprador pediu o WhatsApp do vendedor. Bom para acompanhar se a venda saiu (e a comissão).`}
+        descricao={`${fmtNumero.format(total)} ${total === 1 ? 'vez' : 'vezes'} que um comprador pediu o WhatsApp do vendedor. Bom para acompanhar se a venda saiu.`}
       />
       <Cartao>
         {linhas.length ? (

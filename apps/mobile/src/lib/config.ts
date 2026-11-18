@@ -31,7 +31,8 @@ export const PRECOS_REFERENCIA = { mensal: 'R$ 29,90', anual: 'R$ 249,90', anual
 export const PERMITE_SIMULAR_PRO = __DEV__ || process.env.EXPO_PUBLIC_E2E === '1';
 
 /**
- * Versão de demonstração: todos os módulos do Pro liberados, sem loja (EXPO_PUBLIC_LIBERAR_PRO=1).
- * Ligada só no perfil preview do eas.json (APK para mostrar a produtores). Nunca nas builds das lojas.
+ * Por enquanto o Grão Raiz é todo grátis: todos os módulos liberados, sem assinatura nem RevenueCat
+ * (decisão de 18/11/2026, para atrair produtores e anúncios). Para voltar a vender o Pro, gere a build
+ * com EXPO_PUBLIC_LIBERAR_PRO=0 e reveja os termos e a política de privacidade do site antes.
  */
-export const LIBERA_PRO = process.env.EXPO_PUBLIC_LIBERAR_PRO === '1';
+export const LIBERA_PRO = process.env.EXPO_PUBLIC_LIBERAR_PRO !== '0';

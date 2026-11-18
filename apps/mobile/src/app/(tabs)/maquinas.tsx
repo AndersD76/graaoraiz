@@ -36,7 +36,7 @@ export default function MaquinasScreen() {
           <View style={estilos.flex}>
             <T variante="subtitulo">Vende uma máquina parada?</T>
             <T variante="pequeno">
-              Anunciar é grátis. {comissao !== null ? `Comissão de ${comissao.toLocaleString('pt-BR')}% só quando vender.` : 'Comissão só quando vender.'}
+              {comissao ? `Anunciar é grátis. Comissão de ${comissao.toLocaleString('pt-BR')}% só quando vender.` : 'Anunciar e vender é grátis, sem comissão.'}
             </T>
           </View>
         </Linha>

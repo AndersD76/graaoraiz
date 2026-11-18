@@ -133,7 +133,12 @@ try {
   const M = massa.json?.id;
   const linhaM = (await db.query('select conta_id, situacao, comissao_percentual from app.anuncio where id = $1', [M])).rows[0];
   ok(M && M !== '00000000-0000-4000-8000-000000000000', 'id do anúncio vem do servidor');
-  ok(linhaM?.conta_id === contas.a.id && linhaM?.situacao === 'ativo' && Number(linhaM?.comissao_percentual) > 0, `dono, situação e comissão ignoram o corpo (comissão ${linhaM?.comissao_percentual}%)`);
+  // A comissão gravada é sempre a do servidor (hoje 0%, grátis), nunca a que o cliente manda.
+  const pctServidor = Number((await api('/api/anuncios?pagina=0')).json?.comissaoPercentual ?? -1);
+  ok(
+    linhaM?.conta_id === contas.a.id && linhaM?.situacao === 'ativo' && Number(linhaM?.comissao_percentual) === pctServidor,
+    `dono, situação e comissão ignoram o corpo (comissão ${linhaM?.comissao_percentual}%, a do servidor: ${pctServidor}%)`,
+  );
 
   // ---------- Anúncio pausado só aparece para o dono ----------
   await api(`/api/anuncios/${M}/situacao`, { metodo: 'POST', token: contas.a.token, corpo: { situacao: 'pausado' } });
@@ -171,7 +176,7 @@ try {
   ok(grande.status === 413, `corpo grande demais → 413 (${grande.status})`);
   ok((await api('/api/anuncios', { metodo: 'POST', token: contas.a.token, bruto: '{"titulo":' })).status === 400, 'JSON quebrado → 400');
   ok((await api('/api/anuncios', { metodo: 'POST', token: contas.a.token, corpo: anuncio([fotoA], { preco: -1 }) })).status === 400, 'preço negativo → 400');
-  ok((await api('/api/anuncios', { metodo: 'POST', token: contas.a.token, corpo: anuncio([fotoA], { aceiteComissao: false }) })).status === 400, 'sem aceite da comissão → 400');
+  ok((await api('/api/anuncios', { metodo: 'POST', token: contas.a.token, corpo: anuncio([fotoA], { aceiteComissao: false }) })).status === 400, 'sem aceite dos termos → 400');
   for (const injecao of ["' or 1=1--", "1;drop table app.conta"]) {
     const lista = await api(`/api/anuncios?categoria=${encodeURIComponent(injecao)}&uf=${encodeURIComponent(injecao)}`);
     ok(lista.status < 500, `filtro com injeção SQL não quebra o servidor (${lista.status})`);
@@ -205,7 +210,11 @@ try {
   ok((await api(`/api/anuncios/${M}`)).status === 404, 'anúncios de conta excluída saem do ar');
   const vitrine = await api('/maquinas-usadas');
   ok(!vitrine.texto.includes(`QA Massa ${marca}`) && !vitrine.texto.includes(`QA Trator ${marca}`), 'vitrine pública esquece na hora os anúncios da conta excluída (cache limpo)');
-  ok((await db.query('select 1 from app.venda where anuncio_id = $1', [L])).rowCount === 1, 'registro da venda (comissão) continua após excluir a conta');
+  const vendaFicou = (await db.query('select 1 from app.venda where anuncio_id = $1', [L])).rowCount === 1;
+  ok(
+    pctServidor > 0 ? vendaFicou : !vendaFicou,
+    pctServidor > 0 ? 'registro da venda com comissão continua após excluir a conta' : 'sem comissão, o registro da venda sai junto com a conta (LGPD)',
+  );
   contas.a.excluida = true;
 } catch (e) {
   falhas++;

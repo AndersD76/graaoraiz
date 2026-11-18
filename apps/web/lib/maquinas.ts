@@ -3,10 +3,31 @@ import { type AnuncioResumo, CATEGORIAS_MAQUINA, MAX_FOTOS_ANUNCIO, type Situaca
 import { z } from 'zod';
 import { banco } from '@/lib/contas';
 
-/** Comissão sobre o valor da venda, em %. Vale para os anúncios criados a partir de agora. */
+/**
+ * Comissão sobre o valor da venda, em %. Hoje é 0: anunciar e vender pelo Grão Raiz é grátis
+ * (decisão de 18/11/2026, para atrair anúncios e visitas). Para voltar a cobrar, defina
+ * COMISSAO_PERCENTUAL no servidor (ex.: 3); vale só para anúncios criados depois disso.
+ * Páginas estáticas (termos, vitrine) leem a variável no build: no Railway, mudar a variável já
+ * gera um build novo, então os textos acompanham.
+ */
 export function comissaoPercentual(): number {
   const n = Number(process.env.COMISSAO_PERCENTUAL);
-  return Number.isFinite(n) && n > 0 && n < 50 ? n : 3;
+  return Number.isFinite(n) && n > 0 && n < 50 ? n : 0;
+}
+
+export function cobraComissao(): boolean {
+  return comissaoPercentual() > 0;
+}
+
+/**
+ * Custo de anunciar, em uma frase para textos públicos (vitrine, FAQ, llms.txt). Os termos de uso mudam sozinhos;
+ * ao religar a comissão, reveja também a política de privacidade e a página de excluir dados (prazo de guarda).
+ */
+export function custoDeAnunciar(): string {
+  const pct = comissaoPercentual().toLocaleString('pt-BR');
+  return cobraComissao()
+    ? `anunciar é grátis e a comissão de ${pct}% só é cobrada quando a máquina é vendida`
+    : 'anunciar e vender é grátis, sem taxa e sem comissão';
 }
 
 const categorias = CATEGORIAS_MAQUINA.map((c) => c.valor) as [string, ...string[]];

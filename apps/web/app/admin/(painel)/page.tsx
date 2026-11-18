@@ -6,6 +6,7 @@ import { BarrasDeitadas, ColunasPorDia } from '@/components/admin/graficos';
 import { CabecalhoPagina, Cartao, CartaoNumero, Carregando, Filtros, fmtData, fmtNumero, fmtReais, LinkTexto, Selo, Vazio } from '@/components/admin/ui';
 import { exigirAdmin } from '@/lib/admin/auth';
 import { anunciosPorCategoria, cadastrosPorDia, contas, funil, lerPeriodo, type Periodo, resumo, vendas } from '@/lib/admin/consultas';
+import { cobraComissao } from '@/lib/maquinas';
 
 export const metadata: Metadata = { title: 'Dashboard' };
 
@@ -48,12 +49,16 @@ async function Conteudo({ searchParams }: Props) {
         <CartaoNumero rotulo="Anúncios no ar" valor={fmtNumero.format(r.anuncios_ativos)} icone={Tractor} detalhe={`${fmtNumero.format(r.anuncios_novos)} novos no período`} />
         <CartaoNumero rotulo="Pedidos de contato" valor={fmtNumero.format(r.contatos)} icone={MessageCircle} comparar={{ atual: r.contatos, antes: r.contatos_antes, rotulo: antes }} />
         <CartaoNumero rotulo="Vendas de máquinas" valor={fmtNumero.format(r.vendas)} icone={Receipt} detalhe={`${fmtReais.format(r.vendas_valor)} vendidos no período`} />
-        <CartaoNumero
-          rotulo="Comissão a receber"
-          valor={fmtReais.format(r.comissao_aberta)}
-          icone={HandCoins}
-          detalhe={`${fmtNumero.format(r.comissao_aberta_n)} em aberto · ${fmtReais.format(r.comissao_recebida)} já recebidos`}
-        />
+        {cobraComissao() || r.comissao_aberta > 0 || r.comissao_recebida > 0 ? (
+          <CartaoNumero
+            rotulo="Comissão a receber"
+            valor={fmtReais.format(r.comissao_aberta)}
+            icone={HandCoins}
+            detalhe={`${fmtNumero.format(r.comissao_aberta_n)} em aberto · ${fmtReais.format(r.comissao_recebida)} já recebidos`}
+          />
+        ) : (
+          <CartaoNumero rotulo="Comissão" valor="Grátis" icone={HandCoins} detalhe="anunciar e vender não paga comissão (COMISSAO_PERCENTUAL)" />
+        )}
         <CartaoNumero
           rotulo="Nota da versão de teste"
           valor={r.nota_media === null ? '—' : r.nota_media.toLocaleString('pt-BR', { maximumFractionDigits: 1 })}
@@ -111,15 +116,19 @@ async function Conteudo({ searchParams }: Props) {
                         {v.vendedor_nome} · {fmtData.format(v.vendido_em)}
                       </span>
                     </span>
-                    <span className="shrink-0 text-right">
-                      <span className="block font-semibold tabular-nums">{fmtReais.format(Number(v.comissao_valor))}</span>
-                      {v.comissao_paga_em ? <Selo tom="bom">Paga</Selo> : <Selo tom="atencao">A receber</Selo>}
-                    </span>
+                    {Number(v.comissao_valor) > 0 ? (
+                      <span className="shrink-0 text-right">
+                        <span className="block font-semibold tabular-nums">{fmtReais.format(Number(v.comissao_valor))}</span>
+                        {v.comissao_paga_em ? <Selo tom="bom">Paga</Selo> : <Selo tom="atencao">A receber</Selo>}
+                      </span>
+                    ) : (
+                      <span className="shrink-0 text-right font-semibold tabular-nums">{fmtReais.format(Number(v.valor_venda))}</span>
+                    )}
                   </li>
                 ))}
               </ul>
             ) : (
-              <Vazio titulo="Nenhuma venda ainda" texto="Quando um vendedor marcar “vendi”, a comissão aparece aqui." />
+              <Vazio titulo="Nenhuma venda ainda" texto="Quando um vendedor marcar “vendi”, a venda aparece aqui." />
             )}
           </Cartao>
         </div>

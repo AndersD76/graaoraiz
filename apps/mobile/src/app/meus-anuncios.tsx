@@ -46,7 +46,9 @@ function ItemMeuAnuncio({ anuncio, aoMudar }: { anuncio: MeuAnuncio; aoMudar: ()
       const r = await marcarVendido(anuncio.id, v);
       informar(
         'Parabéns pela venda!',
-        `A comissão de ${r.comissaoPercentual.toLocaleString('pt-BR')}% ficou em ${formatarReais(r.comissaoValor)}. Vamos te chamar no WhatsApp ${anuncio.whatsapp} para combinar o PIX.`,
+        r.comissaoValor > 0
+          ? `A comissão de ${r.comissaoPercentual.toLocaleString('pt-BR')}% ficou em ${formatarReais(r.comissaoValor)}. Vamos te chamar no WhatsApp ${anuncio.whatsapp} para combinar o PIX.`
+          : 'O anúncio saiu da vitrine. Obrigado por usar o Grão Raiz! Tem outra máquina parada? Anuncie também, é grátis.',
       );
     });
   };
@@ -72,16 +74,22 @@ function ItemMeuAnuncio({ anuncio, aoMudar }: { anuncio: MeuAnuncio; aoMudar: ()
       </T>
 
       {anuncio.situacao === 'vendido' ? (
-        <Aviso tipo={anuncio.comissaoPaga ? 'bom' : 'info'}>
-          {`Vendido por ${formatarReais(anuncio.valorVenda ?? 0)}. Comissão de ${anuncio.comissaoPercentual.toLocaleString('pt-BR')}%: ${formatarReais(anuncio.comissaoValor ?? 0)}${anuncio.comissaoPaga ? ', paga. Obrigado!' : '. Vamos te chamar no WhatsApp para combinar o PIX.'}`}
+        <Aviso tipo={anuncio.comissaoPaga || !anuncio.comissaoValor ? 'bom' : 'info'}>
+          {anuncio.comissaoValor
+            ? `Vendido por ${formatarReais(anuncio.valorVenda ?? 0)}. Comissão de ${anuncio.comissaoPercentual.toLocaleString('pt-BR')}%: ${formatarReais(anuncio.comissaoValor)}${anuncio.comissaoPaga ? ', paga. Obrigado!' : '. Vamos te chamar no WhatsApp para combinar o PIX.'}`
+            : `Vendido por ${formatarReais(anuncio.valorVenda ?? 0)}. Parabéns pela venda!`}
         </Aviso>
       ) : vendendo ? (
         <>
           <Campo rotulo="Valor da venda (R$)" value={valor} onChangeText={setValor} keyboardType="decimal-pad" maxLength={16} testID={`valor-venda-${anuncio.id}`} />
-          <T variante="pequeno">
-            A comissão é de {anuncio.comissaoPercentual.toLocaleString('pt-BR')}% sobre esse valor
-            {lerValorDigitado(valor) ? `: ${formatarReais(Math.round(((lerValorDigitado(valor) ?? 0) * anuncio.comissaoPercentual) / 100))}` : ''}.
-          </T>
+          {anuncio.comissaoPercentual > 0 ? (
+            <T variante="pequeno">
+              A comissão é de {anuncio.comissaoPercentual.toLocaleString('pt-BR')}% sobre esse valor
+              {lerValorDigitado(valor) ? `: ${formatarReais(Math.round(((lerValorDigitado(valor) ?? 0) * anuncio.comissaoPercentual) / 100))}` : ''}.
+            </T>
+          ) : (
+            <T variante="pequeno">Não cobramos nada pela venda. O valor só ajuda a mostrar quanto as máquinas valem na região.</T>
+          )}
           <Linha>
             <View style={estilos.flex}>
               <Botao titulo="Confirmar venda" icone="check" carregando={ocupado} aoTocar={confirmarVenda} testID={`confirmar-venda-${anuncio.id}`} />

@@ -1,7 +1,7 @@
 import { Platform } from 'react-native';
 import Purchases, { type CustomerInfo, type PurchasesPackage } from 'react-native-purchases';
 
-import { ENTITLEMENT_PRO, REVENUECAT_ANDROID, REVENUECAT_IOS } from '@/lib/config';
+import { ENTITLEMENT_PRO, LIBERA_PRO, REVENUECAT_ANDROID, REVENUECAT_IOS } from '@/lib/config';
 import { definirPro } from '@/lib/estado';
 
 export interface PlanoAssinatura {
@@ -11,7 +11,8 @@ export interface PlanoAssinatura {
   descricao: string;
 }
 
-const chave = Platform.OS === 'ios' ? REVENUECAT_IOS : REVENUECAT_ANDROID;
+// Com tudo liberado (LIBERA_PRO), não há loja: o RevenueCat nem é iniciado e não recebe dado nenhum.
+const chave = LIBERA_PRO ? null : Platform.OS === 'ios' ? REVENUECAT_IOS : REVENUECAT_ANDROID;
 let configurado = false;
 
 /** A assinatura só funciona com a chave do RevenueCat configurada (EXPO_PUBLIC_REVENUECAT_*). */

@@ -183,6 +183,8 @@ export async function excluirConta(dados: FormData): Promise<void> {
     [id],
   );
   const r = await banco().query<{ nome: string }>('delete from app.conta where id = $1 and not demo returning nome', [id]);
+  // Vendas sem comissão saem com a conta (as com comissão ficam pelo prazo legal), como na exclusão pelo app.
+  if (r.rows[0]) await banco().query('delete from app.venda where conta_id = $1 and comissao_valor = 0', [id]);
   if (r.rows[0]) {
     for (const a of anuncios.rows) vitrineMudou(a.id, a.categoria);
     await registrarAcao(admin, 'conta_excluida', id, { nome: r.rows[0].nome, anuncios: anuncios.rows.length });

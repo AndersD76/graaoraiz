@@ -98,7 +98,7 @@ export default function AssinaturaScreen() {
 
       <View style={[estilos.conteudo, estilos.corpo]}>
         {LIBERA_PRO ? (
-          <Aviso tipo="bom" titulo="Versão de demonstração">Todos os módulos do Pro estão liberados para você conhecer.</Aviso>
+          <Aviso tipo="bom" titulo="Tudo grátis">Todos os recursos do Grão Raiz estão liberados, sem custo.</Aviso>
         ) : pro ? (
           <Aviso tipo="bom" titulo="Pro ativo">Obrigado por assinar! Tudo liberado.</Aviso>
         ) : null}

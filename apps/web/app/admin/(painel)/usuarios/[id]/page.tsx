@@ -164,7 +164,7 @@ async function Conteudo({ params }: Props) {
         </Cartao>
       </div>
       <p className="mt-6 text-sm text-adm-texto-2">
-        Vendas desta conta: <LinkTexto href="/admin/vendas?status=todas">Vendas e comissões</LinkTexto>.
+        Vendas desta conta: <LinkTexto href="/admin/vendas?status=todas">Vendas</LinkTexto>.
       </p>
     </>
   );

@@ -1,6 +1,6 @@
 import { ORDENS_ANUNCIO, UFS_BRASIL } from '@graoraiz/clima';
 import { banco, contaDaRequisicao, CORS, erro, json, lerCorpo, preflight } from '@/lib/contas';
-import { comissaoPercentual, esquemaAnuncio, fotosDaConta, type LinhaAnuncio, resumo } from '@/lib/maquinas';
+import { cobraComissao, comissaoPercentual, esquemaAnuncio, fotosDaConta, type LinhaAnuncio, resumo } from '@/lib/maquinas';
 import { registrarEvento } from '@/lib/telemetria';
 import { primeiraMensagem } from '@/lib/validacao';
 import { vitrineMudou } from '@/lib/vitrine';
@@ -56,7 +56,10 @@ export async function POST(request: Request) {
     if ('falha' in auth) return auth.falha;
     if (auth.conta.demo) return erro(403, 'A conta de demonstração não anuncia. Crie sua conta para anunciar.');
     const corpo = lido.corpo as { aceiteComissao?: unknown } | null;
-    if (corpo?.aceiteComissao !== true) return erro(400, 'Para anunciar, aceite a comissão e os termos de uso.');
+    // O nome do campo ficou da época da comissão; hoje ele registra o aceite dos termos de uso.
+    if (corpo?.aceiteComissao !== true) {
+      return erro(400, cobraComissao() ? 'Para anunciar, aceite a comissão e os termos de uso.' : 'Para anunciar, aceite os termos de uso.');
+    }
     const validacao = esquemaAnuncio.safeParse(corpo);
     if (!validacao.success) return erro(400, primeiraMensagem(validacao.error));
     const a = validacao.data;

@@ -14,6 +14,8 @@ export async function DELETE(request: Request) {
       "select id, categoria from app.anuncio where conta_id = $1 and situacao <> 'removido'",
       [auth.conta.id],
     );
+    // Vendas sem comissão não têm motivo legal para ficar: saem com a conta. As com comissão ficam pelo prazo legal.
+    await banco().query('delete from app.venda where conta_id = $1 and comissao_valor = 0', [auth.conta.id]);
     await banco().query('delete from app.conta where id = $1', [auth.conta.id]);
     for (const a of anuncios.rows) vitrineMudou(a.id, a.categoria);
     return json({ ok: true });

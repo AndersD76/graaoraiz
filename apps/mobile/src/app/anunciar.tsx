@@ -154,7 +154,9 @@ export default function AnunciarScreen() {
                   : prontas.length === 0
                     ? 'Coloque pelo menos uma foto.'
                     : !id && !aceite
-                      ? 'Para anunciar, aceite a comissão e os termos de uso.'
+                      ? comissao
+                        ? 'Para anunciar, aceite a comissão e os termos de uso.'
+                        : 'Para anunciar, aceite os termos de uso.'
                       : null;
     if (problema || !categoria || !valor) return setErro(problema);
     setErro(null);
@@ -175,7 +177,9 @@ export default function AnunciarScreen() {
   return (
     <Tela comAbas={false} cabecalhoNativo>
       <T variante="pequeno">
-        Anunciar é grátis. {comissao !== null ? `Se vender pelo Grão Raiz, a comissão é de ${comissao.toLocaleString('pt-BR')}% do valor da venda.` : 'Comissão só quando vender.'}
+        {comissao
+          ? `Anunciar é grátis. Se vender pelo Grão Raiz, a comissão é de ${comissao.toLocaleString('pt-BR')}% do valor da venda.`
+          : 'Anunciar e vender é grátis, sem taxa e sem comissão.'}
       </T>
 
       <T variante="rotulo">Categoria</T>
@@ -276,8 +280,12 @@ export default function AnunciarScreen() {
       {!id ? (
         <Cartao>
           <Interruptor
-            rotulo={`Aceito a comissão de ${comissao !== null ? comissao.toLocaleString('pt-BR') : '…'}% sobre a venda`}
-            descricao="Devida se a venda sair de um contato feito pelo Grão Raiz. Ao marcar o anúncio como vendido, combinamos o pagamento por PIX."
+            rotulo={comissao ? `Aceito a comissão de ${comissao.toLocaleString('pt-BR')}% sobre a venda` : 'Li e aceito os termos de uso'}
+            descricao={
+              comissao
+                ? 'Devida se a venda sair de um contato feito pelo Grão Raiz. Ao marcar o anúncio como vendido, combinamos o pagamento por PIX.'
+                : 'Declaro que a máquina é minha (ou que posso vendê-la) e que as fotos e as informações são verdadeiras.'
+            }
             valor={aceite}
             aoMudar={setAceite}
             testID="anuncio-aceite"

@@ -12,7 +12,7 @@ const SECOES = [
       { rotulo: 'Dashboard', href: '/admin', icone: LayoutDashboard },
       { rotulo: 'Usuários', href: '/admin/usuarios', icone: Users },
       { rotulo: 'Anúncios', href: '/admin/anuncios', icone: Tractor },
-      { rotulo: 'Vendas e comissões', href: '/admin/vendas', icone: HandCoins },
+      { rotulo: 'Vendas', href: '/admin/vendas', icone: HandCoins },
     ],
   },
   {

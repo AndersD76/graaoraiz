@@ -1,14 +1,14 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { DocumentoLegal } from '@/components/documento-legal';
-import { CONTATO_EMAIL, PRECO, RESPONSAVEL, ULTIMA_ATUALIZACAO_LEGAL } from '@/lib/config';
-import { comissaoPercentual } from '@/lib/maquinas';
+import { CONTATO_EMAIL, RESPONSAVEL, ULTIMA_ATUALIZACAO_LEGAL } from '@/lib/config';
+import { cobraComissao, comissaoPercentual } from '@/lib/maquinas';
 import { metadadosPagina } from '@/lib/metadados';
 
 export const metadata: Metadata = metadadosPagina({
   titulo: 'Termos de Uso',
   descricao:
-    'Termos do Grão Raiz: as informações são estimativas e a decisão é sua; regras da conta, dos classificados (comissão na venda) e do Pro.',
+    'Termos do Grão Raiz: as informações são estimativas e a decisão é sua; regras da conta e dos classificados. O app e os anúncios são grátis.',
   caminho: '/termos',
 });
 
@@ -96,50 +96,40 @@ export default function Termos() {
           implementos ou veículos agrícolas, ou repetir o mesmo anúncio. Podemos tirar do ar, sem aviso, anúncios que
           descumpram estas regras.
         </li>
-        <li>
-          <strong>Comissão.</strong> Anunciar é grátis. Ao publicar, o vendedor aceita pagar ao Grão Raiz uma comissão
-          sobre o valor da venda, no percentual mostrado no app no momento da publicação (hoje, {comissaoPercentual().toLocaleString('pt-BR')}%),
-          quando vender o bem a alguém que pediu o contato pelo Grão Raiz. O vendedor se compromete a marcar o anúncio
-          como vendido e informar o valor real em até 7 dias da venda. A comissão é paga por PIX, em até 10 dias depois
-          que combinarmos o pagamento pelo WhatsApp ou e-mail do vendedor.
-        </li>
+        {cobraComissao() ? (
+          <li>
+            <strong>Comissão.</strong> Anunciar é grátis. Ao publicar, o vendedor aceita pagar ao Grão Raiz uma comissão
+            sobre o valor da venda, no percentual mostrado no app no momento da publicação (hoje, {comissaoPercentual().toLocaleString('pt-BR')}%),
+            quando vender o bem a alguém que pediu o contato pelo Grão Raiz. O vendedor se compromete a marcar o anúncio
+            como vendido e informar o valor real em até 7 dias da venda. A comissão é paga por PIX, em até 10 dias depois
+            que combinarmos o pagamento pelo WhatsApp ou e-mail do vendedor.
+          </li>
+        ) : (
+          <li>
+            <strong>Grátis, sem comissão.</strong> Anunciar e vender pelo Grão Raiz não custa nada: não cobramos taxa
+            nem comissão sobre a venda. Quando vender, marque o anúncio como vendido para ele sair da vitrine. Se um dia
+            passarmos a cobrar, avisaremos antes no app e no site, e a regra valerá só para anúncios publicados depois do
+            aviso.
+          </li>
+        )}
         <li>
           Não garantimos que o anúncio vai gerar venda nem a idoneidade de compradores e vendedores. Veja a máquina
           funcionando antes de pagar, confira nota e documento e desconfie de preço muito abaixo do mercado.
         </li>
       </ul>
 
-      <h2>7. Plano Grátis e assinatura Pro</h2>
-      <ul>
-        <li>
-          O plano Grátis tem os recursos indicados no app e no site. A assinatura Pro libera recursos adicionais e custa,
-          no lançamento, {PRECO.mensal} por mês ou {PRECO.anual} por ano. O preço vigente é sempre o exibido na loja no
-          momento da compra.
-        </li>
-        <li>
-          A cobrança é feita pela Google Play ou pela App Store, na conta da loja usada na compra, e a assinatura é{' '}
-          <strong>renovada automaticamente</strong> ao fim de cada período, até que você cancele.
-        </li>
-        <li>
-          Quando oferecido, o período de teste grátis é de 14 dias. Se você não cancelar até o fim do teste, a cobrança
-          começa automaticamente.
-        </li>
-        <li>
-          Para cancelar, acesse as assinaturas da sua conta na Google Play ou nas configurações do seu ID Apple (App
-          Store). O cancelamento vale para a próxima renovação; o acesso Pro continua até o fim do período já pago.
-          Desinstalar o app não cancela a assinatura.
-        </li>
-        <li>
-          Pedidos de reembolso seguem as regras da loja onde a compra foi feita, sem prejuízo dos direitos previstos no
-          Código de Defesa do Consumidor.
-        </li>
-      </ul>
+      <h2>7. Uso grátis</h2>
+      <p>
+        Hoje todos os recursos do Grão Raiz são grátis: não há assinatura, período de teste com cobrança depois nem
+        compra dentro do app. Se um dia houver plano pago, avisaremos antes no app e no site, com preço e condições, e
+        nada será cobrado sem que você aceite.
+      </p>
 
       <h2>8. Disponibilidade e mudanças</h2>
       <p>
         Trabalhamos para manter o serviço no ar, mas ele pode ficar indisponível por manutenção, falhas técnicas ou de
-        fornecedores. Podemos alterar, incluir ou retirar recursos; mudanças que afetem a assinatura Pro serão informadas
-        com antecedência.
+        fornecedores. Podemos alterar, incluir ou retirar recursos; se algum recurso passar a ser pago, isso será
+        informado com antecedência.
       </p>
 
       <h2>9. Limitação de responsabilidade</h2>

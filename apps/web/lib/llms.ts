@@ -1,7 +1,7 @@
 // Conteúdo de /llms.txt (índice) e /llms-full.txt (texto completo) para buscadores de IA citarem o Grão Raiz.
 import { formatarReais, resumoUso } from '@graoraiz/clima';
 import { SITE_URL } from '@/lib/config';
-import { comissaoPercentual } from '@/lib/maquinas';
+import { custoDeAnunciar } from '@/lib/maquinas';
 import type { AnuncioPublico } from '@/lib/vitrine';
 
 const RESUMO =
@@ -17,7 +17,7 @@ export function llmsIndice(anuncios: AnuncioPublico[]): string {
     `- [App Grão Raiz](${SITE_URL}/): o app no navegador, com clima por talhão, caderno, satélite, preços e máquinas.`,
     `- [Máquinas agrícolas usadas à venda](${SITE_URL}/maquinas-usadas): classificados de tratores, colheitadeiras, plantadeiras e pulverizadores usados, ${anuncios.length} anúncio(s) no ar.`,
     `- [Baixar o app](${SITE_URL}/baixar): como instalar o Grão Raiz.`,
-    `- [Termos de uso](${SITE_URL}/termos): regras do app e dos classificados, incluindo a comissão de ${comissaoPercentual().toLocaleString('pt-BR')}% sobre a venda.`,
+    `- [Termos de uso](${SITE_URL}/termos): regras do app e dos classificados (${custoDeAnunciar()}).`,
     `- [Política de privacidade](${SITE_URL}/privacidade): dados tratados, com quem são compartilhados e direitos do titular (LGPD).`,
     '',
     '## Opcional',
@@ -27,7 +27,6 @@ export function llmsIndice(anuncios: AnuncioPublico[]): string {
 }
 
 export function llmsCompleto(anuncios: AnuncioPublico[]): string {
-  const pct = comissaoPercentual().toLocaleString('pt-BR');
   const partes = [
     '# Grão Raiz — o vigia da lavoura',
     '',
@@ -39,7 +38,7 @@ export function llmsCompleto(anuncios: AnuncioPublico[]): string {
     '- Caderno e prova: registro da aplicação com o clima da hora, ocorrências com foto e GPS, dossiê em PDF para seguro, Proagro e banco.',
     '- Regras ambientais: checagem do talhão no PRODES (INPE) e no Cadastro Ambiental Rural, com o arquivo GeoJSON pedido pela lei europeia (EUDR); é uma verificação prévia com dados públicos, não um certificado.',
     '- Preço do dia: indicadores do Cepea/Esalq e dólar do Banco Central.',
-    `- Máquinas usadas: anúncio grátis; comissão de ${pct}% sobre o valor só quando a venda sai de um contato feito pelo app.`,
+    `- Máquinas usadas: classificados entre produtores; ${custoDeAnunciar()}.`,
     '',
     '## Onde funciona',
     `No navegador do celular e do computador (${SITE_URL}). Versões para Android e iPhone em preparação.`,

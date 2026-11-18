@@ -187,8 +187,8 @@ export default function AjustesScreen() {
       </Cartao>
 
       <Cartao tom={pro ? 'marca' : 'destaque'}>
-        <T variante="subtitulo">Assinatura</T>
-        <T cor={tema.text}>{LIBERA_PRO ? 'Versão de demonstração: todos os módulos do Pro liberados.' : pro ? 'Você tem o Grão Raiz Pro. Obrigado!' :'Plano grátis: 1 talhão, previsão de 7 dias e avisos de chuva, temporal e geada.'}</T>
+        <T variante="subtitulo">{LIBERA_PRO ? 'Plano' : 'Assinatura'}</T>
+        <T cor={tema.text}>{LIBERA_PRO ? 'O Grão Raiz é grátis: todos os recursos estão liberados para você.' : pro ? 'Você tem o Grão Raiz Pro. Obrigado!' :'Plano grátis: 1 talhão, previsão de 7 dias e avisos de chuva, temporal e geada.'}</T>
         {!pro ? <Botao titulo="Conhecer o Pro" icone="coroa" aoTocar={() => router.push('/assinatura')} testID="ajustes-pro" /> : null}
         {assinaturaDisponivel() ? (
           <Botao

@@ -61,7 +61,15 @@ async function Conteudo() {
             <Item ok={Boolean(chaveIndexNow())} titulo="Aviso aos buscadores (IndexNow)" texto={chaveIndexNow() ? 'INDEXNOW_KEY configurada' : 'falta INDEXNOW_KEY'} />
             <Item ok={!CONTATO_EMAIL.endsWith('@graoraiz.com.br')} titulo="E-mail de contato" texto={`${CONTATO_EMAIL}${CONTATO_EMAIL.endsWith('@graoraiz.com.br') ? ' (domínio antigo, não recebe e-mail)' : ''}`} />
             <Item ok={!RESPONSAVEL_PENDENTE} titulo="Responsável pelos dados (LGPD)" texto={RESPONSAVEL} />
-            <Item ok titulo="Comissão dos classificados" texto={`${comissaoPercentual().toLocaleString('pt-BR')}% sobre a venda (COMISSAO_PERCENTUAL)`} />
+            <Item
+              ok
+              titulo="Comissão dos classificados"
+              texto={
+                comissaoPercentual() > 0
+                  ? `${comissaoPercentual().toLocaleString('pt-BR')}% sobre a venda (COMISSAO_PERCENTUAL)`
+                  : 'Desligada: anunciar e vender é grátis. Para cobrar, defina COMISSAO_PERCENTUAL (vale para anúncios novos).'
+              }
+            />
             <Item ok={Boolean(PLAY_URL && APP_STORE_URL)} titulo="Lojas de aplicativos" texto={PLAY_URL || APP_STORE_URL ? [PLAY_URL && 'Google Play', APP_STORE_URL && 'App Store'].filter(Boolean).join(' e ') : 'ainda sem link das lojas (web primeiro)'} />
           </ul>
         </Cartao>

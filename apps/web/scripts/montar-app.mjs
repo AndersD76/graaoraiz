@@ -57,7 +57,7 @@ const dados = [
     description: descricao,
     url: `${origem}/`,
     inLanguage: 'pt-BR',
-    offers: { '@type': 'Offer', price: '0', priceCurrency: 'BRL', description: 'Versão de teste grátis' },
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'BRL', description: 'Grátis, com todos os recursos liberados' },
   },
 ];
 const ld = `<script type="application/ld+json">${JSON.stringify(dados).replace(/</g, '\\u003c')}</script>`;
