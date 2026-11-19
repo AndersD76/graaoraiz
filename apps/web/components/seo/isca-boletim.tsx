@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { type ContextoPagina, enviarEvento } from './rastreio';
+import { type ContextoPagina, enviarEvento, eventoGa4 } from './rastreio';
 
 function lerToque(chave: string): unknown {
   try {
@@ -59,6 +59,8 @@ export function IscaBoletim({ municipio, codigo, contexto, variante = 'cartao' }
       });
       const j = (await r.json().catch(() => ({}))) as { erro?: string };
       if (!r.ok) throw new Error(j.erro ?? 'Não deu para salvar agora.');
+      // O lead_capturado do banco nasce no servidor; para o GA4 vai daqui, sem o e-mail.
+      eventoGa4('lead_capturado', { page_type: contexto.page_type, cluster: contexto.cluster, isca_id: 'boletim-pulverizacao-municipio' });
       setEstado('feito');
       setMensagem(`Pronto! Você está na lista do boletim de ${municipio}. O primeiro e-mail chega numa das próximas manhãs.`);
     } catch (erro) {

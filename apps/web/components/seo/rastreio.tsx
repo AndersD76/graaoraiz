@@ -23,8 +23,21 @@ function sessao(): string {
   }
 }
 
-/** Manda um evento para a telemetria própria (app.evento). Nunca atrapalha a página se falhar. */
+/**
+ * Repassa o evento ao GA4, se ele estiver carregado (o Consent Mode decide o que é gravado).
+ * Nunca leva dado pessoal: só o tipo da página, o cluster, a isca e números da ferramenta.
+ */
+export function eventoGa4(nome: string, propriedades: Record<string, string | number | boolean | null>): void {
+  try {
+    window.gtag?.('event', nome, propriedades);
+  } catch {
+    // idem
+  }
+}
+
+/** Manda um evento para a telemetria própria (app.evento) e, menos a visita (o GA4 já conta), para o GA4. */
 export function enviarEvento(nome: string, contexto: ContextoPagina, extra: Record<string, string | number | boolean | null> = {}): void {
+  if (nome !== 'pagina_vista') eventoGa4(nome, { page_type: contexto.page_type, cluster: contexto.cluster, isca_id: contexto.isca_id, ...extra });
   try {
     const corpo = JSON.stringify({ nome, sessao: sessao(), pagina: location.pathname.slice(0, 300), propriedades: { ...contexto, ...extra } });
     const ok = navigator.sendBeacon?.('/api/eventos', new Blob([corpo], { type: 'application/json' }));
