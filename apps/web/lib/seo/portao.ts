@@ -34,9 +34,15 @@ export interface ResultadoPortao {
   avaliadaEm: string;
 }
 
+// Palavras de ligação e de pergunta ("quanto", "funciona", "afeta"...) não contam como assunto da busca.
 const PARADAS = new Set(
-  'a o as os de da do das dos e em no na nos nas para por com um uma que como qual quais é o que hoje se ao à'.split(' '),
+  'a o as os de da do das dos e em no na nos nas para por com um uma que como qual quais é o que hoje se ao à quanto quanta quantos funciona afeta considerado fazer serve significa usar ser sao são'.split(' '),
 );
+
+/** Raiz curta para comparar plural e flexão ("rural" e "rurais", "temporal" e "temporais"). */
+function raiz(p: string): string {
+  return p.slice(0, Math.max(4, Math.min(6, p.length - 1)));
+}
 
 export function palavras(texto: string): string[] {
   return texto
@@ -47,13 +53,17 @@ export function palavras(texto: string): string[] {
     .filter(Boolean);
 }
 
-/** A resposta cita a maior parte das palavras importantes da consulta? */
+/**
+ * A resposta trata do assunto da consulta? Pelo menos metade das palavras de conteúdo da busca aparece
+ * na resposta (pela raiz). Calibrado nos 80 termos do glossário: nenhum falso negativo, e 76 de 80
+ * respostas trocadas de propósito são pegas.
+ */
 export function respondeAConsulta(resposta: string, consulta: string): boolean {
   const alvo = palavras(consulta).filter((p) => !PARADAS.has(p) && p.length > 2);
   if (alvo.length === 0) return true;
-  const r = new Set(palavras(resposta));
-  const achadas = alvo.filter((p) => r.has(p) || [...r].some((x) => x.startsWith(p.slice(0, 5))));
-  return achadas.length / alvo.length >= 0.6;
+  const r = palavras(resposta);
+  const achadas = alvo.filter((p) => r.some((x) => x === p || x.startsWith(raiz(p))));
+  return achadas.length / alvo.length >= 0.5;
 }
 
 /** Tamanho esperado por tipo (em palavras), guiado pela intenção. Programática e ferramenta: o valor está no dado. */

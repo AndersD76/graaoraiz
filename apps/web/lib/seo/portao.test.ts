@@ -31,6 +31,11 @@ describe('portão de qualidade', () => {
     for (const regra of ['titulo', 'isca', 'fontes', 'links_saida', 'links_entrada']) expect(r.regras[regra].ok).toBe(false);
   });
 
+  it('aceita resposta que responde com outras palavras (pergunta e flexão)', () => {
+    expect(respondeAConsulta('Um milímetro de chuva equivale a 1 litro de água caindo sobre 1 metro quadrado.', 'quanto é 1 mm de chuva')).toBe(true);
+    expect(respondeAConsulta('O CAR é o registro público eletrônico obrigatório para todos os imóveis rurais.', 'o que é CAR cadastro ambiental rural')).toBe(true);
+  });
+
   it('reprova a resposta que não responde a consulta', () => {
     expect(respondeAConsulta('Hoje vai chover bastante na região, leve guarda-chuva e cuide da colheita.', 'o que é delta t')).toBe(false);
     expect(avaliarPagina({ ...base, resposta: 'Hoje vai chover bastante na região, leve guarda-chuva e cuide da colheita para não perder tempo.' }).regras.resposta_direta.ok).toBe(false);
