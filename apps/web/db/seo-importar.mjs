@@ -44,14 +44,15 @@ const consultas = ler('consultas.json');
 if (consultas) {
   const lote = consultas
     .filter((q) => q.consulta && q.consulta.length <= 200)
-    .map((q) => ({ consulta: q.consulta.toLowerCase().trim(), cluster: q.cluster ?? 'outros', intencao: q.intencao ?? 'informacional', tipo_pagina: q.tipo_pagina ?? 'satelite', isca: q.isca ?? null, prioridade: Number(q.prioridade) || 3, fonte: q.fonte ?? 'autocomplete', semente: q.semente ?? null }));
+    .map((q) => ({ consulta: q.consulta.toLowerCase().trim(), cluster: q.cluster ?? 'outros', intencao: q.intencao ?? 'informacional', tipo_pagina: q.tipo_pagina ?? 'satelite', isca: q.isca ?? null, prioridade: Number(q.prioridade) || 3, fonte: q.motor === 'duckduckgo' ? 'autocomplete-duckduckgo' : (q.fonte ?? 'autocomplete'), semente: q.semente ?? null }));
   for (let i = 0; i < lote.length; i += 1000) {
     await c.query(
       `insert into app.seo_consulta (consulta, cluster, intencao, tipo_pagina, isca, prioridade, fonte, semente)
        select consulta, cluster, intencao, tipo_pagina, isca, prioridade, fonte, semente
          from jsonb_to_recordset($1::jsonb) as x(consulta text, cluster text, intencao text, tipo_pagina text, isca text, prioridade smallint, fonte text, semente text)
        on conflict (consulta) do update set cluster = excluded.cluster, intencao = excluded.intencao, tipo_pagina = excluded.tipo_pagina,
-         isca = excluded.isca, prioridade = excluded.prioridade`,
+         isca = excluded.isca, prioridade = excluded.prioridade,
+         fonte = case when app.seo_consulta.fonte in ('search_console', 'bing') then app.seo_consulta.fonte else excluded.fonte end`,
       [JSON.stringify(lote.slice(i, i + 1000))],
     );
   }
