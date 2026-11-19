@@ -217,3 +217,28 @@ export async function adicionarAdmin(_anterior: EstadoForm, dados: FormData): Pr
   refresh();
   return { ok: `${r.rows[0].nome} agora tem acesso ao painel.` };
 }
+
+// ---------- SEO: alvos de link e textos prontos ----------
+
+const STATUS_ALVO = ['a_contatar', 'contatado', 'respondeu', 'link_obtido', 'descartado'] as const;
+const STATUS_TEXTO = ['rascunho', 'aprovado', 'publicado', 'descartado'] as const;
+
+export async function mudarStatusAlvo(dados: FormData): Promise<void> {
+  const admin = await exigirAdmin();
+  const id = Number(texto(dados, 'id'));
+  const status = texto(dados, 'status');
+  if (!Number.isInteger(id) || id <= 0 || !(STATUS_ALVO as readonly string[]).includes(status)) return;
+  const r = await banco().query<{ nome: string }>('update app.seo_alvo_link set status = $2, atualizado_em = now() where id = $1 returning nome', [id, status]);
+  if (r.rows[0]) await registrarAcao(admin, 'alvo_link_atualizado', String(id), { nome: r.rows[0].nome, status });
+  refresh();
+}
+
+export async function mudarStatusTexto(dados: FormData): Promise<void> {
+  const admin = await exigirAdmin();
+  const id = Number(texto(dados, 'id'));
+  const status = texto(dados, 'status');
+  if (!Number.isInteger(id) || id <= 0 || !(STATUS_TEXTO as readonly string[]).includes(status)) return;
+  const r = await banco().query<{ titulo: string }>('update app.seo_texto set status = $2 where id = $1 returning titulo', [id, status]);
+  if (r.rows[0]) await registrarAcao(admin, 'texto_atualizado', String(id), { titulo: r.rows[0].titulo.slice(0, 80), status });
+  refresh();
+}

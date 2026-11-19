@@ -149,6 +149,11 @@ try {
     ['/admin/funil', 'Funil'],
     ['/admin/avaliacoes', 'Avaliações'],
     ['/admin/configuracoes', 'Configurações'],
+    ['/admin/seo', 'SEO e conteúdo'],
+    ['/admin/seo?aba=paginas', 'SEO e conteúdo'],
+    ['/admin/seo?aba=buscas', 'SEO e conteúdo'],
+    ['/admin/seo?aba=links', 'SEO e conteúdo'],
+    ['/admin/seo?aba=textos', 'SEO e conteúdo'],
     [`/admin/busca?q=${encodeURIComponent(`QA Painel`)}`, 'Busca'],
   ];
   for (const [caminho, titulo] of telas) {

@@ -26,6 +26,8 @@ const ACOES: Record<string, string> = {
   admin_concedido: 'Deu acesso ao painel',
   admin_retirado: 'Tirou acesso ao painel',
   planilha_vendas: 'Baixou a planilha de vendas',
+  alvo_link_atualizado: 'Atualizou alvo de link',
+  texto_atualizado: 'Atualizou texto de divulgação',
 };
 
 function Item({ ok, titulo, texto }: { ok: boolean; titulo: string; texto: string }) {

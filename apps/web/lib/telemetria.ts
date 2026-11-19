@@ -16,9 +16,18 @@ export type NomeEvento =
   | 'listing_sold'
   | 'feedback_submitted'
   | 'crawler_ai_hit'
-  | 'indexnow_sent';
+  | 'indexnow_sent'
+  // Conteúdo orgânico e iscas (páginas do site). Propriedades: page_type, cluster, consulta_alvo, isca_id, canal.
+  | 'pagina_vista'
+  | 'isca_vista'
+  | 'isca_iniciada'
+  | 'isca_concluida'
+  | 'lead_capturado'
+  | 'cta_produto_clicado';
 
 export const EVENTOS_DO_APP = ['app_opened', 'field_created', 'aha_reached', 'alerts_enabled', 'listing_viewed'] as const;
+/** Eventos que as páginas do site mandam pela API (o lead_capturado nasce no servidor). */
+export const EVENTOS_DO_SITE = ['pagina_vista', 'isca_vista', 'isca_iniciada', 'isca_concluida', 'cta_produto_clicado'] as const;
 
 export interface Evento {
   nome: NomeEvento;

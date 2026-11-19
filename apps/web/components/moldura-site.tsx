@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { Cabecalho } from '@/components/cabecalho';
 import { Rodape } from '@/components/rodape';
+import { Consentimento } from '@/components/seo/consentimento';
 
 // De onde o visitante veio (UTM, site de origem, página de entrada): grava na mesma chave que o app web lê
 // no cadastro (apps/mobile/src/lib/atribuicao.ts). Só no próprio navegador; vai ao servidor só se a pessoa criar conta.
@@ -21,6 +22,7 @@ export function MolduraSite({ children }: { children: ReactNode }) {
         {children}
       </main>
       <Rodape />
+      <Consentimento />
       <script dangerouslySetInnerHTML={{ __html: TOQUE }} />
     </div>
   );

@@ -123,6 +123,7 @@ export interface Pendencias {
   avaliacoes: number;
   anuncios: number;
   contatos: number;
+  leads: number;
 }
 
 /** O sino do topo: o que pede atenção agora. */
@@ -131,7 +132,8 @@ export async function pendencias(): Promise<Pendencias> {
     `select (select count(*)::int from app.venda where comissao_paga_em is null and comissao_valor > 0) as comissoes,
             (select count(*)::int from app.avaliacao where criado_em > now() - interval '7 days') as avaliacoes,
             (select count(*)::int from app.anuncio where criado_em > now() - interval '1 day') as anuncios,
-            (select count(*)::int from app.contato_anuncio where criado_em > now() - interval '1 day') as contatos`,
+            (select count(*)::int from app.contato_anuncio where criado_em > now() - interval '1 day') as contatos,
+            (select count(*)::int from app.lead where criado_em > now() - interval '1 day') as leads`,
   );
   return r.rows[0];
 }

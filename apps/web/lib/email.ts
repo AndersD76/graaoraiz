@@ -11,7 +11,18 @@ export function emailDisponivel(): boolean {
   return Boolean(process.env.RESEND_API_KEY) || process.env.NODE_ENV !== 'production';
 }
 
-export async function enviarEmail({ para, assunto, texto }: { para: string; assunto: string; texto: string }): Promise<void> {
+export async function enviarEmail({
+  para,
+  assunto,
+  texto,
+  cabecalhos,
+}: {
+  para: string;
+  assunto: string;
+  texto: string;
+  /** Ex.: List-Unsubscribe e List-Unsubscribe-Post, para o descadastro em 1 clique no próprio cliente de e-mail. */
+  cabecalhos?: Record<string, string>;
+}): Promise<void> {
   const chave = process.env.RESEND_API_KEY;
   if (!chave) {
     if (!emailDisponivel()) throw new EmailIndisponivel('RESEND_API_KEY não configurada');
@@ -21,7 +32,13 @@ export async function enviarEmail({ para, assunto, texto }: { para: string; assu
   const resposta = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: { Authorization: `Bearer ${chave}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ from: process.env.EMAIL_REMETENTE ?? 'Grão Raiz <onboarding@resend.dev>', to: [para], subject: assunto, text: texto }),
+    body: JSON.stringify({
+      from: process.env.EMAIL_REMETENTE ?? 'Grão Raiz <onboarding@resend.dev>',
+      to: [para],
+      subject: assunto,
+      text: texto,
+      ...(cabecalhos ? { headers: cabecalhos } : {}),
+    }),
     signal: AbortSignal.timeout(15_000),
   });
   if (!resposta.ok) throw new Error(`Resend ${resposta.status}: ${(await resposta.text()).slice(0, 200)}`);

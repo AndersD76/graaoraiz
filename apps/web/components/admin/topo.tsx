@@ -20,8 +20,9 @@ async function Pendencias() {
     { n: p.contatos, texto: 'pedidos de contato nas últimas 24 h', href: '/admin/contatos' },
     { n: p.anuncios, texto: 'anúncios novos nas últimas 24 h', href: '/admin/anuncios' },
     { n: p.avaliacoes, texto: 'avaliações nos últimos 7 dias', href: '/admin/avaliacoes' },
+    { n: p.leads, texto: 'leads de iscas nas últimas 24 h', href: '/admin/seo?aba=leads' },
   ];
-  const total = p.comissoes + p.contatos + p.anuncios + p.avaliacoes;
+  const total = p.comissoes + p.contatos + p.anuncios + p.avaliacoes + p.leads;
   return (
     <details className="relative">
       <summary className={botaoTopo} aria-label={`Pendências: ${total}`}>

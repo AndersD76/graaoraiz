@@ -6,12 +6,17 @@ import { anunciosPublicos } from '@/lib/vitrine';
 // Datas fixas das páginas de texto (mudam só quando o texto muda); anúncios usam a data real do banco.
 const PAGINAS: { caminho: string; atualizacao: string; prioridade: number }[] = [
   { caminho: '/', atualizacao: '2026-11-05', prioridade: 1 },
-  { caminho: '/baixar', atualizacao: '2026-10-22', prioridade: 0.5 },
+  { caminho: '/ferramentas', atualizacao: '2026-11-18', prioridade: 0.6 },
+  { caminho: '/ferramentas/delta-t', atualizacao: '2026-11-18', prioridade: 0.8 },
+  { caminho: '/metodologia', atualizacao: '2026-11-18', prioridade: 0.4 },
+  { caminho: '/sobre', atualizacao: '2026-11-18', prioridade: 0.3 },
+  { caminho: '/baixar', atualizacao: '2026-11-18', prioridade: 0.5 },
   { caminho: '/avaliar', atualizacao: '2026-10-29', prioridade: 0.3 },
-  { caminho: '/privacidade', atualizacao: '2026-11-03', prioridade: 0.2 },
-  { caminho: '/termos', atualizacao: '2026-11-03', prioridade: 0.2 },
-  { caminho: '/excluir-dados', atualizacao: '2026-11-03', prioridade: 0.2 },
+  { caminho: '/privacidade', atualizacao: '2026-11-18', prioridade: 0.2 },
+  { caminho: '/termos', atualizacao: '2026-11-18', prioridade: 0.2 },
+  { caminho: '/excluir-dados', atualizacao: '2026-11-18', prioridade: 0.2 },
 ];
+// As páginas "hora de pulverizar" e o glossário têm sitemaps próprios (ver /sitemap-index.xml).
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const anuncios = await anunciosPublicos(null);

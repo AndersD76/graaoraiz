@@ -149,11 +149,34 @@ export default function Privacidade() {
         exclusão pelo contato abaixo.
       </p>
 
+      <h3>2.10 Boletim por e-mail</h3>
+      <p>
+        Se você pede o boletim de pulverização de um município (ou outro material grátis do site), guardamos o seu e-mail, o
+        município, a página onde pediu e de onde veio a visita. Usamos só para mandar o que você pediu. Novidades do Grão Raiz
+        só chegam se você marcar essa opção, que vem desmarcada. Todo e-mail tem um link para sair em 1 clique.
+      </p>
+      <p>
+        <strong>Base legal:</strong> consentimento (art. 7º, I, da LGPD), que você revoga a qualquer momento pelo link do e-mail.
+      </p>
+      {process.env.NEXT_PUBLIC_GA4_ID ? (
+        <>
+          <h3>2.11 Estatísticas do site (Google Analytics)</h3>
+          <p>
+            Nas páginas do site, se você aceitar no aviso de cookies, o Google Analytics mede visitas e cliques de forma agregada.
+            Sem o seu aceite, ele não grava cookies. Você muda a escolha a qualquer momento no aviso de cookies.
+          </p>
+          <p>
+            <strong>Base legal:</strong> consentimento (art. 7º, I, da LGPD).
+          </p>
+        </>
+      ) : null}
+
       <h2>3. Por quanto tempo guardamos</h2>
       <ul>
         <li>Conta, dados da lavoura, anúncios e registros de contato: enquanto a conta existir. Ao excluir a conta, eles são apagados.</li>
         <li>Registros de uso do app: até 24 meses. Ao excluir a conta, eles deixam de ser ligados a ela.</li>
         <li>Registros de venda: enquanto a conta existir. Ao excluir a conta, eles são apagados.</li>
+        <li>E-mail do boletim: até você sair pelo link do e-mail; depois disso, fica só o registro do descadastro.</li>
         <li>Avaliações: até 12 meses ou até você pedir a remoção.</li>
         <li>Registros de acesso: 6 meses, como pede o Marco Civil da Internet.</li>
       </ul>
@@ -169,12 +192,17 @@ export default function Privacidade() {
           da lavoura, dos anúncios e das avaliações).
         </li>
         <li>
-          <strong>Resend</strong> — envia o e-mail com o código de &quot;esqueci a senha&quot;.
+          <strong>Resend</strong> — envia o e-mail com o código de &quot;esqueci a senha&quot; e o boletim que você pediu.
         </li>
         <li>
           <strong>Open-Meteo, IBGE, Microsoft Planetary Computer, INPE (PRODES) e SICAR (CAR), Esri e OpenFreeMap</strong>{' '}
           — recebem a localização ou o contorno do talhão, sem o seu nome, como descrito no item 2.3.
         </li>
+        {process.env.NEXT_PUBLIC_GA4_ID ? (
+          <li>
+            <strong>Google (Google Analytics)</strong> — estatísticas agregadas das páginas do site, só com o seu aceite no aviso de cookies.
+          </li>
+        ) : null}
         <li>
           <strong>Compradores interessados</strong> — veem o seu anúncio e, se pedirem o contato, o seu WhatsApp.
         </li>

@@ -1,6 +1,6 @@
 'use client';
 
-import { Funnel, HandCoins, LayoutDashboard, Menu, MessageCircle, Settings, Sprout, Star, Tractor, Users, X } from 'lucide-react';
+import { Funnel, HandCoins, LayoutDashboard, Menu, MessageCircle, Settings, Sprout, Star, Tractor, TrendingUp, Users, X } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Suspense, useState } from 'react';
@@ -20,6 +20,7 @@ const SECOES = [
     itens: [
       { rotulo: 'Pedidos de contato', href: '/admin/contatos', icone: MessageCircle },
       { rotulo: 'Funil', href: '/admin/funil', icone: Funnel },
+      { rotulo: 'SEO e conteúdo', href: '/admin/seo', icone: TrendingUp },
       { rotulo: 'Avaliações', href: '/admin/avaliacoes', icone: Star },
     ],
   },

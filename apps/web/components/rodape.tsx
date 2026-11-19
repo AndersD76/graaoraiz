@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { cacheLife } from 'next/cache';
 import { ATRIBUICAO_OPEN_METEO } from '@graoraiz/clima';
 import { CONTATO_EMAIL } from '@/lib/config';
+import { slugsDoGlossario } from '@/lib/seo/paginas';
 import { Marca } from './marca';
 
 /** Ano atual em cache (Cache Components não permite ler o relógio direto durante o pré-render). */
@@ -14,7 +15,7 @@ async function anoAtual(): Promise<number> {
 const classeLink = 'inline-flex min-h-11 items-center text-texto-2 underline-offset-2 hover:text-texto hover:underline';
 
 export async function Rodape() {
-  const ano = await anoAtual();
+  const [ano, termos] = await Promise.all([anoAtual(), slugsDoGlossario().catch(() => [] as string[])]);
   return (
     <footer className="border-t border-linha bg-superficie">
       <div className="mx-auto max-w-5xl px-4 py-10">
@@ -28,8 +29,35 @@ export async function Rodape() {
           <nav aria-label="Links do rodapé">
             <ul className="grid gap-x-8 text-sm sm:grid-cols-2">
               <li>
+                <Link href="/hora-de-pulverizar" className={classeLink}>
+                  Hora de pulverizar por município
+                </Link>
+              </li>
+              <li>
+                <Link href="/ferramentas/delta-t" className={classeLink}>
+                  Calculadora de delta T
+                </Link>
+              </li>
+              {termos.length ? (
+                <li>
+                  <Link href="/glossario" className={classeLink}>
+                    Glossário agrícola
+                  </Link>
+                </li>
+              ) : null}
+              <li>
                 <Link href="/maquinas-usadas" className={classeLink}>
                   Máquinas usadas à venda
+                </Link>
+              </li>
+              <li>
+                <Link href="/metodologia" className={classeLink}>
+                  Metodologia
+                </Link>
+              </li>
+              <li>
+                <Link href="/sobre" className={classeLink}>
+                  Sobre e política editorial
                 </Link>
               </li>
               <li>
