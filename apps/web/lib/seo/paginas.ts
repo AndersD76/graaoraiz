@@ -123,8 +123,17 @@ export function corpoTermo(t: Pick<TermoGlossario, 'respostaDireta' | 'explicaca
   return [t.respostaDireta, t.explicacao, t.exemplo, ...t.perguntas.map((p) => `${p.pergunta} ${p.resposta}`)].join('\n');
 }
 
-export function modeloTermo(t: TermoGlossario, linksEntrada: number): ModeloPagina {
+/** Para onde levar quem lê cada assunto (a página do termo mostra este link; o portão conta o mesmo). */
+export const PROXIMO_PASSO: Record<string, { href: string; texto: string }> = {
+  pulverizacao: { href: '/ferramentas/delta-t', texto: 'Calcule o delta T agora' },
+  geada: { href: '/hora-de-pulverizar', texto: 'Veja o risco de geada da semana no seu município' },
+  chuva: { href: '/hora-de-pulverizar', texto: 'Veja a chuva prevista no seu município' },
+  'maquinas-usadas': { href: '/maquinas-usadas', texto: 'Veja máquinas usadas à venda (anunciar é grátis)' },
+};
+
+export function modeloTermo(t: TermoGlossario, linksEntrada: number, mesmoCluster: string[] = []): ModeloPagina {
   const caminho = `/glossario/${t.slug}`;
+  const passo = PROXIMO_PASSO[t.cluster];
   return {
     caminho,
     tipo: 'glossario',
@@ -135,7 +144,7 @@ export function modeloTermo(t: TermoGlossario, linksEntrada: number): ModeloPagi
     corpo: corpoTermo(t),
     valorProprio: 'Exemplo prático de lavoura e ligação direta com a calculadora e a previsão por município do Grão Raiz.',
     fontes: t.fontes,
-    linksSaida: ['/glossario', ...t.relacionados.map((s) => `/glossario/${s}`), '/hora-de-pulverizar', '/ferramentas/delta-t'],
+    linksSaida: ['/glossario', '/sobre', ...t.relacionados.map((s) => `/glossario/${s}`), ...mesmoCluster.map((s) => `/glossario/${s}`), ...(passo ? [passo.href] : [])],
     linksEntrada,
     isca: t.cluster === 'maquinas-usadas' ? 'anunciar-maquina' : t.cluster === 'pulverizacao' ? 'calculadora-delta-t' : 'app-talhao',
     jsonLd: ['DefinedTerm', 'BreadcrumbList', ...(t.perguntas.length ? ['FAQPage'] : [])],
@@ -227,14 +236,14 @@ export interface ResultadoOnda {
  * Publica a próxima onda: pega as páginas da fila (maior prioridade primeiro), passa cada uma no portão
  * e publica as aprovadas. Reprovadas ficam na fila (tentam de novo na próxima onda) com o motivo gravado.
  */
-export async function publicarOnda(limite: number): Promise<ResultadoOnda> {
+export async function publicarOnda(limite: number, tipo: string | null = null): Promise<ResultadoOnda> {
   const onda = ((await banco().query<{ n: number | null }>('select max(onda) as n from app.seo_pagina')).rows[0]?.n ?? 0) + 1;
   const publicadasAntes = new Set(
     (await banco().query<{ caminho: string }>("select caminho from app.seo_pagina where status = 'publicada'")).rows.map((l) => l.caminho),
   );
   const fila = await banco().query<{ caminho: string; tipo: string }>(
-    "select caminho, tipo from app.seo_pagina where status = 'fila' order by prioridade desc limit $1",
-    [Math.ceil(limite * 1.3)],
+    "select caminho, tipo from app.seo_pagina where status = 'fila' and ($2::text is null or tipo = $2) order by prioridade desc limit $1",
+    [Math.ceil(limite * 1.3), tipo],
   );
   // A onda inteira conta como publicada para os links entre vizinhos (todas saem juntas).
   const conjunto = new Set([...publicadasAntes, ...fila.rows.map((l) => l.caminho)]);
@@ -259,7 +268,8 @@ export async function publicarOnda(limite: number): Promise<ResultadoOnda> {
         const doCluster = (porCluster.get(t.cluster) ?? 1) - 1;
         // Hub /glossario + termos que o citam + termos do mesmo assunto (cada um lista até 6) + páginas fixas que linkam o termo.
         const fixas = LINKS_FIXOS_GLOSSARIO[t.slug] ?? 0;
-        modelo = modeloTermo(t, 1 + apontam + Math.min(doCluster, 6) + fixas);
+        const vizinhos = termos.filter((x) => x.cluster === t.cluster && x.slug !== t.slug && !t.relacionados.includes(x.slug)).slice(0, 6).map((x) => x.slug);
+        modelo = modeloTermo(t, 1 + apontam + Math.min(doCluster, 6) + fixas, vizinhos);
         outras = outrosCorpos;
       }
     }

@@ -45,7 +45,7 @@ async function ondasPausadas(): Promise<boolean> {
   return Boolean(ultima && ultima.total > 0 && ultima.com_impressao / ultima.total < 0.5);
 }
 
-export async function rodarRotina(forcar: Partial<Record<'onda' | 'boletim' | 'metricas' | 'buscadores', boolean>> = {}): Promise<Record<string, unknown>> {
+export async function rodarRotina(forcar: Partial<Record<'onda' | 'glossario' | 'boletim' | 'metricas' | 'buscadores', boolean>> = {}): Promise<Record<string, unknown>> {
   const resultado: Record<string, unknown> = {};
   const c = await banco().connect();
   try {
@@ -73,6 +73,12 @@ export async function rodarRotina(forcar: Partial<Record<'onda' | 'boletim' | 'm
         resultado.boletim = b;
       }
 
+      // Glossário: termos novos na fila são publicados (pelo portão) assim que entram, sem esperar a onda dos municípios.
+      if (forcar.glossario || (await banco().query("select 1 from app.seo_pagina where status = 'fila' and tipo = 'glossario' and qualidade = '{}' limit 1")).rowCount) {
+        const g = await publicarOnda(500, 'glossario');
+        resultado.glossario = { publicadas: g.publicadas.length, reprovadas: g.reprovadas.length };
+      }
+
       const ultimaOnda = await banco().query<{ dias: number | null }>(
         "select extract(day from now() - max(publicada_em))::int as dias from app.seo_pagina where tipo = 'programatica' and status = 'publicada'",
       );
@@ -81,7 +87,7 @@ export async function rodarRotina(forcar: Partial<Record<'onda' | 'boletim' | 'm
         if (!forcar.onda && (await ondasPausadas())) {
           resultado.onda = 'pausada: última onda abaixo de 50% com impressão em 21 dias';
         } else {
-          const o = await publicarOnda(TAMANHO_ONDA);
+          const o = await publicarOnda(TAMANHO_ONDA, 'programatica');
           resultado.onda = { onda: o.onda, avaliadas: o.avaliadas, publicadas: o.publicadas.length, reprovadas: o.reprovadas.length };
         }
       }

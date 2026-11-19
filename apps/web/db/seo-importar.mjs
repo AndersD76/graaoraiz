@@ -99,6 +99,14 @@ if (glossario) {
      on conflict (caminho) do nothing`,
   );
   await c.query(`update app.seo_consulta q set pagina = '/glossario/' || g.slug from app.seo_glossario g where q.pagina is null and q.consulta = g.consulta`);
+  // Página do glossário (hub): existe quando há termos.
+  await c.query(
+    `insert into app.seo_pagina (caminho, tipo, cluster, consulta, isca, titulo, descricao, status, aprovada, publicada_em, prioridade, qualidade)
+     values ('/glossario', 'hub', 'pulverizacao', 'glossário agrícola', 'app-talhao', 'Glossário agrícola: termos do produtor de grãos',
+             'Delta T, deriva, geada, NDVI, CAR, EUDR, ZARC e outros termos da lavoura explicados com exemplo prático e fonte oficial. Grátis.',
+             'publicada', true, now(), 1e9, '{"revisada":"hub gerado dos termos publicados"}')
+     on conflict (caminho) do nothing`,
+  );
   relatorio.glossario = lote.length;
 }
 

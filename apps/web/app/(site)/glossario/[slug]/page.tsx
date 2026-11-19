@@ -7,7 +7,7 @@ import { Rastreio } from '@/components/seo/rastreio';
 import { metadadosPagina } from '@/lib/metadados';
 import { absoluta } from '@/lib/seo';
 import { CLUSTERS, clusterValido } from '@/lib/seo/config';
-import { descricaoTermo, termoPublicado, termosPublicados, tituloTermo } from '@/lib/seo/paginas';
+import { descricaoTermo, PROXIMO_PASSO, termoPublicado, termosPublicados, tituloTermo } from '@/lib/seo/paginas';
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -22,13 +22,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return metadadosPagina({ titulo: tituloTermo(t), tituloAbsoluto: true, descricao: descricaoTermo(t), caminho: `/glossario/${t.slug}` });
 }
 
-/** Para onde levar quem lê cada assunto: a ferramenta ou página do Grão Raiz que resolve o problema. */
-const PROXIMO_PASSO: Record<string, { href: string; texto: string }> = {
-  pulverizacao: { href: '/hora-de-pulverizar', texto: 'Veja a hora de pulverizar no seu município' },
-  geada: { href: '/hora-de-pulverizar', texto: 'Veja o risco de geada da semana no seu município' },
-  chuva: { href: '/hora-de-pulverizar', texto: 'Veja a chuva prevista no seu município' },
-  'maquinas-usadas': { href: '/maquinas-usadas', texto: 'Veja máquinas usadas à venda (anunciar é grátis)' },
-};
 
 async function Conteudo({ params }: Props) {
   const { slug } = await params;
