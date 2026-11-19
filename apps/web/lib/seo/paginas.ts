@@ -2,7 +2,8 @@
 // resultado do portão de qualidade. Também publica as ondas e grava as métricas do dia.
 import { cacheLife, cacheTag, revalidateTag } from 'next/cache';
 import { banco } from '@/lib/contas';
-import { avisarIndexNow } from '@/lib/indexnow';
+import { SITE_URL } from '@/lib/config';
+import { avisarIndexNow, chaveIndexNow } from '@/lib/indexnow';
 import { avaliarPagina, type ModeloPagina, type ResultadoPortao } from './portao';
 import { calcularPrevisao } from './previsao';
 import { caminhoMunicipio, LIMIAR_AREA_GRAOS_HA, type MunicipioAgro } from './municipios';
@@ -290,7 +291,10 @@ export async function publicarOnda(limite: number): Promise<ResultadoOnda> {
     const municipais = resultado.publicadas.filter((c) => c.startsWith('/hora-de-pulverizar/'));
     const ufs = new Set(municipais.map((c) => c.split('/').slice(0, 3).join('/')));
     avisarIndexNow([...resultado.publicadas, ...ufs, ...(municipais.length ? ['/hora-de-pulverizar'] : []), ...(resultado.publicadas.some((c) => c.startsWith('/glossario/')) ? ['/glossario'] : [])]);
-    await banco().query("update app.seo_pagina set indexnow_em = now() where caminho = any($1)", [resultado.publicadas]);
+    // Só marca como avisada quando o aviso sai de verdade (servidor oficial, com a chave); senão a rotina avisa depois.
+    if (chaveIndexNow() && SITE_URL.startsWith('https://')) {
+      await banco().query("update app.seo_pagina set indexnow_em = now() where caminho = any($1)", [resultado.publicadas]);
+    }
     await banco().query("insert into app.seo_anotacao (tipo, texto) values ('onda', $1)", [
       `Onda ${onda}: ${resultado.publicadas.length} página(s) publicada(s), ${resultado.reprovadas.length} reprovada(s) no portão`,
     ]);
@@ -330,4 +334,11 @@ export async function slugsDoGlossario(): Promise<string[]> {
     "select g.slug from app.seo_glossario g join app.seo_pagina p on p.caminho = '/glossario/' || g.slug where p.status = 'publicada'",
   );
   return r.rows.map((l) => l.slug);
+}
+
+/** Data de hoje (AAAA-MM-DD) em cache por hora: Cache Components não deixa ler o relógio direto na pré-montagem. */
+export async function dataDeHoje(): Promise<string> {
+  'use cache';
+  cacheLife('hours');
+  return new Date().toISOString().slice(0, 10);
 }

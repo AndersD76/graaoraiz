@@ -5,6 +5,7 @@ import { Suspense } from 'react';
 import { Autoria, ChamadaApp, Trilha } from '@/components/seo/pecas';
 import { Rastreio } from '@/components/seo/rastreio';
 import { metadadosPagina } from '@/lib/metadados';
+import { dataDeHoje } from '@/lib/seo/paginas';
 import { caminhoMunicipio, municipiosPublicados, type MunicipioAgro } from '@/lib/seo/municipios';
 import { NOME_ESTADO } from '@/lib/ufs';
 
@@ -34,7 +35,7 @@ async function Conteudo({ params }: Props) {
   const { uf } = await params;
   const nome = NOME_ESTADO[uf.toUpperCase()];
   if (!nome || uf !== uf.toLowerCase()) notFound();
-  const lista = await municipiosPublicados(uf);
+  const [lista, hoje] = await Promise.all([municipiosPublicados(uf), dataDeHoje()]);
   if (lista.length === 0) notFound();
   const porRegiao = new Map<string, MunicipioAgro[]>();
   for (const m of lista) {
@@ -53,7 +54,7 @@ async function Conteudo({ params }: Props) {
         Escolha o município para ver as janelas de pulverização de hoje e dos próximos dias, calculadas hora a hora com delta T, vento na altura da barra,
         umidade e chuva. São {lista.length} municípios de {nome} com página, a partir de {fmtN.format(1000)} ha de grãos; os maiores produtores são {maiores.join(', ')}.
       </p>
-      <Autoria revisadoEm={new Date().toISOString().slice(0, 10)} />
+      <Autoria revisadoEm={hoje} />
 
       {regioes.map(([regiao, ms]) => (
         <section key={regiao} aria-labelledby={`r-${ms[0].codigo}`} className="mt-10">

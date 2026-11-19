@@ -10,7 +10,7 @@ import { NOME_ESTADO } from '@/lib/ufs';
 import { metadadosPagina } from '@/lib/metadados';
 import { absoluta } from '@/lib/seo';
 import { caminhoMunicipio, culturasOrdenadas, municipioPublicado, vizinhosPublicados } from '@/lib/seo/municipios';
-import { slugsDoGlossario } from '@/lib/seo/paginas';
+import { dataDeHoje, slugsDoGlossario } from '@/lib/seo/paginas';
 import { previsaoPulverizacao } from '@/lib/seo/previsao';
 import { consultaMunicipio, descricaoMunicipio, inicialMinuscula, respostaMunicipio, resumoCulturas, rotuloData, tituloMunicipio } from '@/lib/seo/textos-municipio';
 
@@ -45,7 +45,7 @@ async function Conteudo({ params }: Props) {
   const { uf, municipio } = await params;
   const m = await municipioPublicado(uf, municipio);
   if (!m) notFound();
-  const [p, vizinhos, termos] = await Promise.all([previsaoPulverizacao(m.lat, m.lon), vizinhosPublicados(m, 12), slugsDoGlossario()]);
+  const [p, vizinhos, termos, hoje0] = await Promise.all([previsaoPulverizacao(m.lat, m.lon), vizinhosPublicados(m, 12), slugsDoGlossario(), dataDeHoje()]);
   const temTermo = (s: string) => termos.includes(s);
   const caminho = caminhoMunicipio(m);
   const estado = NOME_ESTADO[m.uf] ?? m.uf;
@@ -100,7 +100,7 @@ async function Conteudo({ params }: Props) {
       </h1>
       <p className="mt-4 text-lg leading-relaxed">{resposta}</p>
       <Autoria
-        revisadoEm={p?.buscadaEm ?? new Date().toISOString().slice(0, 10)}
+        revisadoEm={p?.buscadaEm ?? hoje0}
         nota={
           <>
             previsão <a href="https://open-meteo.com/" rel="noopener" className="hover:underline">Open-Meteo</a>, regras do{' '}

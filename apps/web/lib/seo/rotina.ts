@@ -1,7 +1,8 @@
 // Rotina de produção contínua do SEO: roda de hora em hora (instrumentation.ts chama /api/cron/seo).
 // Cada parte decide se é a hora dela, então rodar de novo não duplica nada.
 import { banco } from '@/lib/contas';
-import { avisarIndexNow } from '@/lib/indexnow';
+import { SITE_URL } from '@/lib/config';
+import { avisarIndexNow, chaveIndexNow } from '@/lib/indexnow';
 import { bingConfigurado, gscConfigurado, ingerirBing, ingerirSearchConsole } from './buscadores';
 import { enviarBoletins } from './leads';
 import { gravarMetricasDoDia, publicarOnda } from './paginas';
@@ -87,7 +88,7 @@ export async function rodarRotina(forcar: Partial<Record<'onda' | 'boletim' | 'm
 
       // Publicadas que ainda não foram avisadas ao IndexNow (ex.: onda publicada fora do servidor de produção).
       const pendentes = await banco().query<{ caminho: string }>("select caminho from app.seo_pagina where status = 'publicada' and indexnow_em is null limit 5000");
-      if (pendentes.rows.length && process.env.INDEXNOW_KEY) {
+      if (pendentes.rows.length && chaveIndexNow() && SITE_URL.startsWith('https://')) {
         avisarIndexNow(pendentes.rows.map((l) => l.caminho));
         await banco().query('update app.seo_pagina set indexnow_em = now() where caminho = any($1)', [pendentes.rows.map((l) => l.caminho)]);
         resultado.indexnow = pendentes.rows.length;
