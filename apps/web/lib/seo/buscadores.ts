@@ -23,7 +23,8 @@ async function tokenGoogle(): Promise<string> {
   const b64 = (o: unknown) => Buffer.from(JSON.stringify(o)).toString('base64url');
   const corpo = `${b64({ alg: 'RS256', typ: 'JWT' })}.${b64({
     iss: process.env.GSC_CLIENT_EMAIL,
-    scope: 'https://www.googleapis.com/auth/webmasters.readonly',
+    // Escopo completo (leitura + envio de sitemap); a conta de serviço precisa ser "proprietário" na propriedade.
+    scope: 'https://www.googleapis.com/auth/webmasters',
     aud: 'https://oauth2.googleapis.com/token',
     iat: agora,
     exp: agora + 3600,
@@ -103,6 +104,21 @@ export async function ingerirSearchConsole(dias = 3): Promise<{ linhas: number }
     }
   }
   return { linhas: linhas.length };
+}
+
+/** Envia os sitemaps ao Search Console (API) — feito uma vez por semana pela rotina. */
+export async function enviarSitemapsGsc(): Promise<number> {
+  if (!gscConfigurado()) return 0;
+  const token = await tokenGoogle();
+  let enviados = 0;
+  for (const mapa of ['/sitemap-index.xml', '/sitemap.xml', '/hora-de-pulverizar/sitemap.xml', '/glossario/sitemap.xml']) {
+    const r = await fetch(
+      `https://www.googleapis.com/webmasters/v3/sites/${encodeURIComponent(propriedadeGsc())}/sitemaps/${encodeURIComponent(`${SITE_URL}${mapa}`)}`,
+      { method: 'PUT', headers: { Authorization: `Bearer ${token}` }, signal: AbortSignal.timeout(20_000) },
+    );
+    if (r.ok) enviados++;
+  }
+  return enviados;
 }
 
 /** Estatísticas de consultas do Bing Webmaster (últimas semanas), gravadas por dia. */

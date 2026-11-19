@@ -3,7 +3,8 @@
 import { banco } from '@/lib/contas';
 import { SITE_URL } from '@/lib/config';
 import { avisarIndexNow, chaveIndexNow } from '@/lib/indexnow';
-import { bingConfigurado, gscConfigurado, ingerirBing, ingerirSearchConsole } from './buscadores';
+import { bingConfigurado, enviarSitemapsGsc, gscConfigurado, ingerirBing, ingerirSearchConsole } from './buscadores';
+import { enviarResumoSemanal } from './resumo';
 import { enviarBoletins } from './leads';
 import { gravarMetricasDoDia, publicarOnda } from './paginas';
 
@@ -45,7 +46,7 @@ async function ondasPausadas(): Promise<boolean> {
   return Boolean(ultima && ultima.total > 0 && ultima.com_impressao / ultima.total < 0.5);
 }
 
-export async function rodarRotina(forcar: Partial<Record<'onda' | 'glossario' | 'boletim' | 'metricas' | 'buscadores', boolean>> = {}): Promise<Record<string, unknown>> {
+export async function rodarRotina(forcar: Partial<Record<'onda' | 'glossario' | 'boletim' | 'metricas' | 'buscadores' | 'resumo', boolean>> = {}): Promise<Record<string, unknown>> {
   const resultado: Record<string, unknown> = {};
   const c = await banco().connect();
   try {
@@ -65,6 +66,15 @@ export async function rodarRotina(forcar: Partial<Record<'onda' | 'glossario' | 
         const bing = await ingerirBing().catch((e: unknown) => ({ erro: e instanceof Error ? e.message : 'falha' }));
         await marcarFeito('buscadores', { gsc, bing });
         resultado.buscadores = { gsc, bing };
+      }
+
+      // Segunda-feira de manhã: resumo semanal por e-mail para os administradores e sitemaps ao Search Console.
+      const segunda = new Intl.DateTimeFormat('en-US', { weekday: 'short', timeZone: 'America/Sao_Paulo' }).format(new Date()) === 'Mon';
+      if (forcar.resumo || (segunda && hora >= 7 && !(await feitoHoje('resumo_semanal')))) {
+        const resumo = await enviarResumoSemanal().catch((e: unknown) => ({ erro: e instanceof Error ? e.message : 'falha' }));
+        const sitemaps = await enviarSitemapsGsc().catch(() => 0);
+        await marcarFeito('resumo_semanal', { resumo, sitemaps });
+        resultado.resumo_semanal = { resumo, sitemaps };
       }
 
       if (forcar.boletim || (hora >= 5 && hora <= 9 && !(await feitoHoje('boletim')))) {
