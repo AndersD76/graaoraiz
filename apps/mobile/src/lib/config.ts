@@ -16,6 +16,9 @@ export const SERVIDOR_URL = process.env.EXPO_PUBLIC_SERVIDOR_URL?.replace(/\/$/,
 /** Site com política de privacidade, termos e página de download. */
 export const SITE_URL = process.env.EXPO_PUBLIC_SITE_URL?.replace(/\/$/, '') || 'https://www.appgraoraiz.com.br';
 
+/** WhatsApp de contato do Grão Raiz (só dígitos, com 55 e DDD), o mesmo do site. */
+export const CONTATO_WHATSAPP = (process.env.EXPO_PUBLIC_CONTATO_WHATSAPP || '5554999648368').replace(/\D/g, '');
+
 export const REVENUECAT_ANDROID = process.env.EXPO_PUBLIC_REVENUECAT_ANDROID_KEY || null;
 export const REVENUECAT_IOS = process.env.EXPO_PUBLIC_REVENUECAT_IOS_KEY || null;
 

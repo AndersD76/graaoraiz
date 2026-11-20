@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { DocumentoLegal } from '@/components/documento-legal';
-import { CONTATO_EMAIL, RESPONSAVEL, ULTIMA_ATUALIZACAO_LEGAL } from '@/lib/config';
+import { ContatoWhatsApp } from '@/components/contato-whatsapp';
+import { RESPONSAVEL, ULTIMA_ATUALIZACAO_LEGAL } from '@/lib/config';
 import { cobraComissao, comissaoPercentual } from '@/lib/maquinas';
 import { metadadosPagina } from '@/lib/metadados';
 
@@ -13,11 +14,7 @@ export const metadata: Metadata = metadadosPagina({
 });
 
 export default function Termos() {
-  const email = (
-    <a href={`mailto:${CONTATO_EMAIL}`} className="break-all">
-      {CONTATO_EMAIL}
-    </a>
-  );
+  const contato = <ContatoWhatsApp mensagem="Olá! Vim pelos termos de uso do Grão Raiz." />;
 
   return (
     <DocumentoLegal titulo="Termos de Uso" atualizacao={ULTIMA_ATUALIZACAO_LEGAL}>
@@ -160,7 +157,7 @@ export default function Termos() {
 
       <h2>13. Contato</h2>
       <p>
-        {RESPONSAVEL} — {email}
+        {RESPONSAVEL} — {contato}
       </p>
     </DocumentoLegal>
   );

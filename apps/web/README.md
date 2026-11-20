@@ -40,7 +40,7 @@ gere o build de novo.
 | Variável                    | Obrigatória       | Para quê                                                                                     |
 | --------------------------- | ----------------- | -------------------------------------------------------------------------------------------- |
 | `NEXT_PUBLIC_SITE_URL`      | Sim, em produção  | Endereço público (ex.: `https://www.appgraoraiz.com.br`). Padrão: `http://localhost:3000`.           |
-| `NEXT_PUBLIC_CONTATO_EMAIL` | Recomendado       | E-mail exibido no site e nos textos legais. Padrão: `contato@graoraiz.com.br`.                |
+| `NEXT_PUBLIC_CONTATO_WHATSAPP` | Opcional       | WhatsApp exibido no site e nos textos legais (dígitos com 55 e DDD). Padrão: `5554999648368`. |
 | `NEXT_PUBLIC_PLAY_URL`      | Não               | Link da Google Play. Vazio = "Em breve".                                                     |
 | `NEXT_PUBLIC_APP_STORE_URL` | Não               | Link da App Store. Vazio = "Em breve".                                                       |
 | `NEXT_PUBLIC_RESPONSAVEL`   | Sim, antes de publicar | Nome ou razão social do controlador dos dados. Vazio = placeholder e aviso "Revise com um profissional". |
@@ -81,7 +81,7 @@ npm run start -w @graoraiz/web       # serve o build
 
 ## Antes de publicar
 
-- Preencha `NEXT_PUBLIC_RESPONSAVEL`, `NEXT_PUBLIC_CONTATO_EMAIL` e `NEXT_PUBLIC_SITE_URL`.
+- Preencha `NEXT_PUBLIC_RESPONSAVEL`, `NEXT_PUBLIC_CONTATO_WHATSAPP` e `NEXT_PUBLIC_SITE_URL`.
 - Revise a Política de Privacidade e os Termos de Uso com um profissional e confirme que descrevem o app como ele
   está (por exemplo, o uso da localização do aparelho e o caminho Ajustes → "Apagar todos os meus dados").
 - Confira os preços e o período de teste em `lib/config.ts` (`PRECO`) e nas lojas.

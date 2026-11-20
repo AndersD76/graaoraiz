@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { JsonLd, Trilha } from '@/components/seo/pecas';
-import { CONTATO_EMAIL, RESPONSAVEL, RESPONSAVEL_PENDENTE } from '@/lib/config';
+import { ContatoWhatsApp } from '@/components/contato-whatsapp';
+import { CONTATO_WHATSAPP_TELEFONE, RESPONSAVEL, RESPONSAVEL_PENDENTE } from '@/lib/config';
 import { metadadosPagina } from '@/lib/metadados';
 import { absoluta } from '@/lib/seo';
 
@@ -24,7 +25,7 @@ export default function Sobre() {
 
       <h2 className="mt-10 text-2xl font-bold">Contato</h2>
       <p className="mt-3">
-        E-mail: <a href={`mailto:${CONTATO_EMAIL}`} className="break-all underline-offset-2 hover:underline">{CONTATO_EMAIL}</a>. Para dados pessoais, veja a{' '}
+        Fale com a gente pelo <ContatoWhatsApp mensagem="Olá! Vim pelo site do Grão Raiz." className="font-semibold underline-offset-2 hover:underline" />. Para dados pessoais, veja a{' '}
         <Link href="/privacidade" className="underline-offset-2 hover:underline">Política de Privacidade</Link>.
       </p>
 
@@ -61,7 +62,7 @@ export default function Sobre() {
             '@type': 'Organization',
             name: 'Grão Raiz',
             url: absoluta('/'),
-            email: CONTATO_EMAIL,
+            telephone: CONTATO_WHATSAPP_TELEFONE,
             ...(RESPONSAVEL_PENDENTE ? {} : { founder: { '@type': 'Person', name: RESPONSAVEL } }),
           },
         }}

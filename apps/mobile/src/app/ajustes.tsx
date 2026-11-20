@@ -9,7 +9,7 @@ import { Aviso, Botao, Campo, Cartao, Chip, Divisor, Interruptor, Linha, T, Tela
 import { useTheme } from '@/hooks/use-theme';
 import { assinaturaDisponivel, atualizarStatusAssinatura, restaurarCompras } from '@/lib/assinatura';
 import { pedirPermissaoNotificacoes, type PermissaoAvisos, permissaoAvisos, reagendarAvisos } from '@/lib/avisos';
-import { LIBERA_PRO, PERMITE_SIMULAR_PRO, SITE_URL } from '@/lib/config';
+import { CONTATO_WHATSAPP, LIBERA_PRO, PERMITE_SIMULAR_PRO, SITE_URL } from '@/lib/config';
 import { COM_CONTAS, ErroConta, excluirConta, sair, useConta } from '@/lib/conta';
 import { confirmar, informar } from '@/lib/dialogo';
 import {
@@ -302,6 +302,13 @@ export default function AjustesScreen() {
           tipo="secundario"
           aoTocar={() => WebBrowser.openBrowserAsync(`${SITE_URL}/avaliar?origem=app`)}
           testID="avaliar-app"
+        />
+        <Botao
+          titulo="Falar com a gente no WhatsApp"
+          icone="whatsapp"
+          tipo="secundario"
+          aoTocar={() => Linking.openURL(`https://wa.me/${CONTATO_WHATSAPP}?text=${encodeURIComponent('Olá! Vim pelo app Grão Raiz.')}`)}
+          testID="contato-whatsapp"
         />
         <Botao titulo="Política de privacidade" tipo="texto" aoTocar={() => WebBrowser.openBrowserAsync(`${SITE_URL}/privacidade`)} />
         <Botao titulo="Termos de uso" tipo="texto" aoTocar={() => WebBrowser.openBrowserAsync(`${SITE_URL}/termos`)} />

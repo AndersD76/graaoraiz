@@ -1,25 +1,20 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { DocumentoLegal } from '@/components/documento-legal';
-import { CONTATO_EMAIL } from '@/lib/config';
+import { ContatoWhatsApp } from '@/components/contato-whatsapp';
 import { metadadosPagina } from '@/lib/metadados';
 
 export const metadata: Metadata = metadadosPagina({
   titulo: 'Excluir sua conta e seus dados',
-  descricao: 'Como excluir a conta do Grão Raiz e todos os dados dela, pelo app ou por e-mail.',
+  descricao: 'Como excluir a conta do Grão Raiz e todos os dados dela, pelo app ou pelo WhatsApp.',
   caminho: '/excluir-dados',
 });
 
 export default function ExcluirDados() {
-  const assunto = encodeURIComponent('Excluir minha conta do Grão Raiz');
-  const emailContato = (
-    <a href={`mailto:${CONTATO_EMAIL}?subject=${assunto}`} className="break-all">
-      {CONTATO_EMAIL}
-    </a>
-  );
+  const contato = <ContatoWhatsApp mensagem="Quero excluir minha conta do Grão Raiz. E-mail da conta: " />;
   return (
     <DocumentoLegal titulo="Excluir sua conta e seus dados" avisoRevisao={false}>
-      <p>Você pode excluir a sua conta do Grão Raiz e todos os dados dela a qualquer momento, pelo próprio app ou por e-mail.</p>
+      <p>Você pode excluir a sua conta do Grão Raiz e todos os dados dela a qualquer momento, pelo próprio app ou pelo WhatsApp.</p>
 
       <h2>1. Pelo app (na hora)</h2>
       <ol>
@@ -32,10 +27,11 @@ export default function ExcluirDados() {
         </li>
       </ol>
 
-      <h2>2. Por e-mail (sem o app)</h2>
+      <h2>2. Pelo WhatsApp (sem o app)</h2>
       <p>
-        Envie um e-mail para {emailContato}, a partir do e-mail da sua conta, com o assunto “Excluir minha conta do Grão
-        Raiz”. Atendemos em até 15 dias e avisamos quando for concluído.
+        Mande uma mensagem para o {contato} pedindo a exclusão e informando o e-mail da sua conta. Para proteger a sua
+        conta, confirmamos o pedido por esse e-mail antes de excluir. Atendemos em até 15 dias e avisamos quando for
+        concluído.
       </p>
 
       <h2>3. O que é apagado</h2>
@@ -52,8 +48,8 @@ export default function ExcluirDados() {
 
       <h2>4. Avaliação e lista de espera</h2>
       <p>
-        Se você respondeu à avaliação ou entrou na lista de espera, peça a exclusão por e-mail para {emailContato} e
-        informe o contato que usou.
+        Se você respondeu à avaliação ou entrou na lista de espera, peça a exclusão pelo {contato} e informe o
+        contato que usou.
       </p>
 
       <p>

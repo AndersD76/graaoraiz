@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { DocumentoLegal } from '@/components/documento-legal';
-import { CONTATO_EMAIL, RESPONSAVEL, SITE_URL, ULTIMA_ATUALIZACAO_LEGAL } from '@/lib/config';
+import { ContatoWhatsApp } from '@/components/contato-whatsapp';
+import { RESPONSAVEL, SITE_URL, ULTIMA_ATUALIZACAO_LEGAL } from '@/lib/config';
 import { metadadosPagina } from '@/lib/metadados';
 
 export const metadata: Metadata = metadadosPagina({
@@ -12,11 +13,7 @@ export const metadata: Metadata = metadadosPagina({
 });
 
 export default function Privacidade() {
-  const email = (
-    <a href={`mailto:${CONTATO_EMAIL}`} className="break-all">
-      {CONTATO_EMAIL}
-    </a>
-  );
+  const contato = <ContatoWhatsApp mensagem="Olá! Tenho um pedido sobre os meus dados no Grão Raiz." />;
 
   return (
     <DocumentoLegal titulo="Política de Privacidade" atualizacao={ULTIMA_ATUALIZACAO_LEGAL}>
@@ -40,7 +37,7 @@ export default function Privacidade() {
       <h2>1. Quem é o controlador</h2>
       <p>
         O controlador dos dados é <strong>{RESPONSAVEL}</strong>. Para qualquer assunto sobre privacidade, inclusive
-        para exercer seus direitos, o canal de atendimento é o e-mail {email}.
+        para exercer seus direitos, o canal de atendimento é o {contato}.
       </p>
 
       <h2>2. Dados que tratamos e para quê</h2>
@@ -236,7 +233,7 @@ export default function Privacidade() {
         <li>revogação do consentimento.</li>
       </ul>
       <p>
-        Envie o pedido para {email}. Você mesmo pode excluir a conta e todos os dados dela no app — veja{' '}
+        Envie o pedido pelo {contato}. Você mesmo pode excluir a conta e todos os dados dela no app — veja{' '}
         <Link href="/excluir-dados">como excluir sua conta e seus dados</Link>. Você também pode apresentar reclamação à
         Autoridade Nacional de Proteção de Dados (ANPD).
       </p>
@@ -252,7 +249,7 @@ export default function Privacidade() {
 
       <h2>10. Contato</h2>
       <p>
-        {RESPONSAVEL} — {email}
+        {RESPONSAVEL} — {contato}
       </p>
     </DocumentoLegal>
   );

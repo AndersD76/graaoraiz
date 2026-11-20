@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { cacheLife } from 'next/cache';
 import { ATRIBUICAO_OPEN_METEO } from '@graoraiz/clima';
-import { CONTATO_EMAIL } from '@/lib/config';
+import { ContatoWhatsApp } from '@/components/contato-whatsapp';
 import { slugsDoGlossario } from '@/lib/seo/paginas';
 import { Marca } from './marca';
 
@@ -76,9 +76,7 @@ export async function Rodape() {
                 </Link>
               </li>
               <li>
-                <a href={`mailto:${CONTATO_EMAIL}`} className={`${classeLink} break-all`}>
-                  {CONTATO_EMAIL}
-                </a>
+                <ContatoWhatsApp mensagem="Olá! Vim pelo site do Grão Raiz." className={classeLink} />
               </li>
             </ul>
           </nav>

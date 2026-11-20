@@ -7,7 +7,7 @@ import { FormNovoAdmin } from '@/components/admin/formularios';
 import { CabecalhoPagina, Cartao, Carregando, Celula, fmtData, fmtDataHora, LinkTexto, Selo, Tabela, Vazio } from '@/components/admin/ui';
 import { exigirAdmin } from '@/lib/admin/auth';
 import { acoesRecentes, administradores, pingBanco } from '@/lib/admin/consultas';
-import { APP_STORE_URL, CONTATO_EMAIL, PLAY_URL, RESPONSAVEL, RESPONSAVEL_PENDENTE, SITE_URL } from '@/lib/config';
+import { APP_STORE_URL, CONTATO_WHATSAPP_EXIBIR, PLAY_URL, RESPONSAVEL, RESPONSAVEL_PENDENTE, SITE_URL } from '@/lib/config';
 import { chaveIndexNow } from '@/lib/indexnow';
 import { comissaoPercentual } from '@/lib/maquinas';
 
@@ -61,7 +61,7 @@ async function Conteudo() {
             <Item ok={site} titulo="Endereço do site" texto={SITE_URL} />
             <Item ok={Boolean(env.RESEND_API_KEY && env.EMAIL_REMETENTE)} titulo="E-mail (Resend)" texto={env.RESEND_API_KEY ? 'configurado: o “esqueci a senha” funciona' : 'falta RESEND_API_KEY e EMAIL_REMETENTE: o “esqueci a senha” não funciona'} />
             <Item ok={Boolean(chaveIndexNow())} titulo="Aviso aos buscadores (IndexNow)" texto={chaveIndexNow() ? 'INDEXNOW_KEY configurada' : 'falta INDEXNOW_KEY'} />
-            <Item ok={!CONTATO_EMAIL.endsWith('@graoraiz.com.br')} titulo="E-mail de contato" texto={`${CONTATO_EMAIL}${CONTATO_EMAIL.endsWith('@graoraiz.com.br') ? ' (domínio antigo, não recebe e-mail)' : ''}`} />
+            <Item ok titulo="Contato do site" texto={`WhatsApp ${CONTATO_WHATSAPP_EXIBIR} (NEXT_PUBLIC_CONTATO_WHATSAPP)`} />
             <Item ok={!RESPONSAVEL_PENDENTE} titulo="Responsável pelos dados (LGPD)" texto={RESPONSAVEL} />
             <Item
               ok

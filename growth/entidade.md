@@ -7,7 +7,7 @@ Use **exatamente** estes textos no site, LinkedIn, perfis sociais, diretórios e
 - **Logo:** https://www.appgraoraiz.com.br/icon.svg
 - **Responsável:** Daniel Anders (pessoa física). CNPJ: TODO-VALIDAR, quando houver.
 - **Cidade:** Passo Fundo (RS). Endereço comercial: TODO-VALIDAR (só publicar se for comercial, não residencial).
-- **Contato:** TODO-VALIDAR. Precisa de um e-mail no domínio novo; o rodapé ainda mostra contato@graoraiz.com.br, que não funciona.
+- **Contato:** WhatsApp (54) 99964-8368 (decisão de 20/11/2026: sem e-mail de contato). Aparece no rodapé, no Sobre, nos textos legais e nos Ajustes do app.
 - **Perfis oficiais (sameAs):** TODO-VALIDAR (LinkedIn da empresa, Instagram, YouTube). Ao criar, acrescentar no JSON-LD da página inicial (`apps/web/scripts/montar-app.mjs`).
 
 ## Uma linha
