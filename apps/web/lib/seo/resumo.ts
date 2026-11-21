@@ -64,7 +64,6 @@ export async function enviarResumoSemanal(): Promise<{ enviados: number }> {
     d.leads ? null : 'Divulgar uma página de município no WhatsApp de produtores (fila de distribuição no painel).',
     'Contatar 5 alvos de link da aba "Alvos de link" do painel.',
     gscConfigurado() ? 'Olhar as páginas na posição 4–15 no Search Console.' : 'Conectar o Search Console (ver Integrações no painel).',
-    'Aprovar os textos de LinkedIn e vídeo da semana.',
   ].filter(Boolean).slice(0, 5);
   const texto = [
     'Resumo semanal do SEO do Grão Raiz',
