@@ -13,6 +13,8 @@ export const metadata: Metadata = metadadosPagina({
   caminho: '/sobre',
 });
 
+const CNPJ = '42.073.416/0001-80';
+
 export default function Sobre() {
   return (
     <article className="mx-auto max-w-3xl px-4 py-10 sm:py-14">
@@ -20,8 +22,16 @@ export default function Sobre() {
       <h1 className="mt-4 text-3xl font-bold sm:text-4xl">Sobre o Grão Raiz</h1>
       <p className="mt-4 text-lg leading-relaxed">
         O Grão Raiz é um app grátis para o produtor de grãos: mostra a hora certa de pulverizar, avisa geada e temporal, guarda o caderno de campo e reúne preços,
-        satélite e classificados de máquinas usados sem comissão. O responsável pelo app e pelo conteúdo deste site é {RESPONSAVEL}.
+        satélite e classificados de máquinas usados sem comissão.
       </p>
+
+      <h2 className="mt-10 text-2xl font-bold">Quem faz</h2>
+      <p className="mt-3 leading-relaxed">
+        O Grão Raiz é feito em Passo Fundo (RS) por {RESPONSAVEL}, que desenvolve o app e responde pelo conteúdo deste site. Não há engenheiro agrônomo na equipe: por
+        isso as regras técnicas usadas nas páginas (delta T, vento, umidade, chuva, geada) seguem fontes oficiais e técnicas, citadas em cada página e na{' '}
+        <Link href="/metodologia" className="underline-offset-2 hover:underline">metodologia</Link>.
+      </p>
+      <p className="mt-3 text-texto-2">CNPJ {CNPJ}</p>
 
       <h2 className="mt-10 text-2xl font-bold">Contato</h2>
       <p className="mt-3">
@@ -44,8 +54,8 @@ export default function Sobre() {
           próprio (cálculo, dado ou exemplo), não repete outra página do site e leva o leitor para onde ele precisa ir.
         </li>
         <li>
-          <strong>Revisão e correção.</strong> Cada página mostra a data da última atualização. Achou um erro? Escreva para o e-mail acima; a correção é feita e a data
-          muda.
+          <strong>Revisão e correção.</strong> Cada página mostra a data da última atualização. Achou um erro? Mande uma mensagem no WhatsApp acima; a correção é feita e a
+          data muda.
         </li>
         <li>
           <strong>Limites.</strong> O Grão Raiz não é receituário agronômico: produto, dose e momento de aplicação são orientação do engenheiro agrônomo responsável.
@@ -63,6 +73,8 @@ export default function Sobre() {
             name: 'Grão Raiz',
             url: absoluta('/'),
             telephone: CONTATO_WHATSAPP_TELEFONE,
+            taxID: CNPJ,
+            address: { '@type': 'PostalAddress', addressLocality: 'Passo Fundo', addressRegion: 'RS', addressCountry: 'BR' },
             ...(RESPONSAVEL_PENDENTE ? {} : { founder: { '@type': 'Person', name: RESPONSAVEL } }),
           },
         }}
