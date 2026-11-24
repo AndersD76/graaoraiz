@@ -7,7 +7,7 @@ import { anunciosPublicos } from '@/lib/vitrine';
 export const metadata: Metadata = metadadosPagina({
   titulo: 'Máquinas agrícolas usadas à venda',
   descricao:
-    'Tratores, colheitadeiras, plantadeiras e pulverizadores usados à venda direto com produtores. Anunciar é grátis; fale com o vendedor pelo WhatsApp.',
+    'Tratores, colheitadeiras, plantadeiras, pulverizadores, silos e secadores usados à venda direto com produtores. Anunciar é grátis; fale com o vendedor pelo WhatsApp.',
   caminho: '/maquinas-usadas',
 });
 
@@ -17,7 +17,7 @@ export default async function MaquinasUsadas() {
   return (
     <PaginaVitrine
       titulo="Máquinas e implementos agrícolas usados à venda"
-      abertura={`No Grão Raiz, produtores compram e vendem tratores, colheitadeiras, plantadeiras, pulverizadores e implementos usados direto entre si. O contato é pelo WhatsApp e ${custoDeAnunciar()}. ${anuncios.length === 1 ? 'Há 1 máquina anunciada agora.' : `Há ${anuncios.length} máquinas anunciadas agora.`}`}
+      abertura={`No Grão Raiz, produtores compram e vendem tratores, colheitadeiras, plantadeiras, pulverizadores, implementos e equipamentos de armazenagem (silos, secadores, pré-limpeza, tombadores) usados direto entre si. O contato é pelo WhatsApp e ${custoDeAnunciar()}. ${anuncios.length === 1 ? 'Há 1 máquina anunciada agora.' : `Há ${anuncios.length} máquinas anunciadas agora.`}`}
       anuncios={anuncios}
       categoria={null}
     />

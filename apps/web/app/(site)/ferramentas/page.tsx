@@ -16,7 +16,7 @@ const FERRAMENTAS = [
   { href: '/ferramentas/delta-t', titulo: 'Calculadora de delta T', texto: 'Temperatura e umidade do ar viram delta T na hora, com a faixa boa para aplicar e a tabela pronta.' },
   { href: '/hora-de-pulverizar', titulo: 'Hora de pulverizar por município', texto: 'As janelas de hoje e da semana, hora a hora, para os municípios produtores de grãos.' },
   { href: '/glossario', titulo: 'Glossário agrícola', texto: 'Termos de clima, aplicação, regras ambientais e máquinas explicados com exemplo e fonte.' },
-  { href: '/maquinas-usadas', titulo: 'Classificados de máquinas usadas', texto: 'Anuncie ou encontre tratores, colheitadeiras e implementos. Grátis, sem taxa e sem comissão.' },
+  { href: '/maquinas-usadas', titulo: 'Classificados de máquinas usadas', texto: 'Anuncie ou encontre tratores, colheitadeiras, implementos, silos e secadores. Grátis, sem taxa e sem comissão.' },
 ];
 
 async function Lista() {

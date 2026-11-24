@@ -56,7 +56,7 @@ comment on table app.avaliacao is 'Opiniões de quem testou o app. Lidas no pain
 create table if not exists app.anuncio (
   id                  uuid          primary key default gen_random_uuid(),
   conta_id            uuid          not null references app.conta (id) on delete cascade,
-  categoria           text          not null check (categoria in ('trator', 'colheitadeira', 'plantadeira', 'pulverizador', 'implemento', 'caminhao', 'outro')),
+  categoria           text          not null,
   titulo              text          not null check (char_length(titulo) between 5 and 80),
   marca               text          check (char_length(marca) <= 40),
   modelo              text          check (char_length(modelo) <= 60),
@@ -78,6 +78,15 @@ create table if not exists app.anuncio (
   comissao_valor      numeric(12,2),
   comissao_paga_em    timestamptz
 );
+
+-- Categorias aceitas (as mesmas de CATEGORIAS_MAQUINA em packages/clima/src/maquinas.ts). Recriada a cada
+-- aplicação para valer também nos bancos que já tinham a lista antiga.
+alter table app.anuncio drop constraint if exists anuncio_categoria_check;
+alter table app.anuncio add constraint anuncio_categoria_check check (categoria in (
+  'trator', 'colheitadeira', 'plantadeira', 'pulverizador', 'implemento', 'caminhao',
+  'silo', 'secador', 'limpeza', 'classificador', 'transportador', 'tombador', 'coletor', 'balanca',
+  'outro'
+));
 
 create index if not exists anuncio_situacao_criado on app.anuncio (situacao, criado_em desc);
 create index if not exists anuncio_conta on app.anuncio (conta_id);

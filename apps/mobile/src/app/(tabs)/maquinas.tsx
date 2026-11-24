@@ -6,6 +6,7 @@ import { StyleSheet, View } from 'react-native';
 import { CartaoAnuncio } from '@/components/cartao-anuncio';
 import { Ilustracao } from '@/components/icone';
 import { Aviso, Botao, Campo, Cartao, Carregando, Chip, FaixaChips, Grade, Linha, T, Tela } from '@/components/ui';
+import { useLayout } from '@/hooks/use-layout';
 import { useTheme } from '@/hooks/use-theme';
 import { useConta } from '@/lib/conta';
 import { FILTROS_INICIAIS, type Filtros, useAnuncios } from '@/lib/maquinas';
@@ -15,6 +16,7 @@ export default function MaquinasScreen() {
   const router = useRouter();
   const tema = useTheme();
   const conta = useConta();
+  const { formato } = useLayout();
   const [filtros, setFiltros] = useState<Filtros>(FILTROS_INICIAIS);
   const [texto, setTexto] = useState('');
   const { anuncios, temMais, comissao, carregando, erro, carregarMais, atualizar } = useAnuncios(filtros);
@@ -28,9 +30,23 @@ export default function MaquinasScreen() {
   const mudar = (parcial: Partial<Filtros>) => setFiltros((f) => ({ ...f, ...parcial }));
   const filtrando = filtros.categoria !== null || filtros.uf !== null || filtros.busca.trim() !== '';
 
+  const botoes = (
+    <>
+      <View style={formato === 'computador' ? null : estilos.flex}>
+        <Botao titulo="Anunciar máquina" icone="mais" aoTocar={() => router.push('/anunciar')} testID="anunciar" />
+      </View>
+      {conta && !conta.demo ? (
+        <View style={formato === 'computador' ? null : estilos.flex}>
+          <Botao titulo="Meus anúncios" tipo="secundario" icone="lista" aoTocar={() => router.push('/meus-anuncios')} testID="meus-anuncios" />
+        </View>
+      ) : null}
+    </>
+  );
+
   return (
     <Tela titulo="Máquinas" subtitulo="Usados de produtor para produtor" aoAtualizar={atualizar} atualizando={carregando && anuncios.length > 0}>
       <Cartao tom="marca">
+        {/* No computador, convite e botões numa linha só; no celular, os botões embaixo, dividindo a largura. */}
         <Linha style={estilos.chamada}>
           <Ilustracao nome="tractor" tamanho={56} />
           <View style={estilos.flex}>
@@ -39,24 +55,16 @@ export default function MaquinasScreen() {
               {comissao ? `Anunciar é grátis. Comissão de ${comissao.toLocaleString('pt-BR')}% só quando vender.` : 'Anunciar e vender é grátis, sem comissão.'}
             </T>
           </View>
+          {formato === 'computador' ? botoes : null}
         </Linha>
-        <Linha>
-          <View style={estilos.flex}>
-            <Botao titulo="Anunciar máquina" icone="mais" aoTocar={() => router.push('/anunciar')} testID="anunciar" />
-          </View>
-          {conta && !conta.demo ? (
-            <View style={estilos.flex}>
-              <Botao titulo="Meus anúncios" tipo="secundario" icone="lista" aoTocar={() => router.push('/meus-anuncios')} testID="meus-anuncios" />
-            </View>
-          ) : null}
-        </Linha>
+        {formato === 'computador' ? null : <Linha>{botoes}</Linha>}
       </Cartao>
 
       <Campo
         rotulo="Buscar"
         value={texto}
         onChangeText={setTexto}
-        placeholder="Trator, plantadeira, marca, cidade…"
+        placeholder="Trator, silo, secador, marca, cidade…"
         returnKeyType="search"
         autoCorrect={false}
         testID="busca-maquinas"

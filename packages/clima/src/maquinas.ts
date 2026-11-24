@@ -1,5 +1,7 @@
 // Classificados de máquinas e implementos usados: tipos e listas usados pelo app e pelo servidor.
 
+// A ordem é a dos chips: máquinas de lavoura, depois armazenagem e recebimento de grãos, "Outro" por último.
+// Categoria nova precisa entrar também no check de app.anuncio (apps/web/db/contas.sql).
 export const CATEGORIAS_MAQUINA = [
   { valor: 'trator', rotulo: 'Trator' },
   { valor: 'colheitadeira', rotulo: 'Colheitadeira' },
@@ -7,6 +9,14 @@ export const CATEGORIAS_MAQUINA = [
   { valor: 'pulverizador', rotulo: 'Pulverizador' },
   { valor: 'implemento', rotulo: 'Implemento' },
   { valor: 'caminhao', rotulo: 'Caminhão' },
+  { valor: 'silo', rotulo: 'Silo' },
+  { valor: 'secador', rotulo: 'Secador' },
+  { valor: 'limpeza', rotulo: 'Pré-limpeza' },
+  { valor: 'classificador', rotulo: 'Classificador' },
+  { valor: 'transportador', rotulo: 'Elevador e transportador' },
+  { valor: 'tombador', rotulo: 'Tombador' },
+  { valor: 'coletor', rotulo: 'Coletor de amostras' },
+  { valor: 'balanca', rotulo: 'Balança' },
   { valor: 'outro', rotulo: 'Outro' },
 ] as const;
 

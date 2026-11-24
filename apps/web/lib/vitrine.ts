@@ -19,8 +19,24 @@ export const PLURAL_CATEGORIA: Record<CategoriaMaquina, string> = {
   pulverizador: 'Pulverizadores',
   implemento: 'Implementos agrícolas',
   caminhao: 'Caminhões',
+  silo: 'Silos',
+  secador: 'Secadores de grãos',
+  limpeza: 'Máquinas de pré-limpeza',
+  classificador: 'Classificadores de grãos',
+  transportador: 'Elevadores e transportadores',
+  tombador: 'Tombadores',
+  coletor: 'Coletores de amostras',
+  balanca: 'Balanças rodoviárias',
   outro: 'Outras máquinas',
 };
+
+/** Categorias cujo plural é feminino ("Colheitadeiras usadas", não "usados"). */
+const FEMININO = new Set<CategoriaMaquina>(['colheitadeira', 'plantadeira', 'limpeza', 'balanca', 'outro']);
+
+/** Concorda com o plural da categoria: concordar('trator', 'usados', 'usadas') → "usados". */
+export function concordar(categoria: CategoriaMaquina, masculino: string, feminino: string): string {
+  return FEMININO.has(categoria) ? feminino : masculino;
+}
 
 export function categoriaValida(valor: string): valor is CategoriaMaquina {
   return CATEGORIAS_MAQUINA.some((c) => c.valor === valor);

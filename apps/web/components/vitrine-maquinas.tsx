@@ -2,7 +2,7 @@ import { CATEGORIAS_MAQUINA, type CategoriaMaquina, formatarReais, resumoUso } f
 import Link from 'next/link';
 import { cobraComissao, comissaoPercentual } from '@/lib/maquinas';
 import { absoluta, jsonLd } from '@/lib/seo';
-import { type AnuncioPublico, PLURAL_CATEGORIA } from '@/lib/vitrine';
+import { type AnuncioPublico, concordar, PLURAL_CATEGORIA } from '@/lib/vitrine';
 
 /** Cartão de uma máquina na vitrine pública (página lida pelo Google). */
 export function CartaoMaquina({ anuncio }: { anuncio: AnuncioPublico }) {
@@ -62,7 +62,7 @@ export function perguntasVitrine(): { pergunta: string; resposta: string }[] {
     { pergunta: 'Quanto custa anunciar uma máquina no Grão Raiz?', resposta: custo },
     { pergunta: 'Como falo com o vendedor?', resposta: 'Abra o anúncio no app e toque em “Chamar no WhatsApp”. É preciso ter conta grátis; o pedido de contato fica registrado.' },
     { pergunta: 'O Grão Raiz garante a máquina?', resposta: 'Não. O Grão Raiz aproxima comprador e vendedor; a negociação, o pagamento e a documentação são entre vocês. Veja a máquina funcionando e confira a nota e o documento antes de pagar.' },
-    { pergunta: 'Que máquinas posso anunciar?', resposta: 'Tratores, colheitadeiras, plantadeiras, pulverizadores, implementos e caminhões usados no campo, com fotos reais e preço.' },
+    { pergunta: 'Que máquinas posso anunciar?', resposta: 'Tratores, colheitadeiras, plantadeiras, pulverizadores, implementos e caminhões usados no campo, e equipamentos de armazenagem e recebimento de grãos: silos, secadores, máquinas de pré-limpeza, classificadores, elevadores e transportadores, tombadores, coletores de amostras e balanças. Sempre com fotos reais e preço.' },
   ];
 }
 
@@ -137,7 +137,7 @@ export function PaginaVitrine({ titulo, abertura, anuncios, categoria }: { titul
         </ul>
       ) : (
         <p className="mt-8 rounded-2xl bg-superficie p-6 text-lg">
-          Ainda não há {categoria ? PLURAL_CATEGORIA[categoria].toLowerCase() : 'máquinas'} anunciados. Anuncie a sua: é grátis e o anúncio aparece aqui para quem procura.
+          Ainda não há {categoria ? `${PLURAL_CATEGORIA[categoria].toLowerCase()} ${concordar(categoria, 'anunciados', 'anunciadas')}` : 'máquinas anunciadas'}. Anuncie a sua: é grátis e o anúncio aparece aqui para quem procura.
         </p>
       )}
 

@@ -23,7 +23,7 @@ export function llmsIndice(anuncios: AnuncioPublico[], extras: ExtrasLlms = { uf
     '',
     '## Páginas principais',
     `- [App Grão Raiz](${SITE_URL}/): o app no navegador, com clima por talhão, caderno, satélite, preços e máquinas.`,
-    `- [Máquinas agrícolas usadas à venda](${SITE_URL}/maquinas-usadas): classificados de tratores, colheitadeiras, plantadeiras e pulverizadores usados, ${anuncios.length} anúncio(s) no ar.`,
+    `- [Máquinas agrícolas usadas à venda](${SITE_URL}/maquinas-usadas): classificados de tratores, colheitadeiras, plantadeiras, pulverizadores, silos, secadores e outros equipamentos de armazenagem usados, ${anuncios.length} anúncio(s) no ar.`,
     ...(municipios
       ? [`- [Hora de pulverizar por município](${SITE_URL}/hora-de-pulverizar): janelas de pulverização de hoje e da semana, hora a hora (delta T, vento na barra, umidade e chuva), para ${municipios} municípios produtores de grãos, com a área plantada do IBGE.`]
       : []),

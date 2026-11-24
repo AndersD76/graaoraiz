@@ -6,7 +6,7 @@ import { Suspense } from 'react';
 import { CartaoMaquina } from '@/components/vitrine-maquinas';
 import { metadadosPagina } from '@/lib/metadados';
 import { absoluta, cortar, jsonLd } from '@/lib/seo';
-import { anuncioPublico, anunciosPublicos, PLURAL_CATEGORIA } from '@/lib/vitrine';
+import { anuncioPublico, anunciosPublicos, concordar, PLURAL_CATEGORIA } from '@/lib/vitrine';
 
 type Props = { params: Promise<{ id: string }> };
 
@@ -134,7 +134,7 @@ async function Detalhe({ params }: Props) {
       {parecidos.length ? (
         <section className="mt-14" aria-labelledby="parecidos-titulo">
           <h2 id="parecidos-titulo" className="text-2xl font-bold">
-            Outros {categoria.toLowerCase()} à venda
+            {concordar(a.categoria, 'Outros', 'Outras')} {categoria.toLowerCase()} à venda
           </h2>
           <ul className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
             {parecidos.map((p) => (
