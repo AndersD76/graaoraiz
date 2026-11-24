@@ -72,7 +72,8 @@ export interface MeuAnuncio extends AnuncioResumo {
   situacao: SituacaoAnuncio;
   descricao: string | null;
   fotos: string[];
-  whatsapp: string;
+  /** Só de anúncios antigos: desde 24/11/2026 a conversa é pelo app. */
+  whatsapp: string | null;
   contatos: number;
   comissaoPercentual: number;
   valorVenda: number | null;

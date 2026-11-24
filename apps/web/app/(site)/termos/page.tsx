@@ -90,8 +90,12 @@ export default function Termos() {
         </li>
         <li>
           É proibido anunciar bens roubados ou sem procedência, com dados ou fotos falsos, itens que não sejam máquinas,
-          implementos ou veículos agrícolas, ou repetir o mesmo anúncio. Podemos tirar do ar, sem aviso, anúncios que
+          implementos, veículos ou equipamentos agrícolas e de armazenagem de grãos, ou repetir o mesmo anúncio. Podemos tirar do ar, sem aviso, anúncios que
           descumpram estas regras.
+        </li>
+        <li>
+          Nas conversas entre comprador e vendedor, é proibido mandar propaganda, corrente, golpe ou ofensa, ou pedir
+          pagamento adiantado para reservar. Podemos encerrar conversas e suspender contas que descumpram estas regras.
         </li>
         {cobraComissao() ? (
           <li>
@@ -99,7 +103,7 @@ export default function Termos() {
             sobre o valor da venda, no percentual mostrado no app no momento da publicação (hoje, {comissaoPercentual().toLocaleString('pt-BR')}%),
             quando vender o bem a alguém que pediu o contato pelo Grão Raiz. O vendedor se compromete a marcar o anúncio
             como vendido e informar o valor real em até 7 dias da venda. A comissão é paga por PIX, em até 10 dias depois
-            que combinarmos o pagamento pelo WhatsApp ou e-mail do vendedor.
+            que combinarmos o pagamento pelo e-mail do vendedor.
           </li>
         ) : (
           <li>

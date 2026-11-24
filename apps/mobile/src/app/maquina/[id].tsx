@@ -10,9 +10,10 @@ import { useTheme } from '@/hooks/use-theme';
 import { ErroConta, useConta } from '@/lib/conta';
 import { informar } from '@/lib/dialogo';
 import { registrar } from '@/lib/eventos';
-import { chamarVendedor, compartilharAnuncio, urlFoto, useAnuncio } from '@/lib/maquinas';
+import { abrirConversaDoAnuncio } from '@/lib/conversas';
+import { compartilharAnuncio, urlFoto, useAnuncio } from '@/lib/maquinas';
 
-/** Um anúncio de máquina: fotos, dados, contato com o vendedor pelo WhatsApp. */
+/** Um anúncio de máquina: fotos, dados e a conversa com o vendedor, pelo app. */
 export default function MaquinaScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
@@ -48,12 +49,13 @@ export default function MaquinaScreen() {
   const fotoAtual = anuncio.fotos[Math.min(foto, anuncio.fotos.length - 1)];
   const semConta = !conta || conta.demo;
 
-  const chamar = async () => {
+  const conversar = async () => {
     setChamando(true);
     try {
-      await chamarVendedor(anuncio);
+      const conversa = await abrirConversaDoAnuncio(anuncio.id);
+      router.push({ pathname: '/conversa/[id]', params: { id: conversa } });
     } catch (e) {
-      informar('Falar com o vendedor', e instanceof ErroConta ? e.message : 'Não deu para abrir o WhatsApp agora.');
+      informar('Conversar com o vendedor', e instanceof ErroConta ? e.message : 'Não deu para abrir a conversa agora. Tente de novo.');
     } finally {
       setChamando(false);
     }
@@ -97,16 +99,17 @@ export default function MaquinaScreen() {
         <Cartao tom="marca">
           <T variante="forte">Este anúncio é seu</T>
           <Botao titulo="Editar anúncio" icone="editar" aoTocar={() => router.push({ pathname: '/anunciar', params: { id: anuncio.id } })} />
+          <Botao titulo="Conversas" tipo="secundario" icone="chat" aoTocar={() => router.push('/conversas')} />
           <Botao titulo="Meus anúncios" tipo="secundario" icone="lista" aoTocar={() => router.push('/meus-anuncios')} />
         </Cartao>
       ) : semConta ? (
         <Cartao tom="destaque">
-          <T variante="forte">Entre para falar com o vendedor</T>
-          <T variante="pequeno">Sem conta dá para ver tudo; o WhatsApp do vendedor aparece para quem entra. Criar a conta é grátis.</T>
+          <T variante="forte">Entre para conversar com o vendedor</T>
+          <T variante="pequeno">Sem conta dá para ver tudo. Para conversar com o vendedor aqui no app, entre ou crie a conta. É grátis.</T>
           <Botao titulo="Entrar ou criar conta" icone="usuario" aoTocar={() => router.push('/entrar')} testID="entrar-para-chamar" />
         </Cartao>
       ) : (
-        <Botao titulo="Chamar no WhatsApp" icone="whatsapp" carregando={chamando} aoTocar={chamar} testID="chamar-vendedor" />
+        <Botao titulo="Conversar com o vendedor" icone="chat" carregando={chamando} aoTocar={() => void conversar()} testID="conversar-vendedor" />
       )}
       <Botao titulo="Mandar para alguém" tipo="secundario" icone="compartilhar" aoTocar={() => void compartilharAnuncio(anuncio, preco)} />
 

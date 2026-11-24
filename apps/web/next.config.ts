@@ -76,6 +76,8 @@ const nextConfig: NextConfig = {
       { source: "/:caminho*", headers: SEGURANCA },
       // Telas do app dependem de conta ou repetem as páginas públicas: fora do índice.
       ...(TELAS_DO_APP ?? []).map((source) => ({ source, headers: [{ key: "X-Robots-Tag", value: "noindex, follow" }] })),
+      // Service worker dos avisos de mensagem (apps/mobile/public/sw-avisos.js): sempre a versão nova.
+      { source: "/sw-avisos.js", headers: [{ key: "Cache-Control", value: "no-cache" }] },
       { source: "/admin", headers: PRIVADO },
       { source: "/admin/:caminho*", headers: PRIVADO },
     ];

@@ -33,7 +33,7 @@ async function Conteudo({ searchParams }: Props) {
         titulo={comComissao ? 'Vendas e comissões' : 'Vendas'}
         descricao={
           comComissao
-            ? 'Cada venda com comissão fica registrada mesmo se o vendedor excluir a conta. A cobrança da comissão é combinada pelo WhatsApp.'
+            ? 'Cada venda com comissão fica registrada mesmo se o vendedor excluir a conta. A cobrança da comissão é combinada pelo e-mail do vendedor.'
             : 'Vendas marcadas pelos vendedores no app. Anunciar e vender é grátis: não há comissão a cobrar.'
         }
       >
@@ -77,9 +77,14 @@ async function Conteudo({ searchParams }: Props) {
                   <Celula>
                     {v.conta_id ? <LinkTexto href={`/admin/usuarios/${v.conta_id}`}>{v.vendedor_nome}</LinkTexto> : <span className="font-medium">{v.vendedor_nome}</span>}
                     <span className="block text-adm-texto-2">
-                      <a href={`https://wa.me/55${v.whatsapp}`} target="_blank" rel="noopener" className="hover:underline">
-                        WhatsApp {v.whatsapp}
-                      </a>
+                      {/* Desde 24/11/2026 o anúncio não pede WhatsApp: o contato com o vendedor é o e-mail da conta. */}
+                      {v.whatsapp ? (
+                        <a href={`https://wa.me/55${v.whatsapp}`} target="_blank" rel="noopener" className="hover:underline">
+                          WhatsApp {v.whatsapp}
+                        </a>
+                      ) : (
+                        v.vendedor_email
+                      )}
                     </span>
                   </Celula>
                   <Celula className="whitespace-nowrap tabular-nums">{fmtReais.format(Number(v.valor_venda))}</Celula>

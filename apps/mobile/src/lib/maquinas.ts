@@ -4,13 +4,12 @@ import * as ImagePicker from 'expo-image-picker';
 import { useCallback, useEffect, useState } from 'react';
 import { Linking, Platform } from 'react-native';
 
-import { gravar, ler } from '@/lib/armazenamento';
 import { SERVIDOR_URL, SITE_URL } from '@/lib/config';
 import { chamarServidor, ErroConta } from '@/lib/conta';
 
 /**
  * Classificados de máquinas e implementos usados (apps/web: /api/anuncios). Tudo fica no servidor:
- * o app só lista, mostra, envia fotos e manda o comprador para o WhatsApp do vendedor.
+ * o app só lista, mostra e envia fotos; comprador e vendedor conversam pelo app (lib/conversas.ts).
  */
 
 export interface Filtros {
@@ -150,19 +149,11 @@ export interface FormAnuncio {
   municipio: string;
   uf: string;
   descricao: string;
-  whatsapp: string;
   fotos: string[];
-}
-
-const CHAVE_WHATSAPP = 'graoraiz:whatsapp-anuncio';
-
-export function whatsappSalvo(): string {
-  return ler<string>(CHAVE_WHATSAPP) ?? '';
 }
 
 /** Cria ou edita o anúncio. Devolve o id. */
 export async function salvarAnuncio(form: FormAnuncio, id?: string): Promise<string> {
-  gravar(CHAVE_WHATSAPP, form.whatsapp);
   if (id) {
     await chamarServidor(`/api/anuncios/${id}`, { metodo: 'PUT', corpo: form });
     return id;
@@ -214,14 +205,6 @@ export async function enviarFoto(foto: ImagePicker.ImagePickerAsset): Promise<st
 }
 
 // ---------- contato ----------
-
-/** Pede o WhatsApp do vendedor (fica registrado) e abre a conversa com uma mensagem pronta. */
-export async function chamarVendedor(anuncio: Pick<AnuncioResumo, 'id' | 'titulo'>): Promise<void> {
-  const r = await chamarServidor<{ whatsapp: string; vendedor: string }>(`/api/anuncios/${anuncio.id}/contato`, { metodo: 'POST' });
-  const numero = r.whatsapp.length <= 11 ? `55${r.whatsapp}` : r.whatsapp;
-  const texto = `Olá ${r.vendedor}! Vi seu anúncio "${anuncio.titulo}" no Grão Raiz e tenho interesse. ${linkAnuncio(anuncio.id)}`;
-  await Linking.openURL(`https://wa.me/${numero}?text=${encodeURIComponent(texto)}`);
-}
 
 /** Manda o link do anúncio para alguém pelo WhatsApp. */
 export function compartilharAnuncio(anuncio: Pick<AnuncioResumo, 'id' | 'titulo' | 'preco'>, preco: string): Promise<void> {

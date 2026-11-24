@@ -399,6 +399,12 @@ export function Selo({ status, texto, estilo }: { status: Status; texto?: string
 
 const ICONE_AVISO: Record<'info' | Status, NomeIcone> = { info: 'info', bom: 'ok', atencao: 'alerta', ruim: 'alertaCirculo' };
 
+/** Texto puro, inclusive em pedaços (`Aviso em {lugar}.` chega como lista de textos): vai dentro de um T. */
+function soTexto(children: ReactNode): boolean {
+  const lista = Array.isArray(children) ? children : [children];
+  return lista.length > 0 && lista.every((c) => typeof c === 'string' || typeof c === 'number');
+}
+
 export function Aviso({ tipo = 'info', titulo, icone, children }: { tipo?: 'info' | Status; titulo?: string; icone?: NomeIcone; children?: ReactNode }) {
   const tema = useTheme();
   const cor = tipo === 'info' ? tema.marca : { bom: tema.bom, atencao: tema.atencao, ruim: tema.ruim }[tipo];
@@ -412,7 +418,7 @@ export function Aviso({ tipo = 'info', titulo, icone, children }: { tipo?: 'info
             {titulo}
           </T>
         ) : null}
-        {typeof children === 'string' ? <T>{children}</T> : children}
+        {soTexto(children) ? <T>{children}</T> : children}
       </View>
     </View>
   );

@@ -18,7 +18,7 @@ async function Conteudo({ searchParams }: Props) {
     <>
       <CabecalhoPagina
         titulo="Pedidos de contato"
-        descricao={`${fmtNumero.format(total)} ${total === 1 ? 'vez' : 'vezes'} que um comprador pediu o WhatsApp do vendedor. Bom para acompanhar se a venda saiu.`}
+        descricao={`${fmtNumero.format(total)} ${total === 1 ? 'vez' : 'vezes'} que um comprador mandou a primeira mensagem ao vendedor (antes de 24/11/2026, pediu o WhatsApp). Bom para acompanhar se a venda saiu.`}
       />
       <Cartao>
         {linhas.length ? (
@@ -44,7 +44,7 @@ async function Conteudo({ searchParams }: Props) {
             ))}
           </Tabela>
         ) : (
-          <Vazio titulo="Nenhum pedido de contato ainda" texto="Quando alguém tocar em “Chamar no WhatsApp” num anúncio, aparece aqui." />
+          <Vazio titulo="Nenhum pedido de contato ainda" texto="Quando alguém mandar a primeira mensagem a um vendedor, aparece aqui." />
         )}
         <Paginacao pagina={pagina} total={total} porPagina={POR_PAGINA} base="/admin/contatos" parametros={{}} />
       </Cartao>

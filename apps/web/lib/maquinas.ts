@@ -60,10 +60,13 @@ export const esquemaAnuncio = z.object({
   municipio: z.string().trim().min(2, 'Informe a cidade.').max(80),
   uf: z.enum(UFS_BRASIL, { error: 'Escolha o estado (UF).' }),
   descricao: opcional(3000),
+  // Opcional desde 24/11/2026: o comprador fala com o vendedor pela conversa do app. Apps antigos ainda mandam.
   whatsapp: z
     .string()
-    .transform((v) => v.replace(/\D/g, ''))
-    .pipe(z.string().regex(/^\d{10,13}$/, 'WhatsApp com DDD, ex.: (54) 99999-0000.')),
+    .optional()
+    .nullable()
+    .transform((v) => (v ? v.replace(/\D/g, '') : null))
+    .pipe(z.string().regex(/^\d{10,13}$/, 'WhatsApp com DDD, ex.: (54) 99999-0000.').nullable()),
   fotos: z.array(z.uuid()).min(1, 'Coloque pelo menos uma foto.').max(MAX_FOTOS_ANUNCIO, `No máximo ${MAX_FOTOS_ANUNCIO} fotos.`),
 });
 
@@ -82,7 +85,7 @@ export interface LinhaAnuncio {
   municipio: string;
   uf: string;
   descricao: string | null;
-  whatsapp: string;
+  whatsapp: string | null;
   fotos: string[];
   situacao: SituacaoAnuncio;
   comissao_percentual: string;

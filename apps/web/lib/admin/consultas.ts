@@ -265,7 +265,7 @@ export interface LinhaVenda {
   comissao_valor: string;
   vendedor_nome: string;
   vendedor_email: string;
-  whatsapp: string;
+  whatsapp: string | null;
   vendido_em: Date;
   comissao_paga_em: Date | null;
 }

@@ -13,7 +13,7 @@ import { SITE_URL } from '@/lib/config';
 import { chamarServidor, ErroConta, useConta } from '@/lib/conta';
 import { informar } from '@/lib/dialogo';
 import { talhaoAtual, useEstado } from '@/lib/estado';
-import { enviarFoto, escolherFotos, salvarAnuncio, urlFoto, useMeusAnuncios, whatsappSalvo } from '@/lib/maquinas';
+import { enviarFoto, escolherFotos, salvarAnuncio, urlFoto, useMeusAnuncios } from '@/lib/maquinas';
 import { useMunicipio } from '@/lib/municipio';
 import { lerValorDigitado } from '@/lib/precos';
 
@@ -52,7 +52,6 @@ export default function AnunciarScreen() {
   const [municipio, setMunicipio] = useState('');
   const [uf, setUf] = useState('');
   const [descricao, setDescricao] = useState('');
-  const [whatsapp, setWhatsapp] = useState(() => whatsappSalvo());
   const [fotos, setFotos] = useState<Foto[]>([]);
   const [aceite, setAceite] = useState(false);
   const [comissao, setComissao] = useState<number | null>(null);
@@ -73,7 +72,6 @@ export default function AnunciarScreen() {
     setMunicipio(editando.municipio);
     setUf(editando.uf);
     setDescricao(editando.descricao ?? '');
-    setWhatsapp(editando.whatsapp);
     setFotos(editando.fotos.map((f) => ({ chave: f, uri: urlFoto(f), id: f, erro: false })));
     setComissao(editando.comissaoPercentual);
   }
@@ -147,9 +145,7 @@ export default function AnunciarScreen() {
             ? 'Informe a cidade.'
             : !UFS_BRASIL.includes(ufN as (typeof UFS_BRASIL)[number])
               ? 'Informe o estado (UF), ex.: RS.'
-              : !/^\d{10,13}$/.test(whatsapp.replace(/\D/g, ''))
-                ? 'Informe o WhatsApp com DDD, ex.: (54) 99999-0000.'
-                : fotos.some((f) => !f.id && !f.erro)
+              : fotos.some((f) => !f.id && !f.erro)
                   ? 'Espere as fotos terminarem de enviar.'
                   : prontas.length === 0
                     ? 'Coloque pelo menos uma foto.'
@@ -163,7 +159,7 @@ export default function AnunciarScreen() {
     setSalvando(true);
     try {
       const novoId = await salvarAnuncio(
-        { categoria, titulo: titulo.trim(), marca, modelo, ano: anoN, horas: horasN, preco: valor, municipio: municipio.trim(), uf: ufN, descricao, whatsapp, fotos: prontas },
+        { categoria, titulo: titulo.trim(), marca, modelo, ano: anoN, horas: horasN, preco: valor, municipio: municipio.trim(), uf: ufN, descricao, fotos: prontas },
         id,
       );
       router.replace({ pathname: '/maquina/[id]', params: { id: novoId } });
@@ -215,16 +211,6 @@ export default function AnunciarScreen() {
           <Campo rotulo="UF" value={uf} onChangeText={(t) => setUf(t.toUpperCase())} maxLength={2} autoCapitalize="characters" placeholder="RS" testID="anuncio-uf" />
         </View>
       </Linha>
-      <Campo
-        rotulo="WhatsApp para os interessados"
-        value={whatsapp}
-        onChangeText={setWhatsapp}
-        keyboardType="phone-pad"
-        maxLength={20}
-        placeholder="(54) 99999-0000"
-        dica="Aparece só para quem tem conta e pedir o contato."
-        testID="anuncio-whatsapp"
-      />
       <Campo
         rotulo="Descrição"
         value={descricao}

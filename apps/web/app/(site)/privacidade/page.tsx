@@ -29,7 +29,7 @@ export default function Privacidade() {
         <li>Para usar o app você cria uma conta com nome, e-mail e senha. A senha é guardada protegida (embaralhada), nunca em texto.</li>
         <li>Seus talhões, chuvas, caderno e preferências ficam guardados na sua conta, num banco de dados na nuvem, para você trocar de aparelho sem perder nada.</li>
         <li>Para buscar previsão, satélite, município e a checagem de EUDR e crédito rural, o app envia a localização ou o contorno do talhão aos serviços citados abaixo, sem o seu nome.</li>
-        <li>Nos classificados de máquinas, o anúncio é público; o seu WhatsApp aparece só para quem tem conta e pede o contato, e registramos quem pediu.</li>
+        <li>Nos classificados de máquinas, o anúncio é público e comprador e vendedor conversam pelo app; as mensagens ficam guardadas na conta de cada um.</li>
         <li>Medimos o uso do app no nosso próprio banco, sem nome, e-mail ou WhatsApp e sem empresas de fora.</li>
         <li>Não vendemos dados e não usamos publicidade nem cookies de rastreamento.</li>
       </ul>
@@ -95,9 +95,12 @@ export default function Privacidade() {
       <h3>2.4 Classificados de máquinas e implementos</h3>
       <p>
         Quando você anuncia, guardamos o anúncio (categoria, título, marca, modelo, ano, horas de uso, preço, cidade,
-        descrição e fotos), o seu WhatsApp e a data em que aceitou os termos de uso. O anúncio, as fotos, a cidade e o
-        seu primeiro nome ficam visíveis para qualquer pessoa. O WhatsApp aparece só para quem tem conta e toca em
-        &quot;Chamar no WhatsApp&quot;; registramos quem pediu cada contato. Quando você marca o anúncio como vendido,
+        descrição e fotos) e a data em que aceitou os termos de uso. O anúncio, as fotos, a cidade e o seu primeiro nome
+        ficam visíveis para qualquer pessoa. Quem tem conta pode conversar com o vendedor pelo app: guardamos as
+        mensagens trocadas, que só as duas pessoas da conversa veem, e registramos quem mandou a primeira mensagem de
+        cada anúncio. Para avisar de mensagem nova, guardamos o endereço de aviso do navegador ou o código do celular
+        que você ligou (só para isso); sem aviso ligado, mandamos um e-mail para o endereço da conta, no máximo um a
+        cada 6 horas por conversa. As conversas são apagadas junto com a conta. Quando você marca o anúncio como vendido,
         guardamos o valor informado da venda, para acompanhar como os classificados estão funcionando. Anunciar e vender
         é grátis: não cobramos comissão.
       </p>
@@ -201,7 +204,11 @@ export default function Privacidade() {
           </li>
         ) : null}
         <li>
-          <strong>Compradores interessados</strong> — veem o seu anúncio e, se pedirem o contato, o seu WhatsApp.
+          <strong>Compradores e vendedores</strong> — veem o anúncio e, na conversa, o seu primeiro nome e as mensagens que você manda.
+        </li>
+        <li>
+          <strong>Google, Apple, Mozilla, Microsoft e Expo (avisos)</strong> — entregam o aviso de mensagem nova ao seu navegador ou celular, só
+          se você ligar os avisos. O aviso leva o primeiro nome de quem escreveu, o título do anúncio e o começo da mensagem.
         </li>
       </ul>
       <p>Também podemos fornecer dados quando houver obrigação legal ou ordem de autoridade competente.</p>

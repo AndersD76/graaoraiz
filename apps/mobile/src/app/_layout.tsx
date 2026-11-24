@@ -6,7 +6,7 @@ import {
   PlusJakartaSans_800ExtraBold,
   useFonts,
 } from '@expo-google-fonts/plus-jakarta-sans';
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider, useRouter } from 'expo-router';
+import { DarkTheme, DefaultTheme, type Href, Stack, ThemeProvider, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
@@ -19,6 +19,7 @@ import { registrar } from '@/lib/eventos';
 import { iniciarAssinatura } from '@/lib/assinatura';
 import { configurarNotificacoes, ouvirToqueNosAvisos, reagendarAvisos } from '@/lib/avisos';
 import { sincronizar } from '@/lib/conta';
+import { ouvirToqueNasMensagens } from '@/lib/push-mensagens';
 import { obterEstado, selecionarTalhao } from '@/lib/estado';
 // A tarefa em si é definida no index.ts (ponto de entrada); aqui só pedimos o registro.
 import { registrarTarefaFundo } from '@/lib/tarefa-fundo';
@@ -72,6 +73,9 @@ export default function RootLayout() {
     [router],
   );
 
+  // Tocar num aviso de mensagem nova (classificados) abre a conversa.
+  useEffect(() => ouvirToqueNasMensagens((caminho) => router.push(caminho as Href)), [router]);
+
   if (!pronto) return null;
 
   const base = esquema === 'dark' ? DarkTheme : DefaultTheme;
@@ -111,6 +115,8 @@ export default function RootLayout() {
         <Stack.Screen name="maquina/[id]" options={{ title: 'Máquina' }} />
         <Stack.Screen name="anunciar" options={{ title: 'Anunciar máquina' }} />
         <Stack.Screen name="meus-anuncios" options={{ title: 'Meus anúncios' }} />
+        <Stack.Screen name="conversas" options={{ title: 'Conversas' }} />
+        <Stack.Screen name="conversa/[id]" options={{ title: 'Conversa' }} />
       </Stack>
     </ThemeProvider>
   );

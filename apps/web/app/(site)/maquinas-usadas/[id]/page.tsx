@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const base = metadadosPagina({
     // O layout acrescenta " | Grão Raiz": o título cabe em ~60 caracteres.
     titulo: cortar(`${a.titulo} em ${a.municipio}/${a.uf}`, 46),
-    descricao: cortar(`${a.titulo} por ${formatarReais(a.preco)}${uso ? `, ${uso}` : ''}, em ${a.municipio}/${a.uf}. Veja as fotos e fale com o vendedor pelo WhatsApp.`, 155),
+    descricao: cortar(`${a.titulo} por ${formatarReais(a.preco)}${uso ? `, ${uso}` : ''}, em ${a.municipio}/${a.uf}. Veja as fotos e converse com o vendedor pelo app.`, 155),
     caminho: `/maquinas-usadas/${a.id}`,
     // Vendida: a página fica para quem tem o link, mas sai do índice.
     indexar: a.situacao === 'ativo',

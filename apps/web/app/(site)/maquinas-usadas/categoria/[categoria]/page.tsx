@@ -18,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const nome = `${PLURAL_CATEGORIA[categoria]} ${concordar(categoria, 'usados', 'usadas')}`;
   return metadadosPagina({
     titulo: `${nome} à venda`,
-    descricao: `${nome} à venda direto com produtores, com fotos, preço e cidade. Fale com o vendedor pelo WhatsApp no Grão Raiz.`,
+    descricao: `${nome} à venda direto com produtores, com fotos, preço e cidade. Converse com o vendedor pelo app do Grão Raiz.`,
     caminho: `/maquinas-usadas/categoria/${categoria}`,
     // Página sem anúncio é rasa: fica fora do índice até ter conteúdo.
     indexar: anuncios.length > 0,
@@ -33,7 +33,7 @@ export default async function CategoriaMaquinas({ params }: Props) {
   return (
     <PaginaVitrine
       titulo={`${nome} à venda`}
-      abertura={`${nome} ${concordar(categoria, 'anunciados', 'anunciadas')} por produtores no Grão Raiz, com fotos, preço, ano e horas de uso. ${anuncios.length === 0 ? 'Ainda não há anúncios nesta categoria.' : anuncios.length === 1 ? 'Há 1 anúncio no ar.' : `Há ${anuncios.length} anúncios no ar.`} O contato com o vendedor é pelo WhatsApp, no app.`}
+      abertura={`${nome} ${concordar(categoria, 'anunciados', 'anunciadas')} por produtores no Grão Raiz, com fotos, preço, ano e horas de uso. ${anuncios.length === 0 ? 'Ainda não há anúncios nesta categoria.' : anuncios.length === 1 ? 'Há 1 anúncio no ar.' : `Há ${anuncios.length} anúncios no ar.`} A conversa com o vendedor é pelo app.`}
       anuncios={anuncios}
       categoria={categoria}
     />

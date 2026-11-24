@@ -47,7 +47,7 @@ function ItemMeuAnuncio({ anuncio, aoMudar }: { anuncio: MeuAnuncio; aoMudar: ()
       informar(
         'Parabéns pela venda!',
         r.comissaoValor > 0
-          ? `A comissão de ${r.comissaoPercentual.toLocaleString('pt-BR')}% ficou em ${formatarReais(r.comissaoValor)}. Vamos te chamar no WhatsApp ${anuncio.whatsapp} para combinar o PIX.`
+          ? `A comissão de ${r.comissaoPercentual.toLocaleString('pt-BR')}% ficou em ${formatarReais(r.comissaoValor)}. Vamos falar com você pelo e-mail da conta para combinar o PIX.`
           : 'O anúncio saiu da vitrine. Obrigado por usar o Grão Raiz! Tem outra máquina parada? Anuncie também, é grátis.',
       );
     });
@@ -70,13 +70,13 @@ function ItemMeuAnuncio({ anuncio, aoMudar }: { anuncio: MeuAnuncio; aoMudar: ()
         </View>
       </Linha>
       <T variante="pequeno">
-        {anuncio.contatos === 0 ? 'Ninguém pediu o contato ainda.' : `${anuncio.contatos} ${anuncio.contatos === 1 ? 'pessoa pediu' : 'pessoas pediram'} o seu WhatsApp.`}
+        {anuncio.contatos === 0 ? 'Ninguém mandou mensagem ainda.' : `${anuncio.contatos} ${anuncio.contatos === 1 ? 'pessoa mandou' : 'pessoas mandaram'} mensagem. Veja em Conversas.`}
       </T>
 
       {anuncio.situacao === 'vendido' ? (
         <Aviso tipo={anuncio.comissaoPaga || !anuncio.comissaoValor ? 'bom' : 'info'}>
           {anuncio.comissaoValor
-            ? `Vendido por ${formatarReais(anuncio.valorVenda ?? 0)}. Comissão de ${anuncio.comissaoPercentual.toLocaleString('pt-BR')}%: ${formatarReais(anuncio.comissaoValor)}${anuncio.comissaoPaga ? ', paga. Obrigado!' : '. Vamos te chamar no WhatsApp para combinar o PIX.'}`
+            ? `Vendido por ${formatarReais(anuncio.valorVenda ?? 0)}. Comissão de ${anuncio.comissaoPercentual.toLocaleString('pt-BR')}%: ${formatarReais(anuncio.comissaoValor)}${anuncio.comissaoPaga ? ', paga. Obrigado!' : '. Vamos falar com você pelo e-mail da conta para combinar o PIX.'}`
             : `Vendido por ${formatarReais(anuncio.valorVenda ?? 0)}. Parabéns pela venda!`}
         </Aviso>
       ) : vendendo ? (

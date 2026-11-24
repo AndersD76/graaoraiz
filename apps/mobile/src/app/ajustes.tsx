@@ -11,6 +11,7 @@ import { assinaturaDisponivel, atualizarStatusAssinatura, restaurarCompras } fro
 import { pedirPermissaoNotificacoes, type PermissaoAvisos, permissaoAvisos, reagendarAvisos } from '@/lib/avisos';
 import { CONTATO_WHATSAPP, LIBERA_PRO, PERMITE_SIMULAR_PRO, SITE_URL } from '@/lib/config';
 import { COM_CONTAS, ErroConta, excluirConta, sair, useConta } from '@/lib/conta';
+import { desligarAvisosMensagem } from '@/lib/push-mensagens';
 import { confirmar, informar } from '@/lib/dialogo';
 import {
   apagarTudo,
@@ -237,6 +238,7 @@ export default function AjustesScreen() {
               if (!ok) return;
               setSaindo(true);
               try {
+                await desligarAvisosMensagem();
                 await sair();
                 router.replace('/entrar');
               } finally {

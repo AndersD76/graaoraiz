@@ -4,13 +4,14 @@ import { type LinhaAnuncio, resumo } from '@/lib/maquinas';
 
 export const OPTIONS = preflight;
 
-/** GET /api/anuncios/meus → anúncios da conta (menos os tirados do ar), com contatos recebidos e comissão. */
+/** GET /api/anuncios/meus → anúncios da conta (menos os tirados do ar), com as conversas recebidas e a comissão. */
 export async function GET(request: Request) {
   try {
     const auth = await contaDaRequisicao(request);
     if ('falha' in auth) return auth.falha;
     const r = await banco().query<LinhaAnuncio & { contatos: number }>(
-      `select a.*, (select count(*)::int from app.contato_anuncio c where c.anuncio_id = a.id) as contatos
+      `select a.*, (select count(*)::int from app.conversa c where c.anuncio_id = a.id
+                and exists (select 1 from app.mensagem m where m.conversa_id = c.id)) as contatos
          from app.anuncio a where a.conta_id = $1 and a.situacao <> 'removido' order by a.criado_em desc`,
       [auth.conta.id],
     );

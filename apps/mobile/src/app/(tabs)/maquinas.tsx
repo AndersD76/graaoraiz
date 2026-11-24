@@ -9,6 +9,7 @@ import { Aviso, Botao, Campo, Cartao, Carregando, Chip, FaixaChips, Grade, Linha
 import { useLayout } from '@/hooks/use-layout';
 import { useTheme } from '@/hooks/use-theme';
 import { useConta } from '@/lib/conta';
+import { useConversas } from '@/lib/conversas';
 import { FILTROS_INICIAIS, type Filtros, useAnuncios } from '@/lib/maquinas';
 
 /** Vitrine de máquinas e implementos usados, de produtor para produtor. */
@@ -17,6 +18,7 @@ export default function MaquinasScreen() {
   const tema = useTheme();
   const conta = useConta();
   const { formato } = useLayout();
+  const { naoLidas } = useConversas();
   const [filtros, setFiltros] = useState<Filtros>(FILTROS_INICIAIS);
   const [texto, setTexto] = useState('');
   const { anuncios, temMais, comissao, carregando, erro, carregarMais, atualizar } = useAnuncios(filtros);
@@ -38,6 +40,17 @@ export default function MaquinasScreen() {
       {conta && !conta.demo ? (
         <View style={formato === 'computador' ? null : estilos.flex}>
           <Botao titulo="Meus anúncios" tipo="secundario" icone="lista" aoTocar={() => router.push('/meus-anuncios')} testID="meus-anuncios" />
+        </View>
+      ) : null}
+      {conta && !conta.demo ? (
+        <View style={formato === 'computador' ? null : estilos.flex}>
+          <Botao
+            titulo={naoLidas ? `Conversas (${naoLidas})` : 'Conversas'}
+            tipo="secundario"
+            icone="chat"
+            aoTocar={() => router.push('/conversas')}
+            testID="abrir-conversas"
+          />
         </View>
       ) : null}
     </>

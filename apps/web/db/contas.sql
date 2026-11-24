@@ -66,7 +66,7 @@ create table if not exists app.anuncio (
   municipio           text          not null check (char_length(municipio) between 2 and 80),
   uf                  char(2)       not null,
   descricao           text          check (char_length(descricao) <= 3000),
-  whatsapp            text          not null check (whatsapp ~ '^[0-9]{10,13}$'),
+  whatsapp            text          check (whatsapp ~ '^[0-9]{10,13}$'),
   fotos               uuid[]        not null default '{}',
   situacao            text          not null default 'ativo' check (situacao in ('ativo', 'pausado', 'vendido', 'removido')),
   comissao_percentual numeric(5,2)  not null,
@@ -107,6 +107,51 @@ create table if not exists app.contato_anuncio (
   primary key (anuncio_id, conta_id)
 );
 
+-- Conversas dos classificados (desde 24/11/2026 o contato é só pelo app, sem WhatsApp): uma por anúncio e
+-- comprador. "lida_*_em" marca até quando cada lado leu; "email_*_em", o último e-mail de aviso (no máximo um
+-- a cada poucas horas, só para quem não recebeu push).
+create table if not exists app.conversa (
+  id                  uuid        primary key default gen_random_uuid(),
+  anuncio_id          uuid        not null references app.anuncio (id) on delete cascade,
+  comprador_id        uuid        not null references app.conta (id) on delete cascade,
+  vendedor_id         uuid        not null references app.conta (id) on delete cascade,
+  criado_em           timestamptz not null default now(),
+  atualizado_em       timestamptz not null default now(),
+  lida_comprador_em   timestamptz not null default now(),
+  lida_vendedor_em    timestamptz not null default now(),
+  email_comprador_em  timestamptz,
+  email_vendedor_em   timestamptz,
+  unique (anuncio_id, comprador_id),
+  check (comprador_id <> vendedor_id)
+);
+create index if not exists conversa_comprador on app.conversa (comprador_id, atualizado_em desc);
+create index if not exists conversa_vendedor on app.conversa (vendedor_id, atualizado_em desc);
+
+create table if not exists app.mensagem (
+  id            bigserial   primary key,
+  conversa_id   uuid        not null references app.conversa (id) on delete cascade,
+  autor_id      uuid        not null references app.conta (id) on delete cascade,
+  texto         text        not null check (char_length(texto) between 1 and 1000),
+  criado_em     timestamptz not null default now()
+);
+create index if not exists mensagem_conversa on app.mensagem (conversa_id, id);
+
+-- Onde avisar cada conta de mensagem nova: navegador (Web Push, com as chaves da inscrição) ou app (token Expo).
+create table if not exists app.inscricao_push (
+  endpoint      text        primary key check (char_length(endpoint) <= 1000),
+  conta_id      uuid        not null references app.conta (id) on delete cascade,
+  tipo          text        not null check (tipo in ('web', 'expo')),
+  chaves        jsonb,
+  criado_em     timestamptz not null default now()
+);
+create index if not exists inscricao_push_conta on app.inscricao_push (conta_id);
+
+-- O WhatsApp do vendedor deixou de ser pedido (a conversa é pelo app); anúncios antigos podem ter.
+alter table app.anuncio alter column whatsapp drop not null;
+
+comment on table app.conversa is 'Conversas entre comprador e vendedor de um anúncio, pelo app.';
+comment on table app.mensagem is 'Mensagens das conversas dos classificados.';
+comment on table app.inscricao_push is 'Inscrições de push (navegador ou app) para avisar de mensagem nova.';
 comment on table app.anuncio is 'Anúncios de máquinas e implementos usados. Comissão sobre a venda aceita ao anunciar.';
 comment on table app.foto_anuncio is 'Fotos dos anúncios (JPEG), servidas por /api/anuncios/fotos/<id>.';
 comment on table app.contato_anuncio is 'Pedidos de contato com o vendedor (quem viu o WhatsApp de qual anúncio).';
@@ -122,10 +167,12 @@ create table if not exists app.venda (
   comissao_valor      numeric(12,2) not null,
   vendedor_nome       text          not null,
   vendedor_email      text          not null,
-  whatsapp            text          not null,
+  whatsapp            text,
   vendido_em          timestamptz   not null default now(),
   comissao_paga_em    timestamptz
 );
+
+alter table app.venda alter column whatsapp drop not null;
 
 comment on table app.venda is 'Vendas marcadas nos classificados e a comissão devida. Sem ligação com a conta: sobrevive à exclusão dela.';
 

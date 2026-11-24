@@ -60,7 +60,7 @@ export function perguntasVitrine(): { pergunta: string; resposta: string }[] {
     : 'Nada. Anunciar e vender pelo Grão Raiz é grátis, sem taxa e sem comissão sobre a venda.';
   return [
     { pergunta: 'Quanto custa anunciar uma máquina no Grão Raiz?', resposta: custo },
-    { pergunta: 'Como falo com o vendedor?', resposta: 'Abra o anúncio no app e toque em “Chamar no WhatsApp”. É preciso ter conta grátis; o pedido de contato fica registrado.' },
+    { pergunta: 'Como falo com o vendedor?', resposta: 'Abra o anúncio no app e toque em “Conversar com o vendedor”. É preciso ter conta grátis. A conversa fica no app, e você recebe um aviso quando o vendedor responder.' },
     { pergunta: 'O Grão Raiz garante a máquina?', resposta: 'Não. O Grão Raiz aproxima comprador e vendedor; a negociação, o pagamento e a documentação são entre vocês. Veja a máquina funcionando e confira a nota e o documento antes de pagar.' },
     { pergunta: 'Que máquinas posso anunciar?', resposta: 'Tratores, colheitadeiras, plantadeiras, pulverizadores, implementos e caminhões usados no campo, e equipamentos de armazenagem e recebimento de grãos: silos, secadores, máquinas de pré-limpeza, classificadores, elevadores e transportadores, tombadores, coletores de amostras e balanças. Sempre com fotos reais e preço.' },
   ];
