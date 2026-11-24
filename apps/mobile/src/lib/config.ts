@@ -13,6 +13,14 @@ export const API_URL = process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, '') || nu
  */
 export const SERVIDOR_URL = process.env.EXPO_PUBLIC_SERVIDOR_URL?.replace(/\/$/, '') || API_URL;
 
+/**
+ * Conta de demonstração (só leitura no servidor; criada por apps/web/db/demo.mjs): duas lavouras de exemplo
+ * perto de Passo Fundo, com chuvas, aplicações e uma ocorrência, para quem quer ver o app funcionando antes de
+ * cadastrar o próprio talhão. A senha é pública de propósito.
+ */
+export const DEMO_EMAIL = 'demo@graoraiz.com.br';
+export const DEMO_SENHA = 'demo2026';
+
 /** Site com política de privacidade, termos e página de download. */
 export const SITE_URL = process.env.EXPO_PUBLIC_SITE_URL?.replace(/\/$/, '') || 'https://www.appgraoraiz.com.br';
 

@@ -1,10 +1,11 @@
 import { useRouter } from 'expo-router';
-import type { ReactNode } from 'react';
+import { type ReactNode, useState } from 'react';
 import { StyleSheet } from 'react-native';
 
 import { Ilustracao, type NomeIlustracao } from '@/components/icone';
 import { Botao, Cartao, T, Tela } from '@/components/ui';
-import { COM_CONTAS, useConta } from '@/lib/conta';
+import { COM_CONTAS, entrarNaDemonstracao, ErroConta, useConta } from '@/lib/conta';
+import { informar } from '@/lib/dialogo';
 
 /**
  * Convite para cadastrar o primeiro talhão. Sem conta, cadastrar passa antes por criar a conta
@@ -14,6 +15,21 @@ export function ConviteTalhao({ titulo = 'Cadastre seu talhão', ilustracao, tex
   const router = useRouter();
   const conta = useConta();
   const pedeConta = COM_CONTAS && !conta;
+  const [abrindoDemo, setAbrindoDemo] = useState(false);
+
+  // "Ver como funciona": entra na conta de demonstração e mostra a tela Hoje de uma lavoura de exemplo.
+  const verDemonstracao = async () => {
+    setAbrindoDemo(true);
+    try {
+      await entrarNaDemonstracao();
+      router.navigate('/');
+    } catch (e) {
+      informar('Demonstração', e instanceof ErroConta ? e.message : 'Não deu para abrir a demonstração agora. Tente de novo.');
+    } finally {
+      setAbrindoDemo(false);
+    }
+  };
+
   return (
     <Cartao tom="marca">
       {ilustracao ? <Ilustracao nome={ilustracao} tamanho={72} /> : null}
@@ -26,7 +42,13 @@ export function ConviteTalhao({ titulo = 'Cadastre seu talhão', ilustracao, tex
         aoTocar={() => (pedeConta ? router.push({ pathname: '/entrar', params: { modo: 'criar', depois: 'onboarding' } }) : router.push('/onboarding'))}
       />
       {pedeConta ? (
-        <Botao titulo="Já tenho conta" tipo="texto" aoTocar={() => router.push({ pathname: '/entrar', params: { depois: 'onboarding' } })} testID="ja-tenho-conta" />
+        <>
+          <Botao titulo="Ver como funciona" tipo="secundario" icone="olho" carregando={abrindoDemo} aoTocar={() => void verDemonstracao()} testID="ver-demonstracao" />
+          <T variante="pequeno" style={estilos.centro}>
+            Abre uma lavoura de exemplo, com chuvas, aplicações e satélite. Nada fica salvo.
+          </T>
+          <Botao titulo="Já tenho conta" tipo="texto" aoTocar={() => router.push({ pathname: '/entrar', params: { depois: 'onboarding' } })} testID="ja-tenho-conta" />
+        </>
       ) : null}
     </Cartao>
   );
@@ -51,7 +73,8 @@ export function SemTalhao({
   const conta = useConta();
 
   return (
-    <Tela titulo={titulo} subtitulo={subtitulo}>
+    // Estreita: no computador o convite fica do tamanho de um celular, centrado, em vez de esticar na tela toda.
+    <Tela titulo={titulo} subtitulo={subtitulo} estreita>
       {children}
       <ConviteTalhao ilustracao={ilustracao} texto={texto} />
       <Botao titulo="Ver máquinas usadas" tipo="secundario" icone="trator" aoTocar={() => router.navigate('/maquinas')} />

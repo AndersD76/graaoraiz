@@ -1,5 +1,5 @@
 import type { Status } from '@graoraiz/clima';
-import { Children, isValidElement, type ReactNode } from 'react';
+import { Children, createContext, isValidElement, type ReactNode, useContext } from 'react';
 import {
   ActivityIndicator,
   Platform,
@@ -22,6 +22,12 @@ import { Icone, type NomeIcone } from '@/components/icone';
 import { BottomTabInset, Fontes, MaxContentWidth, Raio, Spacing } from '@/constants/theme';
 import { useLayout } from '@/hooks/use-layout';
 import { useTheme } from '@/hooks/use-theme';
+
+/**
+ * Botão na largura toda também no computador: vale dentro de uma Tela estreita (formulário curto, convite),
+ * onde o botão acompanha os campos. Fora dela, no tablet e no computador o botão tem largura máxima.
+ */
+const BotaoLarguraToda = createContext(false);
 
 // Texto --------------------------------------------------------------------
 
@@ -94,7 +100,7 @@ export function Tela({
           {acao}
         </View>
       ) : null}
-      {children}
+      <BotaoLarguraToda.Provider value={estreita}>{children}</BotaoLarguraToda.Provider>
     </ScrollView>
   );
 }
@@ -230,6 +236,11 @@ export function Botao({
   testID?: string;
 }) {
   const tema = useTheme();
+  const { formato, larguraUtil } = useLayout();
+  const larguraToda = useContext(BotaoLarguraToda);
+  // Esticado na largura de uma tela de computador, o botão vira uma faixa; lá ele para na largura de um celular
+  // (ou de meia tela, para encher uma das duas colunas sem sobrar espaço).
+  const limite = formato !== 'celular' && !larguraToda ? { maxWidth: Math.max(MaxContentWidth, larguraUtil / 2) } : null;
   const fundo = { primario: tema.marca, secundario: tema.backgroundSelected, perigo: tema.ruim, texto: 'transparent', claro: 'rgba(255,255,255,0.94)' }[tipo];
   const corTexto = { primario: tema.sobreMarca, perigo: tema.sobreRuim, texto: tema.marca, secundario: tema.text, claro: '#0F1A12' }[tipo];
   const inativo = desabilitado || carregando;
@@ -244,6 +255,7 @@ export function Botao({
       style={({ pressed }) => [
         estilos.botao,
         compacto && estilos.botaoCompacto,
+        limite,
         { backgroundColor: fundo, opacity: inativo ? 0.45 : pressed ? 0.85 : 1, transform: [{ scale: pressed ? 0.98 : 1 }] },
       ]}>
       {carregando ? (

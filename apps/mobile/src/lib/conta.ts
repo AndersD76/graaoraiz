@@ -3,7 +3,7 @@ import { useSyncExternalStore } from 'react';
 import { apagar, gravar, ler } from '@/lib/armazenamento';
 import { atribuicaoAtual } from '@/lib/atribuicao';
 import { reagendarAvisos } from '@/lib/avisos';
-import { SERVIDOR_URL } from '@/lib/config';
+import { DEMO_EMAIL, DEMO_SENHA, SERVIDOR_URL } from '@/lib/config';
 import { apagarTudo, assinar, dadosParaNuvem, type EstadoNuvem, obterEstado, salvarProdutor, substituirEstado } from '@/lib/estado';
 
 /**
@@ -184,6 +184,11 @@ export async function entrar(email: string, senha: string): Promise<Conta> {
   const r = await chamar<{ token: string; conta: Conta }>('/api/conta/entrar', { metodo: 'POST', corpo: { email, senha } });
   await iniciar(r);
   return r.conta;
+}
+
+/** Entra na conta de demonstração ("Ver como funciona"): as mexidas ficam só no aparelho. */
+export function entrarNaDemonstracao(): Promise<Conta> {
+  return entrar(DEMO_EMAIL, DEMO_SENHA);
 }
 
 export async function criarConta(nome: string, email: string, senha: string): Promise<Conta> {

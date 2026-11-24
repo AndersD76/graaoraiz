@@ -2,8 +2,9 @@ import { CULTURAS, type Cultura } from '@graoraiz/clima';
 import { useState } from 'react';
 import { Platform, Pressable, StyleSheet, View } from 'react-native';
 
-import { Icone } from '@/components/icone';
-import { Aviso, Botao, Campo, Cartao, Carregando, Divisor, Linha, Secao, T, Tela } from '@/components/ui';
+import { Icone, Ilustracao, type NomeIlustracao } from '@/components/icone';
+import { Aviso, Botao, Campo, Cartao, Carregando, Divisor, Grade, Linha, Medalha, Secao, T, Tela } from '@/components/ui';
+import { useLayout } from '@/hooks/use-layout';
 import { useTheme } from '@/hooks/use-theme';
 import { pedirPermissaoNotificacoes, reagendarAvisos } from '@/lib/avisos';
 import { informar } from '@/lib/dialogo';
@@ -100,28 +101,62 @@ function EditorAlerta({ i, aoFechar }: { i: Indicador; aoFechar: () => void }) {
   );
 }
 
+/** Ilustração de cada produto do Cepea, pelo nome (o trigo usa o feixe, como o arroz). */
+function ilustracaoDe(produto: string): NomeIlustracao {
+  const p = produto.toLowerCase();
+  if (p.startsWith('soja')) return 'soja';
+  if (p.startsWith('milho')) return 'ear_of_corn';
+  if (p.startsWith('trigo') || p.startsWith('arroz')) return 'sheaf_of_rice';
+  if (p.startsWith('café')) return 'cafe';
+  if (p.startsWith('algodão')) return 'algodao';
+  if (p.startsWith('laranja')) return 'tangerine';
+  if (p.startsWith('açúcar')) return 'cana';
+  if (p.startsWith('boi')) return 'cow';
+  if (p.startsWith('feijão')) return 'beans';
+  return 'seedling';
+}
+
 function LinhaPreco({ i, aoTocar }: { i: Indicador; aoTocar: () => void }) {
   return (
     <Pressable onPress={aoTocar} accessibilityRole="button" accessibilityLabel={`${i.produto}: marcar aviso de preço`}>
       <Linha style={estilos.linha} testID={`preco-${i.id}`}>
+        <Ilustracao nome={ilustracaoDe(i.produto)} tamanho={40} />
+        <View style={estilos.flex}>
+          <T variante="forte">{i.produto}</T>
+          <T variante="pequeno">
+            {i.praca} · {i.unidade}
+          </T>
+        </View>
+        <View style={estilos.direita}>
+          <T variante="forte">{formatarPreco(i)}</T>
+          <T variante="pequeno">{formatarDataPreco(i.data)}</T>
+        </View>
+      </Linha>
+    </Pressable>
+  );
+}
+
+function LinhaDolar({ valor, data }: { valor: number; data: string }) {
+  const tema = useTheme();
+  return (
+    <Linha style={estilos.linha} testID="dolar">
+      <Medalha icone="dinheiro" cor={tema.marca} fundo={tema.marcaSuave} tamanho={40} />
       <View style={estilos.flex}>
-        <T variante="forte">{i.produto}</T>
-        <T variante="pequeno">
-          {i.praca} · {i.unidade}
-        </T>
+        <T variante="forte">Dólar</T>
+        <T variante="pequeno">PTAX venda · Banco Central</T>
       </View>
       <View style={estilos.direita}>
-        <T variante="forte">{formatarPreco(i)}</T>
-        <T variante="pequeno">{formatarDataPreco(i.data)}</T>
+        <T variante="forte">R$ {valor.toLocaleString('pt-BR', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}</T>
+        <T variante="pequeno">{formatarDataPreco(data)}</T>
       </View>
     </Linha>
-    </Pressable>
   );
 }
 
 /** Preços de referência do dia (Cepea/Esalq-USP) e dólar PTAX, com as culturas do produtor primeiro. */
 export default function PrecosScreen() {
   const tema = useTheme();
+  const { formato } = useLayout();
   const { talhoes, alertasPreco } = useEstado();
   const { precos, carregando, erro, desatualizado, atualizar } = usePrecos();
   const [editando, setEditando] = useState<number | null>(null);
@@ -131,6 +166,21 @@ export default function PrecosScreen() {
   const daLavoura = precos?.indicadores.filter((i) => i.culturas.some((c) => minhas.has(c as Cultura))) ?? [];
   const outros = precos?.indicadores.filter((i) => !daLavoura.includes(i)) ?? [];
   const semPreco = [...minhas].filter((c) => !precos?.indicadores.some((i) => i.culturas.includes(c)));
+
+  // Dólar e produtos: no celular, uma lista num cartão só; no tablet e no computador, cartões lado a lado.
+  const itens = [
+    ...(precos?.dolar ? [{ chave: 'dolar', conteudo: <LinhaDolar valor={precos.dolar.valor} data={precos.dolar.data} /> }] : []),
+    ...outros.map((i) => ({
+      chave: String(i.id),
+      conteudo: (
+        <>
+          <LinhaPreco i={i} aoTocar={() => alternar(i.id)} />
+          <ResumoAlerta i={i} />
+          {editando === i.id ? <EditorAlerta i={i} aoFechar={() => setEditando(null)} /> : null}
+        </>
+      ),
+    })),
+  ];
 
   return (
     <Tela comAbas={false} cabecalhoNativo aoAtualizar={atualizar} atualizando={carregando && precos !== null}>
@@ -143,31 +193,38 @@ export default function PrecosScreen() {
       {daLavoura.length > 0 ? (
         <>
           <Secao titulo="Da sua lavoura" />
-          {daLavoura.map((i) => (
-            <Cartao key={i.id} tom="marca" testID={`destaque-${i.id}`}>
-              <T variante="rotulo">
-                {i.produto} · {i.praca}
-              </T>
-              <T variante="numero" cor={tema.marca}>
-                {formatarPreco(i)}
-              </T>
-              <T variante="pequeno">
-                {i.unidade} · indicador de {formatarDataPreco(i.data)}
-              </T>
-              <ResumoAlerta i={i} />
-              {editando === i.id ? (
-                <EditorAlerta i={i} aoFechar={() => setEditando(null)} />
-              ) : (
-                <Botao
-                  titulo={alertasPreco.some((a) => a.indicador === i.id) ? 'Mudar aviso de preço' : 'Avisar preço-alvo'}
-                  tipo="texto"
-                  icone="sino"
-                  aoTocar={() => alternar(i.id)}
-                  testID={`alvo-${i.id}`}
-                />
-              )}
-            </Cartao>
-          ))}
+          <Grade larguraMinima={300} maxColunas={3}>
+            {daLavoura.map((i) => (
+              <Cartao key={i.id} tom="marca" testID={`destaque-${i.id}`}>
+                <Linha style={estilos.linha}>
+                  <View style={estilos.flex}>
+                    <T variante="rotulo">
+                      {i.produto} · {i.praca}
+                    </T>
+                    <T variante="numero" cor={tema.marca}>
+                      {formatarPreco(i)}
+                    </T>
+                    <T variante="pequeno">
+                      {i.unidade} · indicador de {formatarDataPreco(i.data)}
+                    </T>
+                  </View>
+                  <Ilustracao nome={ilustracaoDe(i.produto)} tamanho={64} />
+                </Linha>
+                <ResumoAlerta i={i} />
+                {editando === i.id ? (
+                  <EditorAlerta i={i} aoFechar={() => setEditando(null)} />
+                ) : (
+                  <Botao
+                    titulo={alertasPreco.some((a) => a.indicador === i.id) ? 'Mudar aviso de preço' : 'Avisar preço-alvo'}
+                    tipo="texto"
+                    icone="sino"
+                    aoTocar={() => alternar(i.id)}
+                    testID={`alvo-${i.id}`}
+                  />
+                )}
+              </Cartao>
+            ))}
+          </Grade>
         </>
       ) : null}
       {semPreco.length > 0 && precos ? (
@@ -176,35 +233,27 @@ export default function PrecosScreen() {
         </T>
       ) : null}
 
-      {precos?.dolar ? (
-        <Cartao testID="dolar">
-          <Linha style={estilos.linha}>
-            <View style={estilos.flex}>
-              <T variante="forte">Dólar</T>
-              <T variante="pequeno">PTAX venda · Banco Central</T>
-            </View>
-            <View style={estilos.direita}>
-              <T variante="forte">R$ {precos.dolar.valor.toLocaleString('pt-BR', { minimumFractionDigits: 4, maximumFractionDigits: 4 })}</T>
-              <T variante="pequeno">{formatarDataPreco(precos.dolar.data)}</T>
-            </View>
-          </Linha>
-        </Cartao>
-      ) : null}
-
-      {outros.length > 0 ? (
+      {itens.length > 0 ? (
         <>
-          <Secao titulo="Outros produtos" />
-          <T variante="pequeno">Toque num produto para marcar um aviso de preço.</T>
-          <Cartao>
-            {outros.map((i, n) => (
-              <View key={i.id}>
-                {n > 0 ? <Divisor /> : null}
-                <LinhaPreco i={i} aoTocar={() => alternar(i.id)} />
-                <ResumoAlerta i={i} />
-                {editando === i.id ? <EditorAlerta i={i} aoFechar={() => setEditando(null)} /> : null}
-              </View>
-            ))}
-          </Cartao>
+          {/* Sem a lavoura em destaque, o título da tela ("Preços do dia") já basta. */}
+          {daLavoura.length > 0 ? <Secao titulo="Outros preços" /> : null}
+          {outros.length > 0 ? <T variante="pequeno">Toque num produto para marcar um aviso de preço.</T> : null}
+          {formato === 'celular' ? (
+            <Cartao>
+              {itens.map((item, n) => (
+                <View key={item.chave}>
+                  {n > 0 ? <Divisor /> : null}
+                  {item.conteudo}
+                </View>
+              ))}
+            </Cartao>
+          ) : (
+            <Grade larguraMinima={300} maxColunas={3}>
+              {itens.map((item) => (
+                <Cartao key={item.chave}>{item.conteudo}</Cartao>
+              ))}
+            </Grade>
+          )}
         </>
       ) : null}
 
@@ -218,7 +267,7 @@ export default function PrecosScreen() {
 }
 
 const estilos = StyleSheet.create({
-  linha: { alignItems: 'center', flexWrap: 'nowrap' },
+  linha: { alignItems: 'center', flexWrap: 'nowrap', paddingVertical: 4 },
   flex: { flex: 1 },
   direita: { alignItems: 'flex-end' },
   alerta: { alignItems: 'center', gap: 6, flexWrap: 'nowrap' },

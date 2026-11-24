@@ -20,6 +20,7 @@ import { useVigia } from '@/hooks/use-vigia';
 import { reagendarAvisos } from '@/lib/avisos';
 import { useEstado, usePro } from '@/lib/estado';
 import { registrarUmaVez } from '@/lib/eventos';
+import { useConta } from '@/lib/conta';
 import { buscarLocalConsulta, useTalhaoDoTempo } from '@/lib/local-consulta';
 import { useMunicipio } from '@/lib/municipio';
 
@@ -60,7 +61,8 @@ export default function HojeScreen() {
     if (temPrevisao) registrarUmaVez('aha_reached');
   }, [temPrevisao]);
   const municipio = useMunicipio(talhao?.lat, talhao?.lon);
-  const { menuLateral } = useLayout();
+  const conta = useConta();
+  const { menuLateral, formato } = useLayout();
 
   const hoje = dataDe(agora);
   const horaAtual = `${agora.slice(0, 13)}:00`;
@@ -131,6 +133,100 @@ export default function HojeScreen() {
     </View>
   );
 
+  // Pedaços da tela. No computador, a coluna da esquerda leva o que se lê primeiro (avisos, próximas horas,
+  // mercado) e a da direita a lista longa dos dias, para as duas terminarem juntas. No celular, a ordem de sempre.
+  const computador = formato === 'computador';
+  const avisoDemo = conta?.demo ? (
+    <Cartao tom="destaque" testID="aviso-demonstracao">
+      <T variante="subtitulo">Você está na demonstração</T>
+      <T variante="pequeno">
+        Duas lavouras de exemplo perto de Passo Fundo (RS), com o tempo de verdade, chuvas anotadas, aplicações no caderno e uma ocorrência.
+        Mexa à vontade: nada fica salvo.
+      </T>
+      <Botao
+        titulo="Criar minha conta grátis"
+        icone="mais"
+        aoTocar={() => router.push({ pathname: '/entrar', params: { modo: 'criar', depois: 'onboarding' } })}
+        testID="sair-demonstracao-criar"
+      />
+    </Cartao>
+  ) : null;
+  const seletor = <SeletorTalhao selecionado={talhao} />;
+  const erroPrevisao =
+    !resultado && !carregando && erro ? (
+      <>
+        <Aviso tipo="atencao" titulo="Não deu para buscar a previsão">
+          {`${erro} Quando houver sinal, a última previsão fica salva para usar sem internet.`}
+        </Aviso>
+        <Botao titulo="Tentar de novo" icone="atualizar" aoTocar={recarregar} />
+      </>
+    ) : null;
+  const convite = consulta ? (
+    <ConviteTalhao texto="Este é o tempo onde você está agora. Cadastre o seu talhão para receber no celular os avisos de geada, temporal e chuva, anotar as aplicações e ver o satélite da lavoura." />
+  ) : (
+    <View style={estilos.acoes}>
+      <AcaoRapida icone="pulverizador" rotulo="Apliquei agora" aoTocar={() => router.push('/aplicacao')} testID="acao-aplicacao" />
+      <AcaoRapida icone="gota" rotulo="Choveu" aoTocar={() => router.push('/chuva')} testID="acao-chuva" />
+      <AcaoRapida icone="camera" rotulo="Ocorrência" aoTocar={() => router.push('/ocorrencia')} testID="acao-ocorrencia" />
+      <AcaoRapida icone="satelite" rotulo="Satélite" aoTocar={() => router.push('/satelite')} testID="acao-satelite" />
+    </View>
+  );
+  const vigia = resultado ? (
+    <>
+      <Secao titulo="O vigia diz" />
+      <View style={estilos.lista} testID="vigia">
+        {itens.map((item) => (
+          <CartaoVigia
+            key={item.id}
+            item={item}
+            bloqueado={item.pro && !pro}
+            aoTocar={item.pro && !pro ? () => router.push('/assinatura') : item.categoria === 'pulverizacao' ? () => router.push('/pulverizacao') : undefined}
+          />
+        ))}
+      </View>
+    </>
+  ) : null;
+  const panorama = resultado ? (
+    <Botao titulo="Últimos 3 meses: chuva, temperatura e vigor" tipo="secundario" icone="grafico" aoTocar={() => router.push('/panorama')} testID="abrir-panorama" />
+  ) : null;
+  const mercado = resultado ? <CartaoMercado cultura={talhao?.cultura ?? null} /> : null;
+  const proximasHoras = resultado ? (
+    <>
+      <Secao titulo="Próximas 24 horas" acao="Pulverização" aoTocarAcao={() => router.push('/pulverizacao')} />
+      <Cartao style={estilos.semPadding}>
+        <FaixaHoras horas={proximas} avaliacoes={avaliacoes} dias={dias} />
+        <View style={estilos.legenda}>
+          {(['bom', 'atencao', 'ruim'] as const).map((s) => (
+            <View key={s} style={estilos.itemLegenda}>
+              <View style={[estilos.pontoLegenda, { backgroundColor: { bom: tema.bom, atencao: tema.atencao, ruim: tema.ruim }[s] }]} />
+              <T variante="pequeno" style={estilos.textoLegenda}>
+                {{ bom: 'Pode pulverizar', atencao: 'Com cuidado', ruim: 'Não pulverize' }[s]}
+              </T>
+            </View>
+          ))}
+        </View>
+      </Cartao>
+    </>
+  ) : null;
+  const proximosDias = resultado ? (
+    <>
+      <Secao titulo={`Próximos ${pro ? futuros.length : DIAS_GRATIS} dias`} />
+      <Cartao>
+        <ListaDias dias={pro ? futuros : futuros.slice(0, DIAS_GRATIS)} hoje={hoje} />
+        {!pro && futuros.length > DIAS_GRATIS ? (
+          <Pressable onPress={() => router.push('/assinatura')} style={[estilos.maisDias, { backgroundColor: tema.destaqueSuave }]} accessibilityRole="button">
+            <Icone nome="cadeado" tamanho={18} cor={tema.destaque} />
+            <T variante="forte" cor={tema.destaque} style={estilos.flex}>
+              Mais {futuros.length - DIAS_GRATIS} dias de previsão no Pro
+            </T>
+            <Icone nome="direita" tamanho={16} cor={tema.destaque} />
+          </Pressable>
+        ) : null}
+      </Cartao>
+    </>
+  ) : null;
+  const rodape = resultado ? <RodapeFonte em={resultado.em} desatualizado={resultado.desatualizado} /> : null;
+
   return (
     <Tela semTopo aoAtualizar={recarregar} atualizando={carregando && resultado !== null}>
       {agoraHora ? (
@@ -145,83 +241,32 @@ export default function HojeScreen() {
       <Colunas
         esquerda={
           <>
-      <SeletorTalhao selecionado={talhao} />
-
-      {!resultado && !carregando && erro ? (
-        <>
-          <Aviso tipo="atencao" titulo="Não deu para buscar a previsão">
-            {`${erro} Quando houver sinal, a última previsão fica salva para usar sem internet.`}
-          </Aviso>
-          <Botao titulo="Tentar de novo" icone="atualizar" aoTocar={recarregar} />
-        </>
-      ) : null}
-
-      {consulta ? (
-        <ConviteTalhao texto="Este é o tempo onde você está agora. Cadastre o seu talhão para receber no celular os avisos de geada, temporal e chuva, anotar as aplicações e ver o satélite da lavoura." />
-      ) : (
-        <View style={estilos.acoes}>
-          <AcaoRapida icone="pulverizador" rotulo="Apliquei agora" aoTocar={() => router.push('/aplicacao')} testID="acao-aplicacao" />
-          <AcaoRapida icone="gota" rotulo="Choveu" aoTocar={() => router.push('/chuva')} testID="acao-chuva" />
-          <AcaoRapida icone="camera" rotulo="Ocorrência" aoTocar={() => router.push('/ocorrencia')} testID="acao-ocorrencia" />
-          <AcaoRapida icone="satelite" rotulo="Satélite" aoTocar={() => router.push('/satelite')} testID="acao-satelite" />
-        </View>
-      )}
-
-      {resultado ? (
-        <>
-          <Secao titulo="O vigia diz" />
-          <View style={estilos.lista} testID="vigia">
-            {itens.map((item) => (
-              <CartaoVigia
-                key={item.id}
-                item={item}
-                bloqueado={item.pro && !pro}
-                aoTocar={item.pro && !pro ? () => router.push('/assinatura') : item.categoria === 'pulverizacao' ? () => router.push('/pulverizacao') : undefined}
-              />
-            ))}
-          </View>
-        </>
-      ) : null}
+            {avisoDemo}
+            {seletor}
+            {erroPrevisao}
+            {convite}
+            {vigia}
+            {computador ? (
+              <>
+                {proximasHoras}
+                {mercado}
+              </>
+            ) : null}
           </>
         }
         direita={
-          resultado ? (
-        <>
-          <Botao titulo="Últimos 3 meses: chuva, temperatura e vigor" tipo="secundario" icone="grafico" aoTocar={() => router.push('/panorama')} testID="abrir-panorama" />
-
-          <CartaoMercado cultura={talhao?.cultura ?? null} />
-
-          <Secao titulo="Próximas 24 horas" acao="Pulverização" aoTocarAcao={() => router.push('/pulverizacao')} />
-          <Cartao style={estilos.semPadding}>
-            <FaixaHoras horas={proximas} avaliacoes={avaliacoes} dias={dias} />
-            <View style={estilos.legenda}>
-              {(['bom', 'atencao', 'ruim'] as const).map((s) => (
-                <View key={s} style={estilos.itemLegenda}>
-                  <View style={[estilos.pontoLegenda, { backgroundColor: { bom: tema.bom, atencao: tema.atencao, ruim: tema.ruim }[s] }]} />
-                  <T variante="pequeno" style={estilos.textoLegenda}>
-                    {{ bom: 'Pode pulverizar', atencao: 'Com cuidado', ruim: 'Não pulverize' }[s]}
-                  </T>
-                </View>
-              ))}
-            </View>
-          </Cartao>
-
-          <Secao titulo={`Próximos ${pro ? futuros.length : DIAS_GRATIS} dias`} />
-          <Cartao>
-            <ListaDias dias={pro ? futuros : futuros.slice(0, DIAS_GRATIS)} hoje={hoje} />
-            {!pro && futuros.length > DIAS_GRATIS ? (
-              <Pressable onPress={() => router.push('/assinatura')} style={[estilos.maisDias, { backgroundColor: tema.destaqueSuave }]} accessibilityRole="button">
-                <Icone nome="cadeado" tamanho={18} cor={tema.destaque} />
-                <T variante="forte" cor={tema.destaque} style={estilos.flex}>
-                  Mais {futuros.length - DIAS_GRATIS} dias de previsão no Pro
-                </T>
-                <Icone nome="direita" tamanho={16} cor={tema.destaque} />
-              </Pressable>
-            ) : null}
-          </Cartao>
-          <RodapeFonte em={resultado.em} desatualizado={resultado.desatualizado} />
-        </>
-          ) : null
+          <>
+            {computador ? null : (
+              <>
+                {panorama}
+                {mercado}
+                {proximasHoras}
+              </>
+            )}
+            {proximosDias}
+            {computador ? panorama : null}
+            {rodape}
+          </>
         }
       />
     </Tela>

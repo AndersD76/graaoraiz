@@ -81,7 +81,7 @@
       "lat": -28.200957,
       "lon": -52.421172,
       "cultura": "soja",
-      "dataPlantio": "2026-10-10",
+      "dataPlantio": "2026-10-19",
       "criadoEm": "2026-09-28T12:05:00.000Z",
       "solo": "argiloso",
       "zarc": {
@@ -151,9 +151,208 @@
     }
   ],
   "talhaoSelecionado": "demo-soja",
-  "chuvas": [],
-  "eventos": [],
-  "aplicacoes": [],
+  "chuvas": [
+    {
+      "talhaoId": "demo-soja",
+      "data": "2026-09-28",
+      "mm": 38
+    },
+    {
+      "talhaoId": "demo-soja",
+      "data": "2026-09-29",
+      "mm": 32
+    },
+    {
+      "talhaoId": "demo-soja",
+      "data": "2026-10-03",
+      "mm": 13
+    },
+    {
+      "talhaoId": "demo-soja",
+      "data": "2026-10-04",
+      "mm": 15
+    },
+    {
+      "talhaoId": "demo-soja",
+      "data": "2026-10-05",
+      "mm": 12
+    },
+    {
+      "talhaoId": "demo-soja",
+      "data": "2026-10-08",
+      "mm": 33
+    },
+    {
+      "talhaoId": "demo-soja",
+      "data": "2026-10-09",
+      "mm": 14
+    },
+    {
+      "talhaoId": "demo-soja",
+      "data": "2026-10-10",
+      "mm": 5
+    },
+    {
+      "talhaoId": "demo-soja",
+      "data": "2026-10-11",
+      "mm": 16
+    },
+    {
+      "talhaoId": "demo-soja",
+      "data": "2026-10-12",
+      "mm": 24
+    },
+    {
+      "talhaoId": "demo-soja",
+      "data": "2026-10-13",
+      "mm": 11
+    },
+    {
+      "talhaoId": "demo-soja",
+      "data": "2026-10-14",
+      "mm": 7
+    },
+    {
+      "talhaoId": "demo-soja",
+      "data": "2026-10-15",
+      "mm": 12
+    },
+    {
+      "talhaoId": "demo-soja",
+      "data": "2026-10-23",
+      "mm": 6
+    },
+    {
+      "talhaoId": "demo-soja",
+      "data": "2026-10-24",
+      "mm": 36
+    },
+    {
+      "talhaoId": "demo-soja",
+      "data": "2026-10-30",
+      "mm": 12
+    },
+    {
+      "talhaoId": "demo-soja",
+      "data": "2026-11-04",
+      "mm": 46
+    },
+    {
+      "talhaoId": "demo-soja",
+      "data": "2026-11-07",
+      "mm": 51
+    },
+    {
+      "talhaoId": "demo-soja",
+      "data": "2026-11-17",
+      "mm": 7
+    },
+    {
+      "talhaoId": "demo-soja",
+      "data": "2026-11-18",
+      "mm": 5
+    },
+    {
+      "talhaoId": "demo-soja",
+      "data": "2026-11-20",
+      "mm": 19
+    },
+    {
+      "talhaoId": "demo-soja",
+      "data": "2026-11-22",
+      "mm": 24
+    }
+  ],
+  "eventos": [
+    {
+      "id": "demo-ocorrencia-1",
+      "talhaoId": "demo-soja",
+      "data": "2026-11-16",
+      "tipo": "praga",
+      "nota": "Monitoramento com pano de batida: lagartas acima do nível de controle. Aplicar na próxima hora boa.",
+      "fotos": [],
+      "registradaEm": "2026-11-16T16:40"
+    }
+  ],
+  "aplicacoes": [
+    {
+      "id": "demo-aplicacao-2",
+      "talhaoId": "demo-trigo",
+      "quando": "2026-09-02T12:30",
+      "tipo": "fungicida",
+      "produto": "Fungicida na floração (giberela)",
+      "areaHa": 47.3,
+      "horasSemChuva": 2,
+      "residualDias": 14,
+      "condicoes": {
+        "temperatura": 17.4,
+        "umidade": 66,
+        "vento2m": 3.9641406983901035,
+        "rajada2m": 14.809431288325294,
+        "deltaT": 4.01396645971727,
+        "status": "bom",
+        "motivos": []
+      }
+    },
+    {
+      "id": "demo-aplicacao-3",
+      "talhaoId": "demo-trigo",
+      "quando": "2026-09-16T09:30",
+      "tipo": "fungicida",
+      "produto": "Fungicida, segunda aplicação (giberela)",
+      "areaHa": 47.3,
+      "horasSemChuva": 2,
+      "residualDias": 14,
+      "condicoes": {
+        "temperatura": 12.7,
+        "umidade": 60,
+        "vento2m": 5.011272203625226,
+        "rajada2m": 14.510250858258114,
+        "deltaT": 4.250087493711911,
+        "status": "bom",
+        "motivos": []
+      }
+    },
+    {
+      "id": "demo-aplicacao-1",
+      "talhaoId": "demo-soja",
+      "quando": "2026-10-01T09:30",
+      "tipo": "herbicida",
+      "produto": "Dessecação antes do plantio",
+      "areaHa": 37.1,
+      "horasSemChuva": 4,
+      "residualDias": null,
+      "condicoes": {
+        "temperatura": 17.5,
+        "umidade": 81,
+        "vento2m": 3.2909847307389546,
+        "rajada2m": 12.415987847787873,
+        "deltaT": 2.253194437112338,
+        "status": "bom",
+        "motivos": []
+      }
+    },
+    {
+      "id": "demo-aplicacao-4",
+      "talhaoId": "demo-soja",
+      "quando": "2026-11-18T10:30",
+      "tipo": "inseticida",
+      "produto": "Inseticida para lagarta",
+      "areaHa": 37.1,
+      "horasSemChuva": 2,
+      "residualDias": 10,
+      "condicoes": {
+        "temperatura": 25.3,
+        "umidade": 65,
+        "vento2m": 3.5153700532893377,
+        "rajada2m": 14.510250858258114,
+        "deltaT": 4.798180827841669,
+        "status": "bom",
+        "motivos": []
+      },
+      "observacao": "Controle das lagartas vistas no monitoramento de 16/11."
+    }
+  ],
   "seguro": {
     "tipo": "nenhum",
     "agente": "",

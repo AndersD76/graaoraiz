@@ -192,8 +192,15 @@ const tentativas = new Map<string, { n: number; desde: number }>();
 const JANELA_MS = 15 * 60 * 1000;
 const MAX_TENTATIVAS = 10;
 
+/**
+ * A senha da conta de demonstração é pública (o app entra nela pelo botão "Ver como funciona"): errar a senha
+ * dela não bloqueia, senão qualquer um tirava a demonstração do ar com 10 tentativas erradas.
+ */
+const EMAIL_DEMO = 'demo@graoraiz.com.br';
+
 /** Freia adivinhação de senha: 10 erros por e-mail a cada 15 minutos (por instância do servidor). */
 export function bloqueadoPorTentativas(chave: string): boolean {
+  if (chave === EMAIL_DEMO) return false;
   const t = tentativas.get(chave);
   if (!t || Date.now() - t.desde > JANELA_MS) return false;
   return t.n >= MAX_TENTATIVAS;

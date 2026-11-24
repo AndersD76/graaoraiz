@@ -156,7 +156,7 @@ export default function CadernoScreen() {
                     {a.areaHa ? ` · ${formatarNumero(a.areaHa, 1)} ha` : ''}
                   </T>
                 </View>
-                {a.condicoes ? <Selo status={a.condicoes.status} texto={a.condicoes.status === 'bom' ? 'No limite' : a.condicoes.status === 'atencao' ? 'Com cuidado' : 'Fora'} /> : null}
+                {a.condicoes ? <Selo status={a.condicoes.status} texto={a.condicoes.status === 'bom' ? 'Condição boa' : a.condicoes.status === 'atencao' ? 'Com cuidado' : 'Fora'} /> : null}
               </View>
               {a.condicoes ? (
                 <T variante="pequeno">
